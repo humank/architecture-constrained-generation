@@ -1,5 +1,9 @@
 # Chapter 16: Walkthrough — The Coffeeshop
 
+![Barista preparing coffee in a coffee shop — the complete walkthrough example](https://images.unsplash.com/photo-1565461133566-e35e9e120d5f?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"In theory, theory and practice are the same. In practice, they are not."* — Albert Einstein
 >
 > This chapter closes that gap. One requirements document in, running microservices out.
@@ -238,6 +242,8 @@ These decisions are recorded in `assessment-1.md` and constrain every subsequent
 **Preparation → Inventory**: Conformist. Preparation emits `StockLevelDropped` when ingredients are consumed. Inventory conforms to whatever Preparation publishes.
 
 ---
+
+![Building blocks — assembling the system piece by piece](https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=1200&h=400&fit=crop&q=80)
 
 ## Phase 3: Tactical Design
 
@@ -612,6 +618,8 @@ The pipeline pauses again before implementation:
 ```
 
 ---
+
+![Code on a screen — architecture-constrained implementation](https://images.unsplash.com/photo-1661877737564-3dfd7282efcb?w=1200&h=400&fit=crop&q=80)
 
 ## Phase 8: Implementation
 

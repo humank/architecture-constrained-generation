@@ -1,5 +1,9 @@
 # Chapter 5: Phase 2 — Strategic Design
 
+![Chess pieces on a board — strategic thinking and positioning](https://images.unsplash.com/photo-1528819622765-d6bcf132f793?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"Strategic design is the most valuable part of DDD — and the part most teams skip."* — Vaughn Vernon
 
 ---

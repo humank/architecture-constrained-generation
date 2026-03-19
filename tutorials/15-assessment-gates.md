@@ -1,5 +1,9 @@
 # Chapter 15: Assessment Gates
 
+![Shield and security — gatekeeping critical architecture decisions](https://images.unsplash.com/photo-1733317239304-a6bf462a2596?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"The best architectures emerge from self-organizing teams — but self-organizing doesn't mean self-deciding on infrastructure."* — Adapted from the Agile Manifesto
 >
 > Assessment gates are where the human exercises **architectural authority**. The AI proposes. The human disposes.
@@ -309,6 +313,8 @@ proceeding to code generation?
 ```
 
 ---
+
+![Checklist being marked — structured technology decisions](https://images.unsplash.com/photo-1754548930574-6a995e5eb5a7?w=1200&h=400&fit=crop&q=80)
 
 ## Pre-Phase 8: Technology Stack Assessment
 

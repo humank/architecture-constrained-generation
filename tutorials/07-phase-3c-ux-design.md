@@ -1,5 +1,9 @@
 # Chapter 7: Phase 3c — UX Design
 
+![Color palette and design tools — domain-driven visual design](https://images.unsplash.com/photo-1669905375115-c616b9f36e84?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"The domain model constrains the UX, not the other way around."*
 
 ---

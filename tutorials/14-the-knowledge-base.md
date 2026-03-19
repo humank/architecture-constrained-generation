@@ -1,5 +1,9 @@
 # Chapter 14: The Knowledge Base
 
+![Rows of books in a library — 50+ methodology reference documents](https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"If I have seen further, it is by standing on the shoulders of giants."* — Isaac Newton
 >
 > ACG's knowledge base is those shoulders — 58 reference documents encoding the precise definitions from Evans, Vernon, Brandolini, Dymitruk, Martin, Beck, Fowler, and a dozen more.

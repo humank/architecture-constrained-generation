@@ -1,5 +1,9 @@
 # Chapter 2: The Methodology Map
 
+![Compass on a map — charting the methodology landscape](https://images.unsplash.com/photo-1488375634201-b85b28653a79?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"Each of these methodologies solves a piece of the puzzle. ACG is the jigsaw frame that holds them all together."*
 
 ---
@@ -59,6 +63,8 @@ ACG solves this by defining **exactly when** each methodology applies and **how 
 Each `██` marks where a methodology is actively applied. Notice how they layer — later phases build on earlier ones rather than replacing them.
 
 ---
+
+![Colorful sticky notes on glass wall — methodologies working together](https://images.unsplash.com/photo-1758691736934-e5d6d0c7f875?w=1200&h=400&fit=crop&q=80)
 
 ## How Methodologies Flow Into Each Other
 

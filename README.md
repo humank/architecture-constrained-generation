@@ -1,5 +1,7 @@
 # Architecture Constrained Generation (ACG)
 
+![Architecture blueprint — from design to code](https://images.unsplash.com/photo-1721244654392-9c912a6eb236?w=1200&h=400&fit=crop&q=80)
+
 > **From requirements to running code — with every line traceable to an architecture decision.**
 
 Architecture Constrained Generation is a [Claude Code](https://claude.com/claude-code) skill that transforms business requirements into a fully implemented system through a 9-phase pipeline. It combines 20+ software engineering methodologies — DDD, Event Storming, Event Modeling, BDD, TDD, Clean Architecture, XP, and more — into a single coherent workflow.
@@ -134,11 +136,20 @@ architecture-constrained-generation/
 | `/glossary` | `/glossary show\|add\|search\|validate` | Manage the Ubiquitous Language |
 | `/refactoring-advisor` | `/refactoring-advisor` | Analyze code for smells with refactoring suggestions |
 
-## Documentation
+## Tutorials — The Complete Guide
 
-For a comprehensive guide to ACG's design philosophy, methodology integration, and usage:
+[![Tutorials](https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=800&h=250&fit=crop&q=80)](./tutorials/README.md)
 
-**[Read the Full Tutorial](./tutorials/README.md)** — 17 chapters covering everything from the vision to a complete walkthrough.
+For a comprehensive, O'Reilly-style guide to ACG's design philosophy, methodology integration, and real-world usage:
+
+**[Read the Full Tutorial →](./tutorials/README.md)** — 17 chapters in 4 parts
+
+| Part | Chapters | What You'll Learn |
+|------|----------|-------------------|
+| **I. The Vision** | [01](./tutorials/01-why-architecture-constrained-generation.md)–[02](./tutorials/02-the-methodology-map.md) | Why ACG exists, how 20+ methodologies weave together |
+| **II. The Nine Phases** | [03](./tutorials/03-phase-0-requirements.md)–[12](./tutorials/12-phase-8-implementation.md) | Deep dive into each phase: Requirements → Discovery → Strategic → Tactical → UX → Specification → Delivery → Review → Documentation → Implementation |
+| **III. The Engine Room** | [13](./tutorials/13-quality-gates-and-feedback-loops.md)–[15](./tutorials/15-assessment-gates.md) | Quality gates (27 anti-patterns), feedback loops (29), knowledge base (50+ docs), assessment gates |
+| **IV. Putting It Together** | [16](./tutorials/16-walkthrough-coffeeshop.md)–[17](./tutorials/17-getting-started.md) | Complete coffeeshop walkthrough, installation & getting started |
 
 ## Output Artifacts
 

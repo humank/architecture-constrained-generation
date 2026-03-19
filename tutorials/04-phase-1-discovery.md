@@ -1,5 +1,9 @@
 # Chapter 4: Phase 1 — Discovery
 
+![Team brainstorming with sticky notes on glass wall — collaborative discovery](https://images.unsplash.com/photo-1758691736836-0413b066787a?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"The goal of Event Storming is to bring all the right people in one room and use the right notation to explore the domain." — Alberto Brandolini*
 >
 > ACG simulates that room — with domain knowledge encoded in the knowledge base.
@@ -79,6 +83,8 @@ story:
 | **Purity** | As-is (how it works now) → To-be (how it should work) | Model both to find gaps |
 
 ---
+
+![Colorful sticky notes arranged for event storming workshop](https://images.unsplash.com/photo-1758691736934-e5d6d0c7f875?w=1200&h=400&fit=crop&q=80)
 
 ## Step 2: Event Storming
 

@@ -1,5 +1,9 @@
 # Chapter 13: Quality Gates & Feedback Loops
 
+![Magnifying glass examining code — quality inspection at every gate](https://images.unsplash.com/photo-1516382799247-87df95d790b7?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"Mistakes are the portals of discovery."* — James Joyce
 >
 > ACG does not merely discover mistakes — it **routes them back to the phase that can fix them**.
@@ -161,6 +165,8 @@ While anti-pattern guards check for local problems within a phase, consistency t
 **Example violation**: The Menu Board page queries the menu API but has no error boundary. When the backend is down, the user sees a blank white screen with no indication of what went wrong.
 
 ---
+
+![Compass on navigation map — feedback loops guiding back to the right path](https://images.unsplash.com/photo-1566341013452-946caa457784?w=1200&h=400&fit=crop&q=80)
 
 ## Feedback Loops (29 Loops)
 

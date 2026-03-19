@@ -1,5 +1,9 @@
 # Chapter 3: Phase 0 — Requirements
 
+![Sticky notes on a planning wall — capturing requirements visually](https://images.unsplash.com/photo-1677506050626-90651f770d0a?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"If you don't know where you're going, any road will take you there."*
 > — paraphrasing Lewis Carroll
 >
@@ -53,6 +57,8 @@ Each deliverable gets:
 - Priority via **MoSCoW** (Must / Should / Could / Won't)
 
 ---
+
+![Whiteboard with organized sticky notes — mapping user stories](https://images.unsplash.com/photo-1676277757211-ebd7fdeb3d5b?w=1200&h=400&fit=crop&q=80)
 
 ## User Story Mapping (Jeff Patton)
 

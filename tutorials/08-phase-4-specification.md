@@ -1,5 +1,9 @@
 # Chapter 8: Phase 4 — Specification
 
+![Hand marking off items on a checklist — executable specifications](https://images.unsplash.com/photo-1754548930574-6a995e5eb5a7?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"BDD is not about testing. It's about having conversations that produce shared understanding, which we then automate."* — Seb Rose
 
 ---
@@ -123,6 +127,8 @@ Test Pyramid          Testing Trophy         Testing Honeycomb
 | BC-to-BC contract | Contract | Schema compatibility |
 
 ---
+
+![Magnifying glass examining details — security threat analysis](https://images.unsplash.com/photo-1568495341369-1066472c7a27?w=1200&h=400&fit=crop&q=80)
 
 ## STRIDE Threat Modeling
 

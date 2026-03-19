@@ -1,5 +1,9 @@
 # Chapter 12: Phase 8 — Implementation
 
+![Code on a laptop screen — translating architecture into implementation](https://images.unsplash.com/photo-1661877737564-3dfd7282efcb?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"The purpose of software engineering is to control complexity, not to create it."* — Pamela Zave
 >
 > Phase 8 is where all prior architecture artifacts converge into code. **You do NOT invent — you translate design into code.**
@@ -88,6 +92,8 @@ Once the stack is confirmed, a **constraints checklist** is applied. Here is the
 | **Optimistic locking** | No versioning | `@Version` on every aggregate root |
 
 ---
+
+![Building blocks — assembling code from architecture patterns](https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=1200&h=400&fit=crop&q=80)
 
 ## Java 21 DDD Pattern Guide
 

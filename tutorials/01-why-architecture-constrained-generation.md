@@ -1,5 +1,9 @@
 # Chapter 1: Why Architecture Constrained Generation
 
+![Architecture blueprints representing the gap between design and code](https://images.unsplash.com/photo-1721244654392-9c912a6eb236?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"Plans are worthless, but planning is everything."* — Dwight D. Eisenhower
 >
 > ACG takes this further: **Plans are essential, and they should generate the code.**
@@ -26,6 +30,8 @@ Traditional Approach:
                         │                   │
                         └─── (ignored) ─────┘
 ```
+
+![Compass on a map — navigating the gap between architecture and implementation](https://images.unsplash.com/photo-1524146128017-b9dd0bfd2778?w=1200&h=400&fit=crop&q=80)
 
 ## The Three Failures
 

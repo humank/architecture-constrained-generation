@@ -1,5 +1,9 @@
 # Chapter 10: Phase 6 — Architecture Review
 
+![Magnifying glass on documents — systematic architecture review](https://images.unsplash.com/photo-1586769852836-bc069f19e1b6?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"Architecture is the decisions you wish you could get right early."* — Ralph Johnson
 >
 > Phase 6 is the systematic check that you **did** get them right.

@@ -1,5 +1,9 @@
 # Chapter 6: Phase 3 — Tactical Design
 
+![Colorful building blocks — assembling tactical design components](https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"The model is the code, and the code is the model."* — Eric Evans
 >
 > Phase 3 is where domain knowledge becomes executable structure.

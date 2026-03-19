@@ -1,5 +1,9 @@
 # Chapter 9: Phase 5 — Delivery
 
+![Factory conveyor belt — automated delivery pipeline](https://images.unsplash.com/photo-1727373203579-7b8984cb8120?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"You build it, you run it."* — Werner Vogels
 >
 > Phase 5 ensures you can run it well — with pipelines, infrastructure, observability, and SLOs.
@@ -43,6 +47,8 @@ Phase 5 produces the operational backbone:
 | **Generic** | Rolling update | Simplest, acceptable for non-critical |
 
 ---
+
+![Model factory with conveyor belt — infrastructure modeled as code](https://images.unsplash.com/photo-1734238734314-38f47a6e3931?w=1200&h=400&fit=crop&q=80)
 
 ## Infrastructure as Code: Not Stubs, Real Code
 

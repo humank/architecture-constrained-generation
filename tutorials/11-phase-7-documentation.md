@@ -1,5 +1,9 @@
 # Chapter 11: Phase 7 — Documentation
 
+![Stack of books — living documentation that stays current](https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"The only documentation that matters is the documentation that people actually read."* — Simon Brown
 >
 > Phase 7 turns architecture artifacts into **living diagrams** — Mermaid files that render everywhere, trace to every decision, and never go stale.
@@ -273,6 +277,8 @@ sequenceDiagram
 **Derivation**: The vertical flow maps directly to the Phase 1 Event Storming process-level model. The command (`placeOrder`), aggregate (`Order`), and event (`OrderPlaced`) all appear on the event storming board. The API endpoint comes from the Phase 3 API contract.
 
 ---
+
+![Flowchart diagrams — visualizing system behavior](https://images.unsplash.com/photo-1683133924436-a7afbdf8cd25?w=1200&h=400&fit=crop&q=80)
 
 ## 4. State Machine Diagrams
 

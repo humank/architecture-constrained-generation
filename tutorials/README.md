@@ -1,5 +1,9 @@
 # Architecture Constrained Generation: The Complete Guide
 
+![Compass on a map — navigating from requirements to running code](https://images.unsplash.com/photo-1488375634201-b85b28653a79?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *From requirements to running code — a methodology that fuses 20+ years of software architecture wisdom into a single AI-orchestrated workflow.*
 
 ---

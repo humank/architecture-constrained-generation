@@ -1,5 +1,9 @@
 # Chapter 17: Getting Started
 
+![Rocket launch — getting started with Architecture Constrained Generation](https://images.unsplash.com/photo-1680391380341-b67592040e21?w=1200&h=400&fit=crop&q=80)
+
+*Photo by [Unsplash](https://unsplash.com) — Free to use under [Unsplash License](https://unsplash.com/license)*
+
 > *"The secret of getting ahead is getting started."* — Mark Twain
 >
 > You've read the theory. Now **run it**.
