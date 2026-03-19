@@ -1,0 +1,81 @@
+{{- range $key, $svc := .Values.services }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $svc.name }}
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    app: {{ $svc.name }}
+    app.kubernetes.io/name: {{ $svc.name }}
+    app.kubernetes.io/part-of: coffeeshop
+spec:
+  replicas: {{ $svc.replicas }}
+  selector:
+    matchLabels:
+      app: {{ $svc.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $svc.name }}
+        app.kubernetes.io/name: {{ $svc.name }}
+        app.kubernetes.io/part-of: coffeeshop
+    spec:
+      serviceAccountName: {{ $svc.serviceAccount }}
+      containers:
+        - name: {{ $svc.name }}
+          image: "{{ $.Values.global.image.registry }}/{{ $svc.image.repository }}:{{ $svc.image.tag }}"
+          ports:
+            - containerPort: {{ $svc.port }}
+              protocol: TCP
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: coffeeshop-config
+                  key: spring.profiles.active
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://{{ $.Values.global.db.host }}:{{ $.Values.global.db.port }}/{{ $.Values.global.db.name }}?currentSchema={{ $svc.schema }}"
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: coffeeshop-db-credentials
+                  key: username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: coffeeshop-db-credentials
+                  key: password
+            - name: SPRING_FLYWAY_SCHEMAS
+              value: {{ $svc.schema }}
+            - name: AWS_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: coffeeshop-config
+                  key: aws.region
+            {{- range $envKey, $envVal := $svc.env }}
+            - name: {{ $envKey }}
+              value: {{ $envVal | quote }}
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: {{ $svc.healthCheck.path }}
+              port: {{ $svc.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: {{ $svc.healthCheck.path }}
+              port: {{ $svc.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: {{ $svc.resources.requests.memory }}
+              cpu: {{ $svc.resources.requests.cpu }}
+            limits:
+              memory: {{ $svc.resources.limits.memory }}
+              cpu: {{ $svc.resources.limits.cpu }}
+{{- end }}

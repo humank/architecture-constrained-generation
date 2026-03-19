@@ -1,0 +1,51 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: coffeeshop-ingress
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    {{- range $key, $value := .Values.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /api/waiter
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.services.ordering.name }}
+                port:
+                  number: {{ .Values.services.ordering.port }}
+          - path: /api/cashier
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.services.ordering.name }}
+                port:
+                  number: {{ .Values.services.ordering.port }}
+          - path: /api/barista/preparations
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.services.preparation.name }}
+                port:
+                  number: {{ .Values.services.preparation.port }}
+          - path: /api/barista/inventory
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.services.inventory.name }}
+                port:
+                  number: {{ .Values.services.inventory.port }}
+          - path: /api/reporting
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.services.reporting.name }}
+                port:
+                  number: {{ .Values.services.reporting.port }}
+{{- end }}
