@@ -4,7 +4,7 @@
 
 > **From requirements to running code — with every line traceable to an architecture decision.**
 
-Architecture Constrained Generation is a [Claude Code](https://claude.com/claude-code) skill that transforms business requirements into a fully implemented system through a 9-phase pipeline. It combines 20+ software engineering methodologies — DDD, Event Storming, Event Modeling, BDD, TDD, Clean Architecture, XP, and more — into a single coherent workflow.
+Architecture Constrained Generation is a [Claude Code](https://claude.com/claude-code) skill that transforms business requirements into a fully implemented, deployed, and verified system through a 10-phase pipeline. It combines 20+ software engineering methodologies — DDD, Event Storming, Event Modeling, BDD, TDD, Clean Architecture, XP, and more — into a single coherent workflow.
 
 ## The Core Idea
 
@@ -14,7 +14,7 @@ ACG asks: *"Given these bounded contexts, these aggregate invariants, these BDD 
 
 The difference is the **constraint chain**. Each phase produces artifacts that constrain the next phase, creating a traceable path from business requirements to working code.
 
-## The Nine Phases
+## The Ten Phases
 
 ```
 Phase 0: Requirements    → Impact Map, Story Map, Ubiquitous Language
@@ -27,12 +27,15 @@ Phase 5: Delivery         → CI/CD Pipeline, IaC (CDK/Terraform), Observability
 Phase 6: Review           → 7 Viewpoints, 10 Perspectives, Anti-Pattern Detection, ADRs
 Phase 7: Documentation    → C4 Diagrams, Domain Models, Sequence Diagrams (all Mermaid)
 Phase 8: Implementation   → Architecture-constrained code generation with TDD
+Phase 9: Deploy & Verify  → Deploy to target environment, post-deployment verification
 ```
 
 ## Key Features
 
 - **Human-in-the-loop**: Mandatory assessment gates before architecture decisions (Phase 2) and technology stack (Phase 8)
 - **Self-correcting**: 27 anti-pattern guards, 6 consistency threads, 29 feedback loops
+- **Cross-layer type safety**: 8 cross-layer type contract checks (CL-1 to CL-8) prevent frontend↔backend drift at the architecture level
+- **Testing golden triangle**: Unit tests → Integration tests (cross-layer curl) → E2E tests → Post-deployment verification — no layer can be skipped
 - **Resumable**: All state is in `.arch/` files — run `/architect` again to continue from where you left off
 - **Knowledge-powered**: 50+ reference documents spanning 20+ methodologies ensure precise, methodology-faithful outputs
 - **Living documentation**: All diagrams in Mermaid + Markdown, previewable in VS Code and GitHub
@@ -63,6 +66,7 @@ The orchestrator will:
 3. Pause at assessment gates for your decisions
 4. Run quality gates between phases
 5. Generate constrained, tested code
+6. Deploy to target environment and verify with post-deployment checks (Phase 9)
 
 ### Use Your Own Requirements
 
@@ -81,18 +85,18 @@ Or describe your system inline:
 ```
 architecture-constrained-generation/
 ├── .claude/commands/
-│   ├── architect.md              # Main orchestrator (9-phase pipeline)
+│   ├── architect.md              # Main orchestrator (10-phase pipeline)
 │   ├── phase/
 │   │   ├── 00-requirements.md    # Impact Mapping, Story Mapping
 │   │   ├── 01-discovery.md       # Event Storming, Event Modeling
 │   │   ├── 02-strategic.md       # Bounded Contexts, Context Maps
-│   │   ├── 03-tactical.md        # Aggregates, API Contracts, Actor Views
+│   │   ├── 03-tactical.md        # Aggregates, API Contracts, Cross-Layer Type Contract
 │   │   ├── 03c-ux-design.md      # Design System, Accessibility
-│   │   ├── 04-specification.md   # BDD, Threat Model, Test Strategy
-│   │   ├── 05-delivery.md        # CI/CD, IaC, Observability
-│   │   ├── 06-review.md          # R&W Viewpoints, Perspectives, ADRs
+│   │   ├── 04-specification.md   # BDD, Contract Tests, Query Endpoint Scenarios
+│   │   ├── 05-delivery.md        # CI/CD, IaC, Post-Deployment Verification
+│   │   ├── 06-review.md          # R&W Viewpoints, Perspectives, Cross-Layer Consistency
 │   │   ├── 07-documentation.md   # C4 Diagrams, Mermaid documentation
-│   │   └── 08-implementation.md  # Code generation, Java 21 DDD patterns
+│   │   └── 08-implementation.md  # Code generation, Testing Golden Triangle, Deploy
 │   └── util/
 │       ├── assessment.md         # Assessment gate protocol
 │       ├── quality-gate.md       # 27 anti-patterns, 6 threads, 29 loops
@@ -121,10 +125,46 @@ architecture-constrained-generation/
 | **Discovery** | Impact Mapping (Adzic), User Story Mapping (Patton), Domain Storytelling |
 | **Domain Modeling** | DDD (Evans), Event Storming (Brandolini), Event Modeling (Dymitruk) |
 | **Architecture** | Clean Architecture (Martin), Hexagonal/Ports & Adapters, C4 Model (Brown) |
-| **Quality** | BDD (North), TDD (Beck), XP (Beck), SOLID, GRASP |
+| **Quality** | BDD (North), TDD (Beck), XP (Beck), SOLID, GRASP, Consumer-Driven Contract Testing |
 | **Review** | Rozanski & Woods (7 Viewpoints, 10 Perspectives), STRIDE Threat Modeling |
+| **Cross-Layer** | 8 Type Contract Checks (CL-1–CL-8), Testing Golden Triangle |
 | **Operations** | Observability (Three Pillars), SLI/SLO, AWS Well-Architected Framework |
-| **Delivery** | Continuous Delivery, Contract Testing (Pact), Infrastructure as Code |
+| **Delivery** | Continuous Delivery, Contract Testing (Pact), Infrastructure as Code, Post-Deployment Verification |
+
+## Cross-Layer Type Contract
+
+A key challenge in full-stack systems is **frontend↔backend drift** — where the backend serializes data one way and the frontend expects another. ACG prevents this with 8 mandatory checks enforced across Phases 3, 4, and 8:
+
+| Check | What it Prevents |
+|-------|-----------------|
+| **CL-1** Semantic filter vs enum literal | `?status=active` is NOT an enum value — needs explicit controller logic |
+| **CL-2** Enum value casing | Java `PLACED` vs frontend `Placed` — serialization format must be specified |
+| **CL-3** Money representation | Is `totalAmount: 120` in dollars or cents? Backend and frontend must agree |
+| **CL-4** DateTime format | Jackson `LocalDateTime` → array by default, but frontend expects ISO-8601 string |
+| **CL-5** Null vs empty collection | `items: null` vs `items: []` — frontend `items.filter()` crashes on null |
+| **CL-6** Boolean serialization | Java `boolean isActive` → JSON `{"active": true}` (Jackson drops `is` prefix) |
+| **CL-7** Pagination envelope | `{ content: [], totalPages }` vs flat array — frontend must know the shape |
+| **CL-8** Error response shape | JSON `{error, message, timestamp}` vs HTML Whitelabel — frontend must parse it |
+
+These checks are:
+- **Defined** in Phase 3 (`frontend-architecture.yaml` → `cross_layer_type_contract`)
+- **Specified** in Phase 4 (BDD scenarios in `cross-layer-integrity.feature`, consumer-driven contracts in `frontend-backend.yaml`)
+- **Reviewed** in Phase 6 (`cross-phase-consistency.md` → Thread 6: Cross-Layer Type Consistency)
+- **Tested** in Phase 8 (backend `@WebMvcTest` + frontend MSW integration tests)
+- **Verified** in Phase 9 (curl against deployed URLs)
+
+## Testing Golden Triangle
+
+ACG enforces a layered testing strategy where **no layer can be skipped**:
+
+```
+Unit Tests (domain logic)
+  └→ Integration Tests (cross-layer curl with exact frontend query params)
+       └→ E2E Tests (Playwright critical user journeys)
+            └→ Post-Deployment Verification (same checks against deployed URLs)
+```
+
+Phase 8 generates all test layers. Phase 9 runs the post-deployment verification — confirming that what passed locally also passes in the real environment (CloudFront, ALB, EKS).
 
 ## Utility Skills
 
@@ -147,7 +187,7 @@ For a comprehensive, O'Reilly-style guide to ACG's design philosophy, methodolog
 | Part | Chapters | What You'll Learn |
 |------|----------|-------------------|
 | **I. The Vision** | [01](./tutorials/01-why-architecture-constrained-generation.md)–[02](./tutorials/02-the-methodology-map.md) | Why ACG exists, how 20+ methodologies weave together |
-| **II. The Nine Phases** | [03](./tutorials/03-phase-0-requirements.md)–[12](./tutorials/12-phase-8-implementation.md) | Deep dive into each phase: Requirements → Discovery → Strategic → Tactical → UX → Specification → Delivery → Review → Documentation → Implementation |
+| **II. The Ten Phases** | [03](./tutorials/03-phase-0-requirements.md)–[12](./tutorials/12-phase-8-implementation.md) | Deep dive into each phase: Requirements → Discovery → Strategic → Tactical → UX → Specification → Delivery → Review → Documentation → Implementation → Deploy & Verify |
 | **III. The Engine Room** | [13](./tutorials/13-quality-gates-and-feedback-loops.md)–[15](./tutorials/15-assessment-gates.md) | Quality gates (27 anti-patterns), feedback loops (29), knowledge base (50+ docs), assessment gates |
 | **IV. Putting It Together** | [16](./tutorials/16-walkthrough-coffeeshop.md)–[17](./tutorials/17-getting-started.md) | Complete coffeeshop walkthrough, installation & getting started |
 
@@ -163,14 +203,18 @@ When you run `/architect`, all design artifacts are written to `.arch/`:
 ├── 00-requirements/              # Impact map, story map, parsed requirements
 ├── 01-discovery/                 # Event storm, event model
 ├── 02-strategic/                 # Bounded contexts, context map
-├── 03-tactical/                  # Aggregates, domain models, API contracts
+├── 03-tactical/                  # Aggregates, domain models, API contracts, cross-layer type contract
 ├── 03c-ux-design/                # UX design report
-├── 04-specification/             # BDD features, contracts, threat model
-├── 05-delivery/                  # Pipeline, observability, runbooks
-├── 06-review/                    # Viewpoints, perspectives, ADRs
+├── 04-specification/
+│   ├── features/                 # BDD features including query-endpoints and cross-layer-integrity
+│   └── contracts/                # Consumer-driven contracts (frontend-backend.yaml)
+├── 05-delivery/                  # Pipeline (8 stages + post-deployment), observability, runbooks
+├── 06-review/                    # Viewpoints, perspectives, ADRs, cross-phase-consistency
 ├── 07-documentation/             # C4 diagrams, domain models, sequences
-├── 08-implementation/            # Implementation report
-└── quality-reports/              # Quality gate reports
+├── 08-implementation/            # Implementation report with post-deployment verification results
+└── quality-reports/
+    ├── pipeline-run-report.yaml
+    └── deployment-verification.yaml  # Post-deployment check results (Phase 9)
 ```
 
 Executable code is generated at the project root (`iac/`, `k8s/`, and application source code).
