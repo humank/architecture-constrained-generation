@@ -1,0 +1,202 @@
+frontend_backend_contracts:
+  description: >
+    Consumer-driven contracts between the React SPA (consumer) and backend REST APIs (providers).
+    Every entry maps a frontend API call to its backend endpoint with exact parameter and response field mapping.
+    Generated from Phase 3 frontend-architecture.yaml api_contract section.
+
+  contracts:
+    # === Ordering Service ===
+
+    - consumer: "frontend/pages/WaiterOrdersPage"
+      provider: "ordering-service/OrderController"
+      interaction:
+        method: GET
+        path: "/api/orders"
+        query_params:
+          - name: status
+            value: "active"
+            type: semantic_filter
+            frontend_source: "useOrders('active') in hooks/useOrders.ts"
+            backend_handler: "if('active'.equalsIgnoreCase(status)) → findByStatusNot(COMPLETED)"
+        response:
+          status: 200
+          content_type: "application/json"
+          body_type: "array"
+          fields:
+            - { name: orderId, type: string, format: UUID }
+            - { name: tableNumber, type: int, range: "1-5" }
+            - { name: status, type: string, enum: OrderStatus }
+            - { name: totalAmount, type: int, unit: "TWD whole number" }
+            - { name: items, type: array, nullable: false, empty_value: "[]" }
+            - { name: placedAt, type: string, format: "ISO-8601" }
+
+    - consumer: "frontend/pages/WaiterReadyOrdersPage"
+      provider: "ordering-service/OrderController"
+      interaction:
+        method: GET
+        path: "/api/orders"
+        query_params:
+          - name: status
+            value: "Ready"
+            type: enum_literal
+            frontend_source: "useOrders('Ready') in hooks/useOrders.ts"
+            backend_handler: "Enum.valueOf('READY') → findByStatus(READY)"
+        response:
+          status: 200
+          content_type: "application/json"
+          body_type: "array"
+          fields:
+            - { name: orderId, type: string, format: UUID }
+            - { name: tableNumber, type: int }
+            - { name: status, type: string, value: "Ready" }
+            - { name: totalAmount, type: int, unit: "TWD whole number" }
+            - { name: items, type: array, nullable: false }
+            - { name: placedAt, type: string, format: "ISO-8601" }
+
+    - consumer: "frontend/pages/CashierPendingOrdersPage"
+      provider: "ordering-service/OrderController"
+      interaction:
+        method: GET
+        path: "/api/orders"
+        query_params:
+          - name: status
+            value: "Placed"
+            type: enum_literal
+            frontend_source: "useOrders('Placed')"
+            backend_handler: "Enum.valueOf('PLACED') → findByStatus(PLACED)"
+        response:
+          status: 200
+          content_type: "application/json"
+          body_type: "array"
+          fields:
+            - { name: orderId, type: string, format: UUID }
+            - { name: tableNumber, type: int }
+            - { name: status, type: string, value: "Placed" }
+            - { name: totalAmount, type: int, unit: "TWD whole number" }
+            - { name: items, type: array, nullable: false }
+            - { name: placedAt, type: string, format: "ISO-8601" }
+
+    - consumer: "frontend/pages/CashierPaymentPage"
+      provider: "ordering-service/OrderController"
+      interaction:
+        method: GET
+        path: "/api/orders"
+        query_params:
+          - name: status
+            value: "Confirmed"
+            type: enum_literal
+            frontend_source: "useOrders('Confirmed')"
+            backend_handler: "Enum.valueOf('CONFIRMED') → findByStatus(CONFIRMED)"
+        response:
+          status: 200
+          content_type: "application/json"
+          body_type: "array"
+
+    - consumer: "frontend/pages/CashierPaymentPage"
+      provider: "ordering-service/OrderController"
+      interaction:
+        method: POST
+        path: "/api/orders/{orderId}/pay"
+        request:
+          body:
+            - { name: cashReceived, type: int, unit: "TWD whole number" }
+        response:
+          status: 200
+          content_type: "application/json"
+          body_type: "object"
+          fields:
+            - { name: orderId, type: string, format: UUID }
+            - { name: totalAmount, type: int, unit: "TWD whole number" }
+            - { name: cashReceived, type: int, unit: "TWD whole number" }
+            - { name: changeGiven, type: int, unit: "TWD whole number" }
+            - { name: status, type: string, value: "Paid" }
+
+    # === Preparation Service ===
+
+    - consumer: "frontend/pages/BaristaQueuePage"
+      provider: "preparation-service/PreparationController"
+      interaction:
+        method: GET
+        path: "/api/preparations"
+        query_params:
+          - name: status
+            value: "Pending,InProgress"
+            type: semantic_filter
+            frontend_source: "usePreparations('Pending,InProgress')"
+            backend_handler: "Split by comma → findByStatusIn([PENDING, IN_PROGRESS])"
+        response:
+          status: 200
+          content_type: "application/json"
+          body_type: "array"
+          fields:
+            - { name: preparationId, type: string, format: UUID }
+            - { name: orderId, type: string, format: UUID }
+            - { name: tableNumber, type: int }
+            - { name: status, type: string, enum: PreparationStatus }
+            - { name: items, type: array, nullable: false }
+
+    # === Inventory Service ===
+
+    - consumer: "frontend/pages/BaristaInventoryPage"
+      provider: "inventory-service/InventoryController"
+      interaction:
+        method: GET
+        path: "/api/inventory"
+        query_params: []
+        response:
+          status: 200
+          content_type: "application/json"
+          body_type: "array"
+          fields:
+            - { name: materialId, type: string }
+            - { name: materialName, type: string }
+            - { name: currentLevel, type: number }
+            - { name: maxCapacity, type: number }
+            - { name: percentage, type: number }
+            - { name: alertTriggered, type: boolean, jackson_note: "NOT isAlertTriggered — Java boolean field serializes without 'is' prefix" }
+
+    # === Reporting Service ===
+
+    - consumer: "frontend/pages/CashierSalesReportPage"
+      provider: "reporting-service/ReportingController"
+      interaction:
+        method: GET
+        path: "/api/reporting/sales"
+        query_params: []
+        response:
+          status: 200
+          content_type: "application/json"
+          body_type: "object"
+          projection_type: "aggregated"
+          fields:
+            - { name: totalOrders, type: int }
+            - { name: totalRevenue, type: int, unit: "TWD whole number" }
+            - { name: averageOrderValue, type: int, unit: "TWD whole number" }
+            - { name: ordersByHour, type: array, nullable: false, empty_value: "[]", items: "{ hour: string, count: int }" }
+
+  error_contracts:
+    description: "Standard error response shape for all backend services"
+    shape:
+      status: int
+      error: string
+      message: string
+      timestamp: string (ISO-8601)
+      path: string
+    notes:
+      - "Uses Spring Boot default error format"
+      - "Frontend error interceptor expects this exact shape"
+      - "Backend must NOT return HTML error pages for API endpoints"
+      - "4xx errors: include domain-specific message (e.g., 'Insufficient payment')"
+      - "5xx errors: generic message, log details server-side"
+
+  verification_checklist:
+    description: "Phase 8 Step 13.2 must verify each contract by curling the exact URL"
+    steps:
+      - "For each contract: curl the exact path + query params"
+      - "Verify HTTP status matches expected"
+      - "Verify Content-Type is application/json"
+      - "Verify response body_type matches (array vs object)"
+      - "Verify every field name exists in response"
+      - "Verify field types match (especially int for money, string for dates)"
+      - "Verify null collections return [] not null"
+      - "Verify boolean field names match Jackson serialization (no 'is' prefix)"

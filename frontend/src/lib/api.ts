@@ -15,7 +15,14 @@ const api = axios.create({
 });
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Guard against CloudFront returning HTML (e.g. index.html) for unknown paths
+    const ct = response.headers["content-type"] || "";
+    if (!ct.includes("application/json")) {
+      return Promise.reject(new Error("Backend service is unavailable"));
+    }
+    return response;
+  },
   (error: AxiosError) => {
     let message = "An unexpected error occurred";
     if (error.response) {

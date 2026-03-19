@@ -36,8 +36,14 @@ frontend_architecture:
           data_source:
             endpoint: "GET /api/orders?status=Ready"
             service: ordering-service
+            query_params:
+              - name: status
+                value: "Ready"
+                type: enum_literal
+                enum: OrderStatus
+                description: "Exact OrderStatus enum value — backend uses Enum.valueOf()"
             loading_state: "Skeleton list"
-            error_state: "Retry banner"
+            error_state: "Retry banner: 'Unable to load orders. Tap to retry.'"
             empty_state: "Illustration: 'No orders ready yet'"
           row_action:
             endpoint: "PATCH /api/orders/{orderId}/deliver"
@@ -50,8 +56,16 @@ frontend_architecture:
           data_source:
             endpoint: "GET /api/orders?status=active"
             service: ordering-service
+            query_params:
+              - name: status
+                value: "active"
+                type: semantic_filter
+                description: >
+                  NOT an OrderStatus enum value. 'active' means all non-COMPLETED orders.
+                  Backend MUST have explicit if-branch: if("active".equalsIgnoreCase(status))
+                  → findByStatusNot(COMPLETED). Do NOT pass to Enum.valueOf().
             loading_state: "Skeleton list"
-            error_state: "Retry banner"
+            error_state: "Retry banner: 'Unable to load orders. Tap to retry.'"
             empty_state: "Illustration: 'No active orders'"
           row_action:
             endpoint: "PATCH /api/orders/{orderId}/complete"
@@ -66,8 +80,14 @@ frontend_architecture:
           data_source:
             endpoint: "GET /api/orders?status=Placed"
             service: ordering-service
+            query_params:
+              - name: status
+                value: "Placed"
+                type: enum_literal
+                enum: OrderStatus
+                description: "Exact OrderStatus enum value"
             loading_state: "Skeleton list"
-            error_state: "Retry banner"
+            error_state: "Retry banner: 'Unable to load orders. Tap to retry.'"
             empty_state: "Illustration: 'No pending orders'"
           row_action:
             endpoint: "PATCH /api/orders/{orderId}/confirm"
@@ -80,8 +100,14 @@ frontend_architecture:
           data_source:
             endpoint: "GET /api/orders?status=Confirmed"
             service: ordering-service
+            query_params:
+              - name: status
+                value: "Confirmed"
+                type: enum_literal
+                enum: OrderStatus
+                description: "Exact OrderStatus enum value"
             loading_state: "Skeleton list"
-            error_state: "Retry banner"
+            error_state: "Retry banner: 'Unable to load orders. Tap to retry.'"
             empty_state: "Illustration: 'No orders awaiting payment'"
           submit_action:
             endpoint: "POST /api/orders/{orderId}/pay"
@@ -122,8 +148,16 @@ frontend_architecture:
           data_source:
             endpoint: "GET /api/preparations?status=Pending,InProgress"
             service: preparation-service
+            query_params:
+              - name: status
+                value: "Pending,InProgress"
+                type: semantic_filter
+                description: >
+                  Comma-separated filter for multiple PreparationStatus values.
+                  Backend MUST parse and handle as list filter, not single Enum.valueOf().
+                  Controller should split by comma and query for each status.
             loading_state: "Skeleton cards"
-            error_state: "Retry banner"
+            error_state: "Retry banner: 'Unable to load preparation queue. Tap to retry.'"
             empty_state: "Illustration: 'No orders in queue'"
           row_action:
             endpoint: "PATCH /api/preparations/{preparationId}/items/{itemId}/start"
@@ -150,7 +184,7 @@ frontend_architecture:
                 percentage: number
                 alertTriggered: boolean
             loading_state: "Skeleton progress bars"
-            error_state: "Retry banner"
+            error_state: "Retry banner: 'Unable to load inventory. Tap to retry.'"
             empty_state: "N/A — always has 4 materials"
 
         - page: "Replenishment"
@@ -160,7 +194,7 @@ frontend_architecture:
             endpoint: "GET /api/inventory/replenishments"
             service: inventory-service
             loading_state: "Skeleton list"
-            error_state: "Retry banner"
+            error_state: "Retry banner: 'Unable to load replenishments. Tap to retry.'"
             empty_state: "Illustration: 'No active replenishment requests'"
           submit_action:
             endpoint: "POST /api/inventory/{materialId}/replenish"
@@ -173,7 +207,203 @@ frontend_architecture:
       preparation: "/api/preparations"
       inventory: "/api/inventory"
       reporting: "/api/reporting"
+
+    query_endpoints:
+      - path: "GET /api/orders?status={value}"
+        service: ordering-service
+        query_params:
+          - name: status
+            valid_values:
+              - value: "active"
+                type: semantic_filter
+                backend_logic: "findByStatusNot(COMPLETED) — returns all non-completed orders"
+              - value: "Ready"
+                type: enum_literal
+                backend_logic: "findByStatus(OrderStatus.READY)"
+              - value: "Placed"
+                type: enum_literal
+                backend_logic: "findByStatus(OrderStatus.PLACED)"
+              - value: "Confirmed"
+                type: enum_literal
+                backend_logic: "findByStatus(OrderStatus.CONFIRMED)"
+        response_dto:
+          type: list
+          items:
+            orderId: string (UUID)
+            tableNumber: int
+            status: string (OrderStatus enum)
+            totalAmount: int (TWD, whole number — NOT cents)
+            items: list
+            placedAt: string (ISO-8601)
+
+      - path: "GET /api/preparations?status={value}"
+        service: preparation-service
+        query_params:
+          - name: status
+            valid_values:
+              - value: "Pending,InProgress"
+                type: semantic_filter
+                backend_logic: "Split by comma, findByStatusIn([PENDING, IN_PROGRESS])"
+        response_dto:
+          type: list
+          items:
+            preparationId: string (UUID)
+            orderId: string (UUID)
+            tableNumber: int
+            status: string (PreparationStatus enum)
+            items: list
+
+      - path: "GET /api/inventory"
+        service: inventory-service
+        query_params: []
+        response_dto:
+          type: list
+          items:
+            materialId: string
+            materialName: string
+            currentLevel: number
+            maxCapacity: number
+            percentage: number
+            alertTriggered: boolean
+
+      - path: "GET /api/reporting/sales"
+        service: reporting-service
+        query_params: []
+        response_dto:
+          type: object
+          projection_type: aggregated
+          fields:
+            totalOrders: int
+            totalRevenue: int (TWD, whole number)
+            averageOrderValue: int (TWD, whole number)
+            ordersByHour: list of { hour: string, count: int }
+
+    command_endpoints:
+      - path: "POST /api/orders"
+        service: ordering-service
+        actor: Waiter
+        command: PlaceOrder
+      - path: "PATCH /api/orders/{orderId}/confirm"
+        service: ordering-service
+        actor: Counter Staff
+        command: ConfirmOrder
+      - path: "POST /api/orders/{orderId}/pay"
+        service: ordering-service
+        actor: Counter Staff
+        command: ProcessPayment
+      - path: "PATCH /api/orders/{orderId}/deliver"
+        service: ordering-service
+        actor: Waiter
+        command: DeliverOrder
+      - path: "PATCH /api/orders/{orderId}/complete"
+        service: ordering-service
+        actor: Waiter
+        command: CompleteOrder
+      - path: "PATCH /api/preparations/{preparationId}/items/{itemId}/start"
+        service: preparation-service
+        actor: Barista
+        command: StartPreparation
+      - path: "PATCH /api/preparations/{preparationId}/items/{itemId}/complete"
+        service: preparation-service
+        actor: Barista
+        command: CompleteCoffeePreparation
+      - path: "POST /api/inventory/{materialId}/replenish"
+        service: inventory-service
+        actor: Barista
+        command: RequestReplenishment
+
+    shared_enums:
+      - name: OrderStatus
+        values: [Placed, Confirmed, Paid, Preparing, Ready, Delivered, Completed]
+        used_by: [ordering-service, reporting-service, frontend]
+      - name: PreparationStatus
+        values: [Pending, InProgress, Ready]
+        used_by: [preparation-service, frontend]
+      - name: ItemPreparationStatus
+        values: [Pending, InProgress, Done]
+        used_by: [preparation-service, frontend]
+      - name: CoffeeType
+        values: [Espresso, Americano, Latte, Cappuccino]
+        used_by: [ordering-service, preparation-service, frontend]
+      - name: CoffeeSize
+        values: [Single, Double, Short, Tall, Grande, Venti]
+        used_by: [ordering-service, preparation-service, frontend]
+      - name: Customization
+        values: [NoFoam, WithFoam, MoreFoam, DryFoam, WetFoam, WhippedCream, SoyMilk]
+        used_by: [ordering-service, preparation-service, frontend]
+      - name: ReplenishmentStatus
+        values: [Requested, PurchaseOrdered, Delivered]
+        used_by: [inventory-service, frontend]
+
     notes:
       - "All endpoints are the canonical single source of truth"
       - "Frontend Vite proxy must route to correct service port"
       - "Response shapes must match response_dto exactly — backend MUST implement aggregation server-side for aggregated projections"
+
+  cross_layer_type_contract:
+    description: >
+      MANDATORY checklist for every boundary crossing (backend ↔ frontend).
+      Every item must be verified during Phase 8 Step 13.2.
+
+    checks:
+      - id: CL-1
+        name: "Query parameter semantics"
+        rule: >
+          Every query param in actor_views.data_source.endpoint MUST be annotated with
+          type: semantic_filter or type: enum_literal. Backend controller MUST have explicit
+          if-branch for semantic_filter values. NEVER pass semantic_filter values to Enum.valueOf().
+        failure_example: "?status=active → Enum.valueOf('ACTIVE') → NoSuchEnumConstant crash"
+
+      - id: CL-2
+        name: "Enum casing consistency"
+        rule: >
+          Enum values in shared_enums MUST match exactly across: Java enum, TypeScript union type,
+          StatusBadge color mapping, and query param values (for enum_literal type).
+          Java convention: UPPER_CASE. Frontend convention: match Java exactly.
+        failure_example: "Java: PLACED, Frontend: 'Placed' → StatusBadge shows 'unknown'"
+
+      - id: CL-3
+        name: "Money representation"
+        rule: >
+          Money is represented as whole TWD (int), NOT cents/satang.
+          Requirements say Espresso Single = 60 THB → API returns 60, frontend displays '60 THB'.
+        failure_example: "Backend returns 6000 (cents), frontend shows '$6,000'"
+
+      - id: CL-4
+        name: "DateTime format"
+        rule: >
+          All DateTime fields MUST be ISO-8601 strings (e.g., '2024-03-15T10:30:00').
+          Java: annotate with @JsonFormat(shape = STRING) or register JavaTimeModule.
+          Jackson default for LocalDateTime is array [2024,3,15,10,30] which breaks frontend new Date().
+        failure_example: "Backend: [2024,3,15,10,30], Frontend: new Date([...]) → Invalid Date"
+
+      - id: CL-5
+        name: "Null vs empty collection"
+        rule: >
+          Collection fields (items, ordersByHour) MUST return [] (empty array), NEVER null.
+          Frontend .filter(), .map(), .length all crash on null.
+          Java: initialize collections in constructor or use @JsonInclude(NON_NULL) carefully.
+        failure_example: "items: null → orders.items.map(...) → TypeError: Cannot read property 'map' of null"
+
+      - id: CL-6
+        name: "Boolean field naming (Jackson)"
+        rule: >
+          Java boolean fields named isX (e.g., boolean isLowStock) serialize as 'lowStock' (drops 'is' prefix).
+          Java boolean fields named x (e.g., boolean alertTriggered) serialize as 'alertTriggered'.
+          Frontend types.ts must use the SERIALIZED name, not the Java field name.
+        failure_example: "Java: boolean isLowStock → JSON: 'lowStock', Frontend reads 'isLowStock' → undefined"
+
+      - id: CL-7
+        name: "Pagination contract"
+        rule: >
+          If any endpoint returns paginated results, the response wrapper shape (page, size, totalElements, content)
+          must be agreed upon. Currently no endpoints are paginated — all return full lists.
+        current_status: "Not applicable — all endpoints return full lists"
+
+      - id: CL-8
+        name: "Error response shape"
+        rule: >
+          All error responses (400, 404, 409, 500) MUST return JSON with predictable structure:
+          { timestamp, status, error, message, path } (Spring Boot default).
+          Frontend error interceptor parses this structure. Backend must NOT return HTML error pages.
+        failure_example: "Backend returns Whitelabel HTML error page → frontend JSON.parse() → crash"

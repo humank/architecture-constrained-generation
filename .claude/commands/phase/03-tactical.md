@@ -304,6 +304,12 @@ api_contract:
       path: "/waiter/orders"
       actor: "waiter"
       description: "Active orders for waiter's view"
+      query_params:                            # MANDATORY for every query endpoint with parameters
+        - name: "status"
+          type: "semantic_filter"              # NOT an enum literal — requires controller logic
+          value: "active"
+          semantics: "WHERE status NOT IN (COMPLETED)"  # domain-level meaning
+          maps_to_enum: "OrderStatus"          # which enum this relates to
       response_dto:
         name: "List<OrderSummary>"
         fields:
@@ -346,6 +352,22 @@ api_contract:
 - [ ] Cross-BC data needs are served by backend projections, not by frontend calling multiple BCs
 - [ ] **Endpoint paths are canonical**: The paths defined here are the single source of truth. Phase 8 backend `@GetMapping`/`@PostMapping`, frontend Vite proxy, and frontend `api.ts` MUST all use these exact paths.
 
+**Cross-Layer Type Contract (MANDATORY):**
+
+Every value that crosses the frontend↔backend boundary must be explicitly typed in the API contract. The following are common sources of cross-layer drift — each MUST be addressed:
+
+- [ ] **Query parameter semantics**: Every query endpoint with parameters MUST have a `query_params` section. Each parameter MUST be typed as one of:
+  - `enum_literal` — value is a direct enum value (e.g., `?status=PLACED`). Backend can use `Enum.valueOf()` directly.
+  - `semantic_filter` — value is a UI concept that maps to a domain query (e.g., `?status=active` → `WHERE status NOT IN (COMPLETED)`). Backend controller MUST have explicit handling logic — `Enum.valueOf()` will throw.
+  - `free_text` — value is user input (e.g., `?q=latte`). Backend must sanitize.
+- [ ] **Enum value casing**: Specify whether enum values are UPPER_CASE (Java convention) or PascalCase/camelCase (frontend convention). If different, the API contract MUST note the serialization format.
+- [ ] **Money representation**: Specify unit (cents vs dollars) and type (int vs decimal). Frontend and backend MUST agree. Example: `totalAmount: int (THB, NOT satang)`.
+- [ ] **DateTime format**: Specify serialization format (ISO-8601 string, epoch millis, etc.). Jackson defaults (`LocalDateTime` → array, `Instant` → epoch) may surprise frontend.
+- [ ] **Null vs empty**: For collection fields, specify whether empty means `[]` or `null`. For optional fields, specify whether absent means `null` or omitted from JSON. Frontend code like `items.filter(...)` crashes on `null`.
+- [ ] **Boolean serialization**: Java `boolean isActive` serializes as `{"active": true}` (Jackson drops `is` prefix). If a DTO has `boolean isX`, the API contract MUST note the serialized field name.
+- [ ] **Pagination**: If any query endpoint returns paginated results, specify the envelope format (`{ content: [], totalPages, totalElements }` vs flat array). Frontend MUST know whether to expect a wrapper or raw array.
+- [ ] **Error response format**: Specify the error JSON shape for 4xx/5xx responses (e.g., `{ message: string, code: string }` vs Spring Boot default `{ timestamp, status, error, path }`). Frontend error interceptor MUST parse this shape.
+
 #### 8b: Actor View Design
 
 **For each actor identified in requirements and event storming:**
@@ -360,8 +382,10 @@ actor_views:
     route: "/waiter"
     data_sources:                               # → TanStack Query hooks (GET)
       - hook: "useOrders"
-        query_endpoint: "GET /api/waiter/orders"
+        query_endpoint: "GET /api/waiter/orders?status=active"  # MUST include full URL with query params
         read_model: "OrderSummaryView"
+        query_params:                           # mirrors api_contract.query_endpoints[].query_params
+          - { name: "status", value: "active", type: "semantic_filter" }
         refresh: "polling(5s)"                  # or "websocket" or "SSE"
         loading_state: "Skeleton loader matching table structure"
         error_state: "Error banner: '無法連線至訂單服務' + retry button"

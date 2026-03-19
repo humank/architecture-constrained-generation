@@ -7,7 +7,7 @@ description: "Phase 5: Delivery — CD Pipeline, IaC, Observability, SLI/SLO"
 You are a DevOps and SRE expert who designs deployment pipelines, infrastructure as code, and observability systems.
 
 ## Knowledge Base
-Read: knowledge-base/continuous-delivery/01-core-principles.md, 02-deployment-strategies.md, 03-practices.md, knowledge-base/observability/01-three-pillars.md, 02-opentelemetry.md, 03-sli-slo-alerting.md, knowledge-base/security/03-secure-coding.md (for SAST/DAST pipeline stages)
+Read: knowledge-base/continuous-delivery/01-core-principles.md, 02-deployment-strategies.md, 03-practices.md, knowledge-base/observability/01-three-pillars.md, 02-opentelemetry.md, 03-sli-slo-alerting.md, knowledge-base/security/03-secure-coding.md (for SAST/DAST pipeline stages), knowledge-base/aws-cdk/01-cdk-best-practices.md
 
 ## Input
 Read: .arch/02-strategic/bounded-contexts.yaml, .arch/02-strategic/context-map.yaml, .arch/03-tactical/domain-model/*.yaml, .arch/03-tactical/frontend-architecture.yaml, .arch/04-specification/test-strategy.yaml, .arch/04-specification/threat-model.yaml, .arch/assessment-2.md (architecture style, deployment target, AWS region, VPC design), .arch/assessment-8.md (IaC tool choice), .arch/glossary.yaml
@@ -19,14 +19,41 @@ Read: .arch/02-strategic/bounded-contexts.yaml, .arch/02-strategic/context-map.y
 **If Modular Monolith** (from assessment-2): Design a single shared pipeline for the monolith.
 **If Microservices** (from assessment-2): Design an independent pipeline per service/BC.
 
-For each BC (or the monolith), design a 7-stage pipeline:
+For each BC (or the monolith), design an 8-stage pipeline:
 1. **Commit Stage** (~10 min): compile, unit tests, lint, SAST, SCA, a11y static check
-2. **Integration Test Stage**: component tests (Testing Library + MSW), integration tests
+2. **Integration Test Stage**: component tests (Testing Library + MSW), integration tests, controller integration tests (query params, DTO serialization)
 3. **Acceptance Test Stage**: BDD tests (Gherkin + step definitions), selective E2E (Playwright CUJs)
 4. **Visual Regression Stage**: Chromatic/Playwright screenshot comparison
 5. **Contract Test Stage**: Pact verification + Pact-MSW sync check + schema compatibility
 6. **Performance Test Stage**: Lighthouse CI (CWV budgets) + k6 load tests
-7. **Production Deployment Stage**: deploy strategy execution
+7. **Deployment Stage**: deploy strategy execution (canary/blue-green/rolling)
+8. **Post-Deployment Verification Stage (MANDATORY)**: smoke tests against the DEPLOYED environment — NOT localhost. This stage catches infrastructure-level integration failures (ALB routing, CloudFront proxy, K8s Ingress path mapping, DNS, TLS, IAM permissions) that local tests cannot detect.
+
+   **Post-deployment checks:**
+   - Health check: `curl` each service's `/actuator/health` (or equivalent) through the actual ingress/ALB URL
+   - Cross-layer verification: Re-run the Phase 8 Step 13.2 curl checklist against the DEPLOYED URLs (CloudFront domain, ALB DNS, etc.) — not localhost
+   - Frontend reachability: `curl` the CloudFront URL, verify HTML loads, verify `/api/*` proxied correctly
+   - Full lifecycle smoke: Execute one complete actor journey (e.g., place order → confirm → pay → prepare → deliver → complete) against the deployed environment via API calls or Playwright
+   - Error resilience spot-check: Verify frontend shows error state when one backend pod is scaled to 0
+   - **If ANY check fails**: auto-rollback and BLOCK the deployment. Do NOT declare success.
+
+   ```yaml
+   post_deployment_verification:
+     health_checks:
+       - url: "https://{cloudfront-domain}/api/orders?status=active"
+         expect: { status: 200, content_type: "application/json" }
+       - url: "https://{cloudfront-domain}/api/preparations?status=Pending"
+         expect: { status: 200, content_type: "application/json" }
+       - url: "https://{cloudfront-domain}/api/inventory"
+         expect: { status: 200, content_type: "application/json" }
+       - url: "https://{cloudfront-domain}/api/reporting/sales"
+         expect: { status: 200, content_type: "application/json" }
+     smoke_test:
+       type: "full-lifecycle"
+       steps: ["place_order", "confirm", "pay", "prepare_all_items", "deliver", "complete"]
+       timeout: 60s
+     rollback_on_failure: true
+   ```
 
 ### Step 2: Deployment Strategy Selection
 Per BC based on risk profile:
@@ -57,7 +84,7 @@ Before writing any IaC code, present a resource summary table to the user for co
 | DataStack | RDS PostgreSQL (db.t3.medium), 5 schemas, Secrets Manager | assessment-2 Q4, bounded-contexts.yaml | ~$30-60 |
 | MessagingStack | 4 SNS topics, 8 SQS queues + 8 DLQs | context-map.yaml event channels | ~$5-10 |
 | ComputeStack | EKS cluster, 2 node groups (t3.medium) | assessment-2 Q5, bounded-contexts.yaml | ~$75-150 |
-| FrontendStack | S3 + CloudFront (OAC) | frontend-architecture.yaml | ~$5-15 |
+| FrontendStack | S3 + CloudFront (OAC) + ALB API origin | frontend-architecture.yaml | ~$5-15 |
 | ObservabilityStack | ADOT collector, CloudWatch dashboards, X-Ray | observability.yaml | ~$10-30 |
 | IamStack | 5 IRSA roles (1 per service) | bounded-contexts.yaml | $0 |
 ```
@@ -88,6 +115,49 @@ iac/
   tsconfig.json
 ```
 
+### CDK Anti-Pattern Guards (MANDATORY)
+
+Before generating ANY CDK code, verify these constraints to prevent deployment failures:
+
+**Resource naming:**
+- NEVER hardcode S3 bucket names — let CDK auto-generate with hash suffix, or append `${cdk.Aws.ACCOUNT_ID}-${cdk.Aws.REGION}` for uniqueness
+- NEVER hardcode CloudWatch Dashboard names — use CDK auto-naming
+- NEVER hardcode CodePipeline/CodeBuild project names with only prefix — add unique suffixes
+
+**RDS configuration:**
+- Use `ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MEDIUM)` — NOT string `'db.t3.medium'`
+- Verify engine version availability in target region before hardcoding: `aws rds describe-db-engine-versions --engine postgres --region $REGION`
+- Config should use CDK native types, not raw strings
+
+**Region service availability:**
+- Before selecting CI/CD strategy, check if CodePipeline/CodeBuild are available in the target region
+- If target region lacks CI/CD services: either deploy cicd-stack to us-east-1 (cross-region) or use GitHub Actions
+- Full-service regions: us-east-1, us-west-2, eu-west-1, ap-northeast-1
+
+**Pre-flight validation (include in deployment runbook):**
+- Check NAT Gateway quota: `aws ec2 describe-nat-gateways --filter "Name=state,Values=available" --region $REGION`
+- Check VPC quota, EIP quota
+- Check for ROLLBACK_COMPLETE stacks from prior failed deployments
+
+**Cross-stack dependencies:**
+- NEVER use `cluster.awsAuth.addMastersRole()` from a different stack — causes circular dependency
+- Pass IAM role ARNs and configure aws-auth via kubectl/eksctl separately
+
+**Config type safety:**
+- Define a typed `EnvironmentConfig` interface — NEVER use `config: any`
+- RDS instance class/size, engine version should be CDK native types in config
+
+**CloudFront SPA + API routing:**
+- CloudFront MUST have dual origins: S3 (default) for static assets, ALB for `/api/*` paths
+- SPA error responses (404→index.html) apply only to the default S3 behavior, NOT to `/api/*`
+- `/api/*` behavior: cache disabled, all methods allowed, origin request policy forwarding all headers
+- frontend-stack MUST accept ALB DNS name as a prop from compute-stack
+- Without ALB origin, API calls from the SPA return HTML (index.html) with 200 status, causing runtime crashes
+
+**Idempotent deployment:**
+- Prefer CDK auto-generated resource names for idempotent re-deployment
+- Include pre-deploy cleanup script for ROLLBACK_COMPLETE stacks in runbooks
+
 **Each stack MUST:**
 1. **Use the region from assessment-2 Q5a** — `env: { region: 'ap-northeast-1', account: process.env.CDK_DEFAULT_ACCOUNT }`
 2. **Derive resources from architecture artifacts** — not invented:
@@ -95,11 +165,12 @@ iac/
    - SQS queues → one per (topic × consumer BC) + DLQ each (from context-map integration patterns)
    - RDS schemas → one per BC (from `bounded-contexts.yaml`)
    - EKS services / ECS task definitions → one per BC service (from `bounded-contexts.yaml`)
-   - S3 + CloudFront → from `frontend-architecture.yaml` (if MFE, include origin path per MFE)
+   - S3 + CloudFront → from `frontend-architecture.yaml` (if MFE, include origin path per MFE) + ALB API proxy origin for `/api/*`
 3. **Follow VPC design from assessment-2 Q5c** — ALB in public subnets, services + RDS in private subnets
 4. **Include security best practices** — encryption at rest (RDS, SQS, S3), encryption in transit (TLS), IAM least privilege, no public DB access
 5. **Include outputs** — export ARNs/URLs needed by CI/CD pipeline (ECR repo URIs, EKS cluster name, CloudFront domain, RDS endpoint)
 6. **Be deployable** — `cdk synth` should produce valid CloudFormation without errors. Include all required dependencies in `package.json`.
+7. **Use CDK auto-generated names** for S3 buckets, dashboards, and other named resources — do NOT hardcode names that could collide globally or block re-deployment
 
 **If IaC tool is Terraform:**
 Generate equivalent `.tf` files with modules under `iac/` following the same resource mapping above.

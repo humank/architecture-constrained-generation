@@ -54,7 +54,27 @@ Phase 8: Implementation → Code generation constrained by all artifacts
   ✋ MANDATORY Assessment: Technology Stack (language, framework, DB, frontend, CSS, component library, deployment target, IaC tool)
      → Generates assessment-8.md with guided options for user to fill in (Q1-Q14 + Q6a IaC tool)
   🔑 User confirms: tech stack, frontend stack, IaC tool, visual style direction
+Phase 9: Deploy & Verify → Deploy all services, run post-deployment verification
+  Deploys: IaC stacks (Phase 5), backend services, frontend assets
+  Executes: Phase 5 pipeline Stage 8 (Post-Deployment Verification)
+  🔑 User confirms: Infrastructure Resource Plan (if not confirmed in Phase 5)
+  Quality gate: ALL post-deployment checks pass (health, smoke, cross-layer, error resilience)
 ```
+
+### Definition of Done (System-Level)
+
+**The system is NOT complete until ALL of the following are true:**
+
+1. **Phase 8 local gates pass**: Backend compile + tests, frontend build + tests, cross-layer curl verification (Step 13.1–13.5)
+2. **All services deployed**: Every BC service running in the target environment (EKS/ECS/Lambda), reachable via ingress/ALB
+3. **Infrastructure verified**: IaC stacks deployed successfully (`cdk deploy` or `terraform apply`), no ROLLBACK_COMPLETE stacks
+4. **Post-deployment health checks pass**: Every service's `/actuator/health` returns 200 through the actual ingress/ALB URL (not localhost)
+5. **Post-deployment cross-layer verification pass**: Re-run Step 13.2 curl checklist against DEPLOYED URLs (CloudFront domain, ALB DNS) — not localhost
+6. **Post-deployment smoke test pass**: Full lifecycle (place → confirm → pay → prepare → deliver → complete) executed against the deployed environment
+7. **Error resilience verified**: Frontend shows meaningful error states when backend services are unavailable in the deployed environment
+8. **Pipeline definition exists**: Phase 5 `pipeline.yaml` includes all 8 stages including post-deployment verification
+
+**If ANY of the above fail, the system status is INCOMPLETE. Auto-rollback if deployment checks fail.**
 
 ## Assessment Gate Protocol
 
@@ -173,9 +193,10 @@ All artifacts are written to `.arch/` with this structure:
     state/                        # State machine diagrams
       state-*.md
   08-implementation/
-    implementation-report.md
+    implementation-report.md       # Includes post-deployment verification results
   quality-reports/
     pipeline-run-report.yaml
+    deployment-verification.yaml   # Post-deployment check results (Phase 9)
 
 # Executable code (at project root, NOT in .arch/)
 iac/                            # CDK/Terraform — executable IaC code (Phase 5)
@@ -228,6 +249,7 @@ After each phase, check:
    - Contracts: Does every BC relationship have explicit data contract?
    - Test values: Do all test scenarios use exact values from requirements (pricing, recipes, capacities)?
    - **Frontend resilience**: Does every actor view `data_source` have `error_state`? Does every `submit_action` have `on_error`? Does design-system MASTER.md have `ui_states`?
+   - **Testing golden triangle**: Unit tests (domain) → Integration tests (cross-layer curl with exact frontend params) → E2E tests (Playwright CUJ) → Post-deployment verification (same checks against deployed URLs). No layer can be skipped. Post-deployment verification is the final gate — local tests alone are insufficient.
 
 4. **Feedback loop triggers** (26 loops):
    - If triggered: announce the feedback loop, go back to the target phase
@@ -243,6 +265,7 @@ At these points, ALWAYS pause and present options to the user:
 3. **Before Phase 2 (MANDATORY)**: Generate `assessment-2.md` — Architecture Decisions assessment with guided options (architecture style, team topology, infrastructure). Includes AWS-specific questions (Q5a region, Q5b account strategy, Q5c VPC design) if deployment target is AWS. User must fill in and mark COMPLETED before Phase 2 begins.
 4. **After Phase 2**: "Here are the bounded contexts classified as Core/Supporting/Generic, with integration patterns. Please confirm."
 5. **Before Phase 8 (MANDATORY)**: Generate `assessment-8.md` — Technology Stack assessment with guided options (language, framework, DB, deployment, IaC tool). Includes Q6a (CDK/Terraform/CloudFormation choice). User must fill in and mark COMPLETED before code generation.
+6. **After Phase 8 / Phase 9 Deploy**: "Phase 8 local gates passed. Deploying to target environment and running post-deployment verification (Phase 5 pipeline Stage 8)." After deployment: present post-deployment verification results table. If all pass → "System COMPLETE — Definition of Done satisfied." If any fail → "Deployment verification FAILED on [X]. Fixing and redeploying."
 
 ## Error Handling
 

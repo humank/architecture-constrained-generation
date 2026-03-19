@@ -205,6 +205,36 @@ Verify these threads are consistent across ALL phases:
 3. **Invariant thread**: Every business rule in requirements appears in aggregate invariants and BDD scenarios
 4. **State machine thread**: Every aggregate state diagram is complete, reachable, and includes saga-triggered transitions
 5. **Integration thread**: Every context-map relationship has a matching contract definition
+6. **Cross-layer type thread (CRITICAL)**: Verify data types survive every boundary crossing:
+
+   **6a. Enum consistency** — For each `shared_enums` entry in `frontend-architecture.yaml`:
+   - [ ] Enum values in `aggregates/*.yaml` == enum values in `shared_enums` == enum values in Java code == TypeScript union type == StatusBadge color mapping
+   - [ ] If any value was added/removed in one layer, ALL layers must be updated
+   - [ ] Frontend StatusBadge/display components have a mapping for EVERY enum value (no "unknown" fallback hiding a missing case)
+
+   **6b. Query parameter consistency** — For each `data_source.endpoint` in `frontend-architecture.yaml`:
+   - [ ] If URL contains `?param=value`, the `api_contract.query_endpoints` MUST have a `query_params` entry for it
+   - [ ] If `query_params[].type == semantic_filter`, verify the value is NOT in the corresponding enum. If it IS in the enum, change type to `enum_literal`.
+   - [ ] If `query_params[].type == enum_literal`, verify the value IS a valid member of the corresponding enum.
+   - [ ] Every query param value used in `frontend-architecture.yaml` actor views appears in BDD scenarios (Phase 4 Step 1c)
+
+   **6c. DTO field name consistency** — For each endpoint:
+   - [ ] Response DTO field names in `api_contract` == Java DTO field names (accounting for Jackson serialization rules) == TypeScript interface field names in `types.ts`
+   - [ ] Watch for: `boolean isActive` → Jackson serializes as `"active"` (drops `is` prefix); Java record component `totalAmount` → JSON `"totalAmount"` (OK); `@JsonProperty` overrides
+   - [ ] Watch for: Java `LocalDateTime` serializes as `[2024,3,15,10,30]` (array) by default — if frontend expects ISO string, need `@JsonFormat` or Jackson module
+
+   **6d. Money/quantity consistency**:
+   - [ ] Money unit (dollars vs cents, THB vs satang) is the same in `aggregates/*.yaml`, Java VO, API response, and frontend display
+   - [ ] If pricing table in requirements says "80 THB", the API should return `80`, not `8000`
+
+   **6e. Null/empty contract**:
+   - [ ] For every collection field in response DTOs: does the backend return `[]` or `null` when empty? Frontend `.filter()`, `.map()`, `.length` all crash on `null`.
+   - [ ] For every optional field: does the backend omit the key or include `null`? Frontend `value ?? default` works for `null` but not for missing key with strict TypeScript.
+
+   **6f. Error response shape**:
+   - [ ] Backend error responses (400, 404, 500) return JSON with a predictable structure
+   - [ ] Frontend error interceptor can parse that structure
+   - [ ] Spring Boot default error format (`{timestamp, status, error, message, path}`) vs custom error format — pick one and document it
 
 ### Step 6: ADR Generation
 

@@ -18,6 +18,7 @@ dependencies {
     implementation(platform("software.amazon.awssdk:bom:2.29.51"))
     implementation("software.amazon.awssdk:sns")
     implementation("software.amazon.awssdk:sqs")
+    implementation("software.amazon.awssdk:sts")
 
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")

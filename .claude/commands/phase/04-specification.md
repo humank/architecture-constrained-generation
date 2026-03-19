@@ -119,7 +119,59 @@ Feature: Order Fulfillment Automation
       Then the order should be rejected with reason "no table available"
 ```
 
-### Step 1c: BDD Scenarios for Frontend Resilience (MANDATORY)
+### Step 1c: BDD Scenarios for Query Endpoints (MANDATORY)
+
+**For each query endpoint in the API contract, write at least one scenario.** Query endpoints are the primary integration point between frontend and backend — if the contract is wrong, the UI crashes silently.
+
+```gherkin
+Feature: Order Query Endpoints
+  Query endpoints serve the frontend read models
+
+  Rule: Semantic filter parameters return filtered results
+
+    Scenario: Query active orders returns all non-completed orders
+      Given the following orders exist:
+        | orderId | status    |
+        | ORD-001 | PLACED    |
+        | ORD-002 | CONFIRMED |
+        | ORD-003 | COMPLETED |
+      When the frontend requests "GET /api/orders?status=active"
+      Then the response should contain orders "ORD-001" and "ORD-002"
+      And the response should NOT contain order "ORD-003"
+
+    Scenario: Query by enum literal returns exact match
+      Given the following orders exist:
+        | orderId | status    |
+        | ORD-001 | PLACED    |
+        | ORD-002 | CONFIRMED |
+      When the frontend requests "GET /api/orders?status=PLACED"
+      Then the response should contain only order "ORD-001"
+
+  Rule: Query response shape matches the API contract DTO exactly
+
+    Scenario: Order list response contains all contract fields
+      Given an order exists for Table 3 with status "PLACED"
+      When the frontend requests "GET /api/orders?status=active"
+      Then each order in the response should contain fields:
+        | field       | type   |
+        | orderId     | string |
+        | tableNumber | int    |
+        | status      | string |
+        | items       | array  |
+        | totalAmount | int    |
+        | placedAt    | string |
+
+  Rule: Invalid query parameters return meaningful errors
+
+    Scenario: Unknown status value returns 400
+      When the frontend requests "GET /api/orders?status=UNKNOWN_VALUE"
+      Then the response status should be 400
+      And the response should contain an error message
+```
+
+**CRITICAL**: Every `query_param` with `type: semantic_filter` in the API contract MUST have a BDD scenario proving the backend handles it correctly. Without this, `Enum.valueOf()` will throw at runtime.
+
+### Step 1d: BDD Scenarios for Frontend Resilience (MANDATORY)
 
 **For each actor view page, write error scenarios.** Backend services WILL be unavailable — the frontend MUST handle this gracefully.
 
@@ -154,6 +206,66 @@ Feature: Frontend Resilience
 ```
 
 **CRITICAL**: These scenarios become acceptance tests in Phase 8. Every `useMutation` without `onError` and every page without `isError` handling is a failing test.
+
+### Step 1e: BDD Scenarios for Cross-Layer Data Integrity (MANDATORY)
+
+**For each cross-layer boundary, write scenarios that verify data survives the crossing intact.** These catch the class of bugs where data is correct on one side but corrupted/misinterpreted on the other.
+
+```gherkin
+Feature: Cross-Layer Data Integrity
+  Data crossing frontend↔backend, backend↔database, and service↔service
+  boundaries must arrive with correct type, shape, and semantics
+
+  Rule: Enum values survive the full round-trip (DB → Backend → API → Frontend → Display)
+
+    Scenario Outline: Order status enum renders correctly in frontend
+      Given an order exists with status "<backend_status>"
+      When the frontend fetches the order
+      Then the status field should be the string "<api_value>"
+      And the StatusBadge should render with label "<display_label>"
+
+      Examples:
+        | backend_status | api_value  | display_label |
+        | PLACED         | PLACED     | Placed        |
+        | CONFIRMED      | CONFIRMED  | Confirmed     |
+        | PAID           | PAID       | Paid          |
+        | READY          | READY      | Ready         |
+        | DELIVERED      | DELIVERED  | Delivered     |
+        | COMPLETED      | COMPLETED  | Completed     |
+
+  Rule: Shared enum sets are identical across all layers
+
+    Scenario: Backend OrderStatus enum matches API contract shared_enums
+      Then the Java OrderStatus enum values should be exactly:
+        | PLACED | CONFIRMED | PAID | READY | DELIVERED | COMPLETED |
+      And the TypeScript OrderStatus type should accept exactly those values
+      And the StatusBadge component should have a color mapping for each value
+
+  Rule: Money values use consistent units across layers
+
+    Scenario: Order total is consistent from backend to frontend
+      Given an order with items totaling 280 THB
+      When the frontend displays the order
+      Then the total should show "280 THB" (not "28000" or "2.80")
+
+  Rule: DateTime serialization is consistent
+
+    Scenario: Order timestamp is parseable by frontend
+      Given an order placed at "2024-03-15T10:30:00"
+      When the frontend fetches the order
+      Then the placedAt field should be a valid ISO-8601 string
+      And the frontend should display a localized time
+
+  Rule: Null/empty collections are handled consistently
+
+    Scenario: Order with no customizations returns empty array, not null
+      Given an order item with no customizations
+      When the frontend fetches the order
+      Then the item's customizations field should be an empty array "[]"
+      And the frontend should NOT crash with "cannot read property of null"
+```
+
+**Why this matters**: Cross-layer bugs are the hardest to catch because each layer's unit tests pass in isolation. Only scenarios that explicitly trace a value through multiple layers will catch drift.
 
 ### Step 2: Test Strategy Selection
 
@@ -191,6 +303,12 @@ For each BC, choose the test strategy shape:
 | BC-to-BC contract | Contract | Event schema compatibility, API contract | Pact / Schema registry |
 | **Page error state** | **Integration** | **isError renders error message; isLoading renders skeleton** | **Testing Library + MSW (5xx mock)** |
 | **Mutation error feedback** | **Integration** | **onError shows user-facing error; UI not broken** | **Testing Library + MSW (network error mock)** |
+| **Query param → controller** | **Integration** | **Semantic filters return correct results; invalid params return 400** | **@WebMvcTest / MockMvc** |
+| **Enum round-trip** | **Integration** | **Enum value survives DB → JPA → JSON → TypeScript → display** | **@SpringBootTest + curl verification** |
+| **DTO field name alignment** | **Contract** | **Frontend type fields match backend JSON keys exactly** | **Pact HTTP / manual curl + diff** |
+| **Null/empty collection** | **Integration** | **Collections are `[]` not `null`; optional fields are explicit** | **Unit test + MSW mock** |
+| **DateTime serialization** | **Integration** | **Dates arrive as ISO-8601 strings, not arrays or epoch** | **curl + frontend parse test** |
+| **Money format** | **Integration** | **Amount unit (THB vs satang) consistent across layers** | **BDD scenario + frontend display test** |
 
 **MANDATORY error path coverage**: For every integration test that tests a happy path, add a parallel error test:
 - Mock the endpoint to return 5xx or network error
@@ -238,7 +356,9 @@ For each BC, apply STRIDE analysis:
 
 ### Step 4: Contract Test Definitions
 
-From context map relationships:
+From context map relationships AND frontend-architecture.yaml:
+
+#### 4a: BC-to-BC Event Contracts
 
 For each BC-to-BC integration:
 1. Define consumer expectations (what the downstream needs)
@@ -249,6 +369,50 @@ For each BC-to-BC integration:
    - gRPC → Protobuf compatibility checks
    - GraphQL → schema compatibility
 4. Define Pact-to-MSW bridge for frontend integration tests
+
+#### 4b: Frontend→Backend REST Contracts (MANDATORY)
+
+**For each endpoint in `frontend-architecture.yaml` `actor_views[].data_source.endpoint` and `submit_action.endpoint`:**
+
+1. Define the **consumer contract** (what the frontend expects):
+   - Full URL including query parameters (e.g., `GET /api/orders?status=active`)
+   - Expected response shape (from `response_dto`)
+   - Expected HTTP status codes (200 for success, 400/404/500 for errors)
+   - Expected `Content-Type: application/json` header
+   - Expected error response shape
+
+2. Define the **provider verification** (what the backend must deliver):
+   - Controller route matches the contract path exactly
+   - Query parameter handling: `enum_literal` params use `Enum.valueOf()`, `semantic_filter` params have dedicated handling logic
+   - Response DTO field names match the contract (watch for Jackson serialization quirks: `boolean isX` → `"x"`, record fields vs getter names)
+   - Error responses include structured JSON (not HTML or plain text)
+
+3. **Cross-layer type alignment check** (MANDATORY for each endpoint):
+
+```yaml
+frontend_backend_contracts:
+  - endpoint: "GET /api/orders?status=active"
+    consumer: "WaiterOrdersPage → orderApi.getOrders('active')"
+    provider: "OrderController.getOrders(@RequestParam status)"
+    query_params:
+      - name: "status"
+        consumer_sends: "active"
+        provider_expects: "semantic_filter — controller has if('active'.equalsIgnoreCase(status)) branch"
+        enum_mapping: "active → findByStatusNot(COMPLETED)"
+    response:
+      consumer_type: "Order[]"                 # TypeScript
+      provider_type: "List<OrderResponse>"     # Java
+      field_mapping:
+        - { frontend: "orderId", backend: "orderId", type: "string/UUID" }
+        - { frontend: "status", backend: "status", type: "string/OrderStatus.name()" }
+        - { frontend: "totalAmount", backend: "totalAmount", type: "number/int (THB)" }
+        - { frontend: "placedAt", backend: "placedAt", type: "string/LocalDateTime (ISO-8601)" }
+    error_contract:
+      consumer_handles: "axios interceptor rejects non-JSON, ErrorState component renders"
+      provider_returns: "{ message: string } on 400, Spring default on 500"
+```
+
+**CRITICAL**: If ANY query parameter value is NOT a direct enum member, it MUST be documented as `semantic_filter` here. This is the single source of truth that Phase 8 uses to implement controller branching logic.
 
 ### Step 5: Implementation Guidance (Outside-In TDD)
 
@@ -329,7 +493,25 @@ threat_models:
 ```
 
 ### `.arch/04-specification/contracts/*.yaml`
-Contract definitions per BC pair.
+Contract definitions per BC pair (BC-to-BC event contracts).
+
+### `.arch/04-specification/contracts/frontend-backend.yaml`
+Frontend→Backend REST contracts with cross-layer type alignment. One entry per endpoint in `frontend-architecture.yaml`.
+```yaml
+frontend_backend_contracts:
+  - endpoint: "GET /api/orders?status=active"
+    consumer: "WaiterOrdersPage → orderApi.getOrders('active')"
+    provider: "OrderController.getOrders(@RequestParam status)"
+    query_params:
+      - name: "status"
+        type: "semantic_filter"
+        consumer_sends: "active"
+        provider_handling: "if('active'.equalsIgnoreCase(status)) → findByStatusNot(COMPLETED)"
+    response_field_mapping:
+      - { frontend: "orderId", backend: "orderId", serialization: "UUID.toString()" }
+      - { frontend: "totalAmount", backend: "totalAmount", serialization: "int (THB, not satang)" }
+      - { frontend: "placedAt", backend: "placedAt", serialization: "ISO-8601 string" }
+```
 
 ### `.arch/04-specification/implementation-guide.yaml`
 ```yaml

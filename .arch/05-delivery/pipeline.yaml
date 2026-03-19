@@ -3,12 +3,16 @@ pipeline:
   strategy: independent_pipeline_per_service
   ci_cd: AWS CodePipeline + CodeBuild
   container_registry: ECR
+  total_stages: 8
+  description: >
+    8-stage pipeline per service. Stage 8 (Post-Deployment Verification) is MANDATORY —
+    it catches infrastructure-level integration failures that local tests cannot detect.
 
   services:
     - name: ordering-service
       classification: Core
       stages:
-        - stage: commit
+        - stage: 1_commit
           timeout: 10m
           steps:
             - "Checkout source"
@@ -17,43 +21,57 @@ pipeline:
             - "Lint (Checkstyle/SpotBugs)"
             - "SAST (CodeGuru/Snyk)"
             - "SCA (dependency check)"
+            - "a11y static check"
             - "Build Docker image"
             - "Push to ECR"
 
-        - stage: integration_test
+        - stage: 2_integration_test
           timeout: 15m
           steps:
             - "Start PostgreSQL testcontainer"
             - "Run repository integration tests"
             - "Run SQS consumer integration tests (LocalStack)"
             - "Run SNS publisher integration tests (LocalStack)"
+            - "Controller query parameter tests (MANDATORY):"
+            - "  - GET /api/orders?status=active → semantic filter → 200 + non-completed orders"
+            - "  - GET /api/orders?status=Placed → enum literal → 200 + Placed orders only"
+            - "  - GET /api/orders?status=INVALID → 400 (not 500)"
+            - "  - GET /api/orders (no param) → 200 + empty list"
+            - "DTO serialization roundtrip tests:"
+            - "  - Verify JSON field names match frontend types.ts"
+            - "  - Verify totalAmount is whole TWD (not cents)"
+            - "  - Verify placedAt is ISO-8601 string (not Jackson array)"
+            - "  - Verify items is [] when empty (not null)"
             - "Error path tests (≥20%)"
 
-        - stage: acceptance_test
+        - stage: 3_acceptance_test
           timeout: 10m
           steps:
             - "Run BDD scenarios (Cucumber + Spring Boot Test)"
             - "Ordering feature scenarios"
+            - "Query endpoint scenarios (query-endpoints.feature)"
+            - "Cross-layer integrity scenarios (cross-layer-integrity.feature)"
 
-        - stage: contract_test
+        - stage: 4_visual_regression
+          timeout: 10m
+          steps:
+            - "N/A for backend service"
+
+        - stage: 5_contract_test
           timeout: 5m
           steps:
             - "Pact provider verification (OrderSubmittedToBarista, OrderCompleted)"
             - "Pact consumer verification (OrderReadyForDelivery)"
+            - "Frontend-backend contract verification (frontend-backend.yaml)"
+            - "Pact-MSW sync check: MSW handler URLs match Pact interactions"
 
-        - stage: performance_test
+        - stage: 6_performance_test
           timeout: 10m
           steps:
             - "k6 load test: order placement < 2s P99"
             - "k6 load test: concurrent order processing"
 
-        - stage: deploy_staging
-          steps:
-            - "kubectl apply to EKS staging namespace"
-            - "Health check: /actuator/health"
-            - "Smoke tests"
-
-        - stage: deploy_production
+        - stage: 7_deploy
           strategy: canary
           steps:
             - "Canary 10% traffic"
@@ -63,45 +81,90 @@ pipeline:
             - "Full rollout 100%"
             - "Auto-rollback on SLO violation"
 
+        - stage: 8_post_deployment_verification
+          mandatory: true
+          timeout: 5m
+          description: >
+            Smoke tests against DEPLOYED environment — NOT localhost.
+            Catches ALB routing, CloudFront proxy, DNS, TLS, IAM failures.
+          steps:
+            - "Health check through actual ingress/ALB URL:"
+            - "  curl -sf https://{cloudfront-domain}/api/orders?status=active"
+            - "  Expect: HTTP 200, Content-Type: application/json"
+            - "Cross-layer verification against deployed URLs:"
+            - "  curl https://{cloudfront-domain}/api/orders?status=active → verify JSON array"
+            - "  curl https://{cloudfront-domain}/api/orders?status=Placed → verify JSON array"
+            - "  Verify CloudFront /api/* returns JSON (not index.html)"
+            - "Full lifecycle smoke test:"
+            - "  place_order → confirm → pay → prepare_all_items → deliver → complete"
+            - "  Executed via API calls against deployed URL"
+          rollback_on_failure: true
+
     - name: preparation-service
       classification: Core
       stages:
-        - stage: commit
+        - stage: 1_commit
           timeout: 10m
           steps:
             - "Checkout, compile, unit tests, lint, SAST, SCA"
             - "Recipe resolution unit tests (all type/size/customization combos)"
             - "Build & push Docker image to ECR"
 
-        - stage: integration_test
+        - stage: 2_integration_test
           timeout: 15m
           steps:
             - "PostgreSQL testcontainer (outbox table)"
             - "SQS consumer tests (OrderSubmittedToBarista)"
             - "SNS publisher tests (PreparationStarted, OrderReadyForDelivery)"
             - "Outbox poller tests"
+            - "Controller query parameter tests:"
+            - "  - GET /api/preparations?status=Pending,InProgress → semantic filter → split + query"
+            - "  - GET /api/preparations?status=INVALID → 400"
 
-        - stage: acceptance_test
+        - stage: 3_acceptance_test
           timeout: 10m
-          steps: ["BDD scenarios: preparation.feature"]
+          steps:
+            - "BDD scenarios: preparation.feature"
+            - "BDD scenarios: query-endpoints.feature (preparation section)"
 
-        - stage: contract_test
+        - stage: 4_visual_regression
+          steps: ["N/A for backend service"]
+
+        - stage: 5_contract_test
           timeout: 5m
           steps:
             - "Pact provider: PreparationStarted, OrderReadyForDelivery"
             - "Pact consumer: OrderSubmittedToBarista"
 
-        - stage: deploy_production
+        - stage: 6_performance_test
+          timeout: 10m
+          steps:
+            - "k6 load test: preparation throughput under concurrent orders"
+            - "k6 load test: recipe resolution < 500ms P99"
+
+        - stage: 7_deploy
           strategy: canary
+          steps:
+            - "Canary deployment with SLO monitoring"
+            - "Auto-rollback on SLO violation"
+
+        - stage: 8_post_deployment_verification
+          mandatory: true
+          timeout: 5m
+          steps:
+            - "curl -sf https://{cloudfront-domain}/api/preparations?status=Pending,InProgress"
+            - "Expect: HTTP 200, Content-Type: application/json"
+            - "Verify response is JSON array (not HTML)"
+          rollback_on_failure: true
 
     - name: inventory-service
       classification: Supporting
       stages:
-        - stage: commit
+        - stage: 1_commit
           timeout: 10m
           steps: ["Checkout, compile, unit tests, lint, SAST, SCA, Docker build/push"]
 
-        - stage: integration_test
+        - stage: 2_integration_test
           timeout: 15m
           steps:
             - "PostgreSQL testcontainer (seed data via Flyway)"
@@ -109,37 +172,94 @@ pipeline:
             - "Deduction logic tests"
             - "Alert threshold tests"
             - "Error path: unknown material handling"
+            - "Verify seed data loaded: GET /api/inventory returns 4 items"
+            - "DTO serialization: alertTriggered (not isAlertTriggered)"
 
-        - stage: acceptance_test
+        - stage: 3_acceptance_test
           timeout: 10m
-          steps: ["BDD scenarios: inventory.feature"]
+          steps:
+            - "BDD scenarios: inventory.feature"
+            - "BDD scenarios: cross-layer-integrity.feature (inventory section)"
 
-        - stage: contract_test
+        - stage: 4_visual_regression
+          steps: ["N/A for backend service"]
+
+        - stage: 5_contract_test
           timeout: 5m
           steps: ["Pact consumer: PreparationStarted"]
 
-        - stage: deploy_production
+        - stage: 6_performance_test
+          timeout: 10m
+          steps:
+            - "k6 load test: stock deduction under concurrent events"
+            - "k6 load test: inventory query < 500ms P99"
+
+        - stage: 7_deploy
           strategy: blue_green
+          steps:
+            - "Blue-green deployment"
+            - "Verify seed data after deploy: curl /api/inventory returns 4 items"
+
+        - stage: 8_post_deployment_verification
+          mandatory: true
+          timeout: 5m
+          steps:
+            - "curl -sf https://{cloudfront-domain}/api/inventory"
+            - "Expect: HTTP 200, Content-Type: application/json, 4 material items"
+            - "Verify alertTriggered field exists (not isAlertTriggered)"
+          rollback_on_failure: true
 
     - name: reporting-service
       classification: Generic
       stages:
-        - stage: commit
+        - stage: 1_commit
           timeout: 10m
           steps: ["Checkout, compile, unit tests, lint, SAST, SCA, Docker build/push"]
 
-        - stage: integration_test
+        - stage: 2_integration_test
           timeout: 10m
           steps:
             - "Projection tests (OrderCompleted → sales aggregation)"
             - "Projection tests (IngredientDeducted → inventory report)"
+            - "Verify response is aggregated object (not raw list)"
 
-        - stage: deploy_production
+        - stage: 3_acceptance_test
+          timeout: 10m
+          steps:
+            - "BDD scenarios: reporting.feature"
+            - "BDD scenarios: cross-layer-integrity.feature (sales report section)"
+
+        - stage: 4_visual_regression
+          steps: ["N/A for backend service"]
+
+        - stage: 5_contract_test
+          timeout: 5m
+          steps:
+            - "Pact consumer: OrderCompleted"
+            - "Pact consumer: IngredientDeducted"
+
+        - stage: 6_performance_test
+          timeout: 10m
+          steps:
+            - "k6 load test: report query < 1s P99"
+            - "k6 load test: projection processing throughput"
+
+        - stage: 7_deploy
           strategy: rolling_update
+
+        - stage: 8_post_deployment_verification
+          mandatory: true
+          timeout: 5m
+          steps:
+            - "curl -sf https://{cloudfront-domain}/api/reporting/sales"
+            - "Expect: HTTP 200, Content-Type: application/json"
+            - "Verify response is JSON object with totalOrders, totalRevenue fields"
+            - "Verify response is NOT a raw order array"
+          rollback_on_failure: true
 
     - name: frontend
       stages:
-        - stage: commit
+        - stage: 1_commit
           timeout: 10m
           steps:
             - "npm install"
@@ -148,21 +268,92 @@ pipeline:
             - "Unit tests (Vitest)"
             - "Build (Vite)"
 
-        - stage: integration_test
+        - stage: 2_integration_test
           timeout: 10m
+          mandatory: true
+          description: "HARD GATE — zero test files = blocking failure"
           steps:
             - "Component tests (Testing Library + MSW)"
+            - "MSW handlers MUST include query params matching api.ts calls"
+            - "MSW setup MUST use onUnhandledRequest: 'error'"
             - "Error state tests (service unavailable mocks)"
+            - "Minimum: 3 tests per page (happy/error/loading)"
 
-        - stage: e2e_test
+        - stage: 3_acceptance_test
           timeout: 15m
           steps:
             - "Playwright CUJs: order placement, payment, preparation, delivery"
             - "Playwright: inventory dashboard"
-            - "Lighthouse CI: CWV budgets (LCP < 2.5s, FID < 100ms, CLS < 0.1)"
 
-        - stage: deploy
+        - stage: 4_visual_regression
+          timeout: 10m
+          steps:
+            - "Build Storybook"
+            - "Run Chromatic (or Playwright visual comparison)"
+            - "Compare against baseline screenshots"
+            - "Fail on unapproved visual changes"
+
+        - stage: 5_contract_test
+          timeout: 5m
+          steps:
+            - "Pact consumer verification (ordering-service API, preparation-service API)"
+            - "Pact-MSW sync check: every Pact interaction has a matching MSW handler"
+            - "Schema compatibility check"
+
+        - stage: 6_performance_test
+          timeout: 10m
+          steps:
+            - "Lighthouse CI: CWV budgets (LCP < 2.5s, FID < 100ms, CLS < 0.1)"
+            - "Bundle size budget check"
+
+        - stage: 7_deploy
+          strategy: s3_cloudfront
           steps:
             - "Build static assets"
-            - "Upload to S3"
+            - "Upload to S3 bucket"
             - "Invalidate CloudFront cache"
+
+        - stage: 8_post_deployment_verification
+          mandatory: true
+          timeout: 5m
+          steps:
+            - "curl -sf https://{cloudfront-domain}/ → verify HTML loads"
+            - "curl -sf https://{cloudfront-domain}/api/orders?status=active → verify JSON (not HTML)"
+            - "Verify CloudFront dual-origin: S3 for static, ALB for /api/*"
+            - "Verify SPA error responses: 404 → index.html (only for S3 default behavior)"
+            - "Full lifecycle smoke test via Playwright against deployed URL"
+            - "Error resilience: scale one backend pod to 0, verify frontend shows error state"
+          rollback_on_failure: true
+
+  post_deployment_verification:
+    description: >
+      Stage 8 is a system-wide verification gate run AFTER all services are deployed.
+      It catches infrastructure-level integration failures that no local test can detect:
+      ALB routing, CloudFront proxy, K8s Ingress path mapping, DNS, TLS, IAM permissions.
+    health_checks:
+      - url: "https://{cloudfront-domain}/api/orders?status=active"
+        expect: { status: 200, content_type: "application/json" }
+      - url: "https://{cloudfront-domain}/api/preparations?status=Pending,InProgress"
+        expect: { status: 200, content_type: "application/json" }
+      - url: "https://{cloudfront-domain}/api/inventory"
+        expect: { status: 200, content_type: "application/json" }
+      - url: "https://{cloudfront-domain}/api/reporting/sales"
+        expect: { status: 200, content_type: "application/json" }
+    cross_layer_verification:
+      description: "Re-run Phase 8 Step 13.2 curl checklist against deployed URLs (not localhost)"
+      checks:
+        - "Every frontend API call URL curled against CloudFront domain"
+        - "Verify Content-Type is application/json (not text/html)"
+        - "Verify response shape matches frontend types.ts"
+        - "Verify semantic filter params work (e.g., ?status=active)"
+    smoke_test:
+      type: "full-lifecycle"
+      steps: ["place_order", "confirm", "pay", "prepare_all_items", "deliver", "complete"]
+      timeout: 60s
+    error_resilience:
+      description: "Verify frontend shows error state when backend services unavailable"
+      steps:
+        - "Scale one backend pod to 0"
+        - "Verify frontend shows error message (not blank page)"
+        - "Scale back up"
+    rollback_on_failure: true

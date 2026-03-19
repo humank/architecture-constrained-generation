@@ -135,6 +135,11 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
+    public List<Order> getActiveOrders() {
+        return orderRepository.findByStatusNot(OrderStatus.COMPLETED);
+    }
+
+    @Transactional(readOnly = true)
     public Order getOrderById(UUID orderId) {
         return findOrderOrThrow(orderId);
     }

@@ -597,6 +597,17 @@ From `04-specification/test-strategy.yaml` and `04-specification/features/*.feat
 - Repository save/load roundtrip
 - Cross-BC event flow end-to-end
 - API endpoint request → response
+- **Controller query parameter tests (MANDATORY)**:
+  - For each `@GetMapping` with `@RequestParam`, test with each possible parameter value
+  - Test `semantic_filter` values (e.g., `?status=active`) — verify correct filtering logic
+  - Test `enum_literal` values (e.g., `?status=PLACED`) — verify `Enum.valueOf()` works
+  - Test invalid values (e.g., `?status=INVALID`) — verify 400 response, NOT 500
+  - Test missing parameter — verify default behavior (empty list, all records, etc.)
+- **DTO serialization roundtrip tests**:
+  - For each response DTO, verify JSON field names match `types.ts` expectations
+  - For `boolean isX` fields, verify Jackson serializes as `"x"` and test accordingly
+  - For `LocalDateTime` fields, verify ISO-8601 string output (not array)
+  - For collection fields, verify empty collections return `[]` not `null`
 
 #### Acceptance tests (~10%) — BDD:
 - One per Gherkin scenario (from feature files)
@@ -924,7 +935,29 @@ export const api = {
 };
 ```
 
-### Step 12: Frontend Tests
+**API resilience (MANDATORY for production SPA):**
+
+The API client MUST validate responses before parsing, because reverse proxies (CloudFront, nginx) may return HTML pages (e.g., index.html, error pages) with HTTP 200 for unknown paths. Without validation, the frontend receives an HTML string where it expects JSON, causing `TypeError: .filter is not a function` or similar crashes.
+
+```typescript
+// axios interceptor — validate content-type before treating as success
+api.interceptors.response.use(
+  (response) => {
+    const ct = response.headers['content-type'] || '';
+    if (!ct.includes('application/json')) {
+      return Promise.reject(new Error('Backend service is unavailable'));
+    }
+    return response;
+  },
+  (error) => { /* error handling */ }
+);
+```
+
+Additionally, the app MUST include a React ErrorBoundary at the router level to catch unhandled rendering errors and display a user-friendly fallback instead of a crash screen.
+
+### Step 12: Frontend Tests (MANDATORY — HARD GATE)
+
+**This step is NOT optional. If frontend tests are skipped, Step 13 WILL fail.** Frontend tests are the primary mechanism for catching cross-layer integration bugs before deployment.
 
 From `04-specification/test-strategy.yaml` Testing Trophy:
 
@@ -932,54 +965,101 @@ From `04-specification/test-strategy.yaml` Testing Trophy:
 
 Generate one MSW handler per endpoint in `frontend-architecture.yaml` `api_contract`. Paths and response shapes MUST match the contract DTOs exactly.
 
+**CRITICAL: MSW handler URLs must include query parameters that the frontend actually sends.** If the frontend calls `/api/orders?status=active`, the MSW handler must match that URL pattern — not just `/api/orders`.
+
 ```typescript
 // mocks/handlers.ts — generated from api_contract command_endpoints + query_endpoints
 import { http, HttpResponse } from 'msw';
 
 export const handlers = [
-  // GET /api/waiter/orders — from query_endpoint: OrderSummaryView read model
-  http.get('/api/waiter/orders', () => {
-    return HttpResponse.json([
-      { orderId: 'order-1', tableNumber: 1, status: 'PLACED', totalCents: 850,
-        items: [{ coffeeType: 'LATTE', cupSize: 'MEDIUM', quantity: 1 }] },
-    ]);  // response shape matches OrderSummary response_dto
+  // GET /api/orders?status=active — semantic filter for active orders
+  // URL includes query params matching frontend api.ts calls
+  http.get('/api/orders', ({ request }) => {
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status');
+
+    if (status === 'active') {
+      return HttpResponse.json([
+        { orderId: 'order-1', tableNumber: 1, status: 'PLACED', totalAmount: 280,
+          items: [{ coffeeType: 'LATTE', size: 'TALL', quantity: 1 }],
+          placedAt: '2024-03-15T10:30:00' },
+      ]);
+    }
+    if (status === 'PLACED') {
+      return HttpResponse.json([
+        { orderId: 'order-1', tableNumber: 1, status: 'PLACED', totalAmount: 280,
+          items: [], placedAt: '2024-03-15T10:30:00' },
+      ]);
+    }
+    return HttpResponse.json([]);  // default empty
   }),
 
-  // POST /api/waiter/orders — from command_endpoint: PlaceOrder command
-  http.post('/api/waiter/orders', async ({ request }) => {
+  // POST /api/orders — from command_endpoint: PlaceOrder command
+  http.post('/api/orders', async ({ request }) => {
     const body = await request.json();
     return HttpResponse.json(
-      { orderId: 'order-new', status: 'PLACED', totalCents: 450 },
+      { orderId: 'order-new', status: 'PLACED', totalAmount: 450 },
       { status: 201 }
     );  // response shape matches PlaceOrderResponse response_dto
   }),
 ];
 ```
 
+**MSW setup MUST use `onUnhandledRequest: 'error'`** — this catches any API call that doesn't have a matching handler, which means a contract mismatch:
+```typescript
+const server = setupServer(...handlers);
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+```
+
 #### Integration Tests (~50%, thickest layer — Testing Library + MSW):
 
+**Minimum required per page:**
+1. One happy-path test (data loads, correct content rendered)
+2. One error-state test (MSW returns 500, error message visible)
+3. One loading-state test (verify skeleton/spinner shown)
+
+For pages with mutations: one test per mutation (success + error).
+
 ```typescript
-// OrderForm.test.tsx — component + API integration
+// WaiterOrdersPage.test.tsx — component + API integration
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { OrderForm } from '../features/ordering/components/OrderForm';
+import { WaiterOrdersPage } from '../pages/WaiterOrdersPage';
 
-test('places an order with selected items', async () => {
-  render(<OrderForm />, { wrapper: TestProviders });
+test('renders active orders from API', async () => {
+  render(<WaiterOrdersPage />, { wrapper: TestProviders });
 
-  // Select items
-  await userEvent.selectOptions(screen.getByLabelText('Coffee Type'), 'LATTE');
-  await userEvent.selectOptions(screen.getByLabelText('Size'), 'MEDIUM');
-  await userEvent.type(screen.getByLabelText('Table'), '1');
-
-  // Submit
-  await userEvent.click(screen.getByRole('button', { name: /place order/i }));
-
-  // Verify — MSW intercepts the API call
+  // MSW intercepts GET /api/orders?status=active
   await waitFor(() => {
-    expect(screen.getByText(/order placed/i)).toBeInTheDocument();
+    expect(screen.getByText(/Table 1/)).toBeInTheDocument();
+    expect(screen.getByText(/PLACED/)).toBeInTheDocument();
   });
 });
+
+test('shows error state when backend is unavailable', async () => {
+  // Override handler to return 500
+  server.use(
+    http.get('/api/orders', () => {
+      return new HttpResponse(null, { status: 500 });
+    })
+  );
+
+  render(<WaiterOrdersPage />, { wrapper: TestProviders });
+
+  await waitFor(() => {
+    expect(screen.getByText(/error|unable|unavailable/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
+  });
+});
+```
+
+**Cross-layer assertion pattern**: In integration tests, assert not just that content appears, but that the SPECIFIC field values from the MSW mock data appear. This proves the frontend type mapping is correct:
+```typescript
+// Bad — only proves something rendered:
+expect(screen.getByText(/order/i)).toBeInTheDocument();
+
+// Good — proves field mapping from API response to UI:
+expect(screen.getByText('280 THB')).toBeInTheDocument();  // totalAmount field mapping
+expect(screen.getByText('Table 1')).toBeInTheDocument();   // tableNumber field mapping
 ```
 
 #### E2E Tests (Playwright — CUJ only):
@@ -1028,28 +1108,169 @@ test('full order lifecycle: place → confirm → prepare → deliver → comple
 
 ### Step 13: Build and Verify (Full Stack)
 
-1. **Backend**: Compile + unit tests + integration tests — all green
+**This step is a HARD GATE. The system is NOT complete until ALL checks pass. Do NOT skip any step. Do NOT declare success if any test is missing or skipped.**
+
+#### 13.1 Backend Gate
+1. **Compile + test**: `./gradlew build` — compile + ALL unit tests + integration tests green
 2. **Seed data verification**: For each service with initial data, `curl` the API endpoint and confirm the response is NOT empty. If empty, check `spring.jpa.hibernate.ddl-auto` vs `spring.sql.init.mode` configuration.
-3. **Frontend-Backend contract alignment (MANDATORY)**:
-   - For EVERY query endpoint used by the frontend, `curl` the actual backend API
-   - **Shape check**: Compare the JSON response top-level structure with `types.ts` — is it an object or array? If `types.ts` expects `SalesReport{totalOrders, totalRevenue}` (object) but `curl` returns `[{orderId, ...}]` (array), the backend is returning raw records instead of the aggregated read model. Fix the backend.
-   - **Field name check**: Compare every JSON field name with the frontend `types.ts` interface fields
-   - **Path check**: Compare the actual API endpoint path with the Vite proxy config and `api.ts` — mismatched paths cause 404 or wrong-service routing
-   - Common Jackson pitfalls: `boolean isX` serializes as `"x"` (drops `is` prefix); record field names may differ from YAML artifact names
-   - **CQRS read model check**: For BCs using CQRS (e.g., Reporting), verify that the read model projection has data. If `curl` returns `[]` but upstream BC has data, the event listener/projection is broken.
-   - Fix ALL mismatches before proceeding — a single mismatch causes silent `undefined` at runtime
+3. **Controller integration tests MUST exist**: Every `@RestController` must have at least one `@WebMvcTest` or `@SpringBootTest` with MockMvc. If no controller tests exist, write them NOW before proceeding. Controller tests catch query parameter handling bugs that unit tests cannot.
+
+#### 13.2 Cross-Layer Contract Alignment (MANDATORY — Zero Tolerance)
+
+**This is the most critical verification step. Cross-layer mismatches cause runtime crashes that no single-layer test can catch.**
+
+**Step A — curl every frontend endpoint with EXACT frontend parameters:**
+
+Open `frontend/src/lib/api.ts` (or equivalent). For EVERY API call in the file:
+1. Extract the exact URL the frontend will send, **including query parameters** (e.g., `/api/orders?status=active`, NOT just `/api/orders`)
+2. `curl` the backend with that exact URL
+3. Verify: HTTP 200, `Content-Type: application/json`, response is valid JSON
+
+```bash
+# WRONG — only tests base path, misses query param bug:
+curl http://localhost:8081/api/orders
+
+# RIGHT — tests the exact URL the frontend sends:
+curl "http://localhost:8081/api/orders?status=active"
+curl "http://localhost:8081/api/orders?status=PLACED"
+curl "http://localhost:8081/api/preparations?status=Pending,InProgress"
+```
+
+**If any `curl` returns non-200 or non-JSON, STOP and fix the backend before proceeding.**
+
+**Step B — Shape and field name check:**
+- **Shape check**: Compare the JSON response top-level structure with `types.ts` — is it an object or array? If `types.ts` expects `SalesReport{totalOrders, totalRevenue}` (object) but `curl` returns `[{orderId, ...}]` (array), the backend is returning raw records instead of the aggregated read model. Fix the backend.
+- **Field name check**: Compare EVERY JSON field name from `curl` output with the frontend `types.ts` interface fields. A single mismatch (e.g., `total_amount` vs `totalAmount`) causes silent `undefined` at runtime.
+- **Path check**: Compare the actual API endpoint path with the Vite proxy config and `api.ts` — mismatched paths cause 404 or wrong-service routing
+
+**Step C — Cross-layer type verification (checklist for each endpoint):**
+
+| Check | How to Verify | Common Failure |
+|-------|---------------|----------------|
+| **Enum values** | `curl` response enum strings match TypeScript union type exactly | Backend adds new status but frontend `StatusBadge` has no mapping |
+| **Query param semantics** | `curl` with each `semantic_filter` param value from `frontend-architecture.yaml` | `?status=active` → `Enum.valueOf("ACTIVE")` → 500 |
+| **Money unit** | Compare `curl` amount with pricing table in requirements | Backend returns cents (8000), frontend displays as dollars ("$8000" instead of "$80") |
+| **DateTime format** | Check if date fields are ISO-8601 strings or JSON arrays | `LocalDateTime` → `[2024,3,15,10,30]` (Jackson default) → frontend `new Date()` fails |
+| **Null collections** | `curl` an entity with empty optional collections | Backend returns `null`, frontend does `.filter()` → crash |
+| **Boolean fields** | Check `boolean isX` fields in DTOs | Jackson serializes as `"x"` (drops `is`), frontend reads `item.isX` → `undefined` |
+| **Error response** | `curl` with invalid input, check error JSON shape | Backend returns HTML error page, frontend JSON parser crashes |
+| **CQRS projection** | For read models, verify projection has data | `curl` returns `[]` but upstream BC has data → event listener broken |
+
+**Step D — Semantic filter verification:**
+
+For each `query_params[].type == semantic_filter` in `frontend-architecture.yaml`:
+1. Verify the controller has an explicit `if` branch for this value (e.g., `if ("active".equalsIgnoreCase(status))`)
+2. Verify the controller does NOT blindly pass it to `Enum.valueOf()`
+3. `curl` with the semantic filter value and verify correct results
+4. `curl` with an invalid value (e.g., `?status=NONEXISTENT`) and verify 400 (not 500)
+
+Common Jackson pitfalls:
+- `boolean isX` serializes as `"x"` (drops `is` prefix)
+- Record field names may differ from YAML artifact names
+- `LocalDateTime` serializes as array by default — add `@JsonFormat(shape = STRING)` or Jackson JavaTimeModule
+
+Fix ALL mismatches before proceeding — a single mismatch causes silent `undefined` at runtime.
+
+#### 13.3 Frontend Gate
 4. **Frontend TypeScript check**: `npx tsc --noEmit` — ZERO errors (strict mode). Fix ALL before proceeding.
 5. **Frontend build**: `npm run build` — zero errors
-6. **Frontend unit/integration tests**: `npm test` — all green
+6. **Frontend unit/integration tests**: `npm test` — all green. **If NO test files exist, this is a BLOCKING failure. Go back to Step 12 and write the tests.** Minimum required:
+   - At least one integration test per page (Testing Library + MSW)
+   - At least one error-state test per page (MSW returning 500)
+   - MSW handlers covering every endpoint in `api.ts`
 7. **Frontend error state audit**: For EVERY page component, verify:
    - Loading state is handled (`isLoading` check)
    - Error state is handled (`isError` or `!data` check with user-facing message)
    - Every `useMutation` has `onError` callback
+
+#### 13.4 Integration Gate
 8. **Start both**: Backend on :8080, Frontend on :5173 (Vite dev server)
 9. **Partial backend test**: Stop one backend service, verify the frontend shows error messages (not blank/broken pages)
-10. **E2E tests**: `npx playwright test` — CUJ passes
-11. **Full lifecycle smoke test**: Manual walkthrough of all actor views
-12. **Verify API contract**: Frontend mutation hooks match backend REST endpoints exactly
+   - Also test with ALL backends stopped — the frontend must still render (layout, navigation) and show meaningful error states
+   - Verify that API responses with non-JSON content-type (e.g., HTML from reverse proxy) are rejected by the API client interceptor
+10. **E2E tests**: `npx playwright test` — CUJ passes. **If NO E2E tests exist, write at least one critical user journey test before proceeding.**
+11. **Full lifecycle smoke test**: Manual walkthrough of all actor views — place order → confirm → pay → prepare → deliver → complete
+12. **Verify API contract**: Frontend mutation hooks match backend REST endpoints exactly (method, path, request body shape, response shape)
+
+#### 13.5 Cross-Layer Audit Summary
+
+Before declaring Step 13 complete, fill in this table in the implementation report:
+
+```markdown
+## Cross-Layer Verification Results
+
+| Frontend Call | curl Command | HTTP Status | Content-Type | Shape Match | Field Names Match | Notes |
+|---|---|---|---|---|---|---|
+| `orderApi.getOrders("active")` | `curl "/api/orders?status=active"` | 200 | application/json | ✅ array | ✅ all fields | semantic filter |
+| `orderApi.getOrders("PLACED")` | `curl "/api/orders?status=PLACED"` | 200 | application/json | ✅ array | ✅ all fields | enum literal |
+| `reportingApi.getSalesReport()` | `curl "/api/reporting/sales"` | 200 | application/json | ✅ object | ✅ all fields | aggregated projection |
+| ... | ... | ... | ... | ... | ... | ... |
+```
+
+**If any row has a ❌, the system is NOT ready. Fix the mismatch before proceeding.**
+
+#### 13.6 Deploy & Post-Deployment Verification (MANDATORY — System Completion Gate)
+
+**Local tests (Steps 13.1–13.5) verify code correctness. This step verifies the DEPLOYED system works end-to-end.**
+
+Local tests CANNOT catch: ALB routing errors, CloudFront proxy misconfiguration, K8s Ingress path mapping, DNS/TLS issues, IAM permission failures, environment variable misconfiguration, cross-service network policies, RDS connectivity from EKS pods.
+
+**Procedure:**
+
+1. **Deploy all services** to the target environment:
+   - IaC: `cd iac && cdk deploy --all` (or `terraform apply`)
+   - Backend: Build Docker images → push to ECR → Helm upgrade (or ECS deploy)
+   - Frontend: `npm run build` → upload to S3 → CloudFront invalidation
+   - Use `scripts/deploy.sh` if available, or follow Phase 5 `deployment-strategy.yaml`
+
+2. **Wait for deployment stability**:
+   - `kubectl rollout status deployment/{service} -n {namespace}` for each service (if EKS)
+   - Verify all pods are Running and Ready (readiness probes passing)
+   - Verify ALB/Ingress has an assigned DNS address
+
+3. **Post-deployment health checks** (from Phase 5 pipeline Stage 8):
+   ```bash
+   # Health check through actual ingress — NOT localhost
+   curl -sf https://{cloudfront-domain}/api/orders?status=active
+   curl -sf https://{cloudfront-domain}/api/preparations?status=Pending
+   curl -sf https://{cloudfront-domain}/api/inventory
+   curl -sf https://{cloudfront-domain}/api/reporting/sales
+   ```
+   Each must return HTTP 200 with `Content-Type: application/json`.
+
+4. **Re-run Step 13.2 cross-layer verification against DEPLOYED URLs**:
+   - Replace `localhost:{port}` with the actual CloudFront/ALB URL
+   - Verify the same curl checklist passes in the deployed environment
+   - Pay special attention to CloudFront `/api/*` proxy behavior (must NOT return index.html for API paths)
+
+5. **Full lifecycle smoke test against deployed environment**:
+   - Execute the complete actor journey via API calls or Playwright against the deployed URL:
+     place_order → confirm → pay → prepare_all_items → deliver → complete
+   - Verify cross-BC events propagate correctly (ordering → preparation → inventory)
+
+6. **Error resilience spot-check**:
+   - Scale one backend pod to 0: `kubectl scale deployment/{service} --replicas=0`
+   - Verify frontend shows error state (not blank page)
+   - Scale back up: `kubectl scale deployment/{service} --replicas=1`
+
+**If ANY post-deployment check fails**: Fix the issue, redeploy, and re-verify. Do NOT declare the system complete.
+
+**Post-deployment verification results** must be recorded in the implementation report under a new section:
+
+```markdown
+## Post-Deployment Verification Results
+
+| Check | Target URL | Result | Notes |
+|-------|-----------|--------|-------|
+| Health: ordering-service | https://{cf}/api/orders?status=active | ✅ 200 JSON | |
+| Health: preparation-service | https://{cf}/api/preparations?status=Pending | ✅ 200 JSON | |
+| Health: inventory-service | https://{cf}/api/inventory | ✅ 200 JSON | |
+| Health: reporting-service | https://{cf}/api/reporting/sales | ✅ 200 JSON | |
+| Cross-layer: CloudFront API proxy | https://{cf}/api/* | ✅ JSON (not HTML) | |
+| Smoke: full lifecycle | place→confirm→pay→prepare→deliver→complete | ✅ all steps | |
+| Error resilience: service down | Scale ordering-service to 0 | ✅ error state shown | |
+| Deployment: all pods Running | kubectl get pods -n {ns} | ✅ all Ready | |
+```
 
 ## Output
 
@@ -1086,10 +1307,22 @@ test('full order lifecycle: place → confirm → prepare → deliver → comple
 ### Backend
 - Unit tests: {N} passed
 - Integration tests: {N} passed
+- Controller tests: {N} passed (MUST be > 0)
 
 ### Frontend
-- Component integration tests: {N} passed (Testing Library + MSW)
-- E2E tests: {N} CUJs passed (Playwright)
+- Component integration tests: {N} passed (Testing Library + MSW) (MUST be > 0)
+- Error state tests: {N} passed (MUST be >= 1 per page)
+- E2E tests: {N} CUJs passed (Playwright) (MUST be > 0)
+
+## Cross-Layer Verification (Step 13.2)
+
+| Frontend Call | curl URL | Status | Content-Type | Shape | Fields | Semantic Filter? |
+|---|---|---|---|---|---|---|
+| `orderApi.getOrders("active")` | `/api/orders?status=active` | {200/4xx/5xx} | {json/html} | {✅/❌} | {✅/❌} | Yes — controller branch |
+| `orderApi.getOrders("PLACED")` | `/api/orders?status=PLACED` | {200/4xx/5xx} | {json/html} | {✅/❌} | {✅/❌} | No — enum literal |
+| ... | ... | ... | ... | ... | ... | ... |
+
+**All rows must be ✅ for the implementation to be considered complete.**
 
 ## Known Issues / Deviations from Architecture
 | # | Issue | Architecture Artifact | Resolution |
@@ -1097,19 +1330,32 @@ test('full order lifecycle: place → confirm → prepare → deliver → comple
 | 1 | {issue} | {artifact reference} | {how resolved} |
 
 ## API Endpoints
-| Method | Path | Actor | Command | Frontend Hook |
+| Method | Path + Params | Actor | Command/ReadModel | Frontend Hook |
 |---|---|---|---|---|
-| POST | /api/waiter/orders | Waiter | PlaceOrder | usePlaceOrder() |
-| ...
+| GET | /api/orders?status=active | Waiter | ActiveOrders (semantic filter) | useOrders("active") |
+| GET | /api/orders?status=PLACED | Cashier | OrdersByStatus (enum literal) | useOrders("PLACED") |
+| POST | /api/orders | Waiter | PlaceOrder | usePlaceOrder() |
+| ... | ... | ... | ... | ... |
 ```
 
 ## Completion
 
 Present:
 - Build status: backend (compile + tests) + frontend (build + tests)
-- API endpoint summary with frontend hook mapping
+- **Cross-layer verification table** (Step 13.5) — ALL rows must be ✅
+- API endpoint summary with frontend hook mapping (include query params)
 - E2E test results (Playwright CUJs)
 - Any deviations from architecture artifacts (with justification)
 - Known issues or TODOs
+
+**BLOCKING conditions — implementation is NOT complete if:**
+- Any backend service has ZERO controller integration tests
+- Any frontend page has ZERO integration tests (Testing Library + MSW)
+- Any row in the cross-layer verification table has ❌
+- `npm test` reports "no tests found"
+- Any `curl` with frontend-actual parameters returns non-200 or non-JSON
+- Post-deployment health checks have not been run (Step 13.6)
+- Post-deployment cross-layer verification against deployed URLs has not passed
+- Post-deployment smoke test (full lifecycle) has not passed against the deployed environment
 
 $ARGUMENTS

@@ -44,7 +44,9 @@ public class OrderController {
     public ResponseEntity<List<OrderResponse>> getOrders(
             @RequestParam(value = "status", required = false) String status) {
         List<Order> orders;
-        if (status != null && !status.isBlank()) {
+        if ("active".equalsIgnoreCase(status)) {
+            orders = orderService.getActiveOrders();
+        } else if (status != null && !status.isBlank()) {
             OrderStatus orderStatus = OrderStatus.valueOf(status.toUpperCase());
             orders = orderService.getOrdersByStatus(orderStatus);
         } else {

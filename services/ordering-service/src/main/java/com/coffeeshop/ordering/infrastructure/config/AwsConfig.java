@@ -9,7 +9,7 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 @Configuration
 public class AwsConfig {
 
-    private static final Region REGION = Region.of("ap-east-2");
+    private static final Region REGION = Region.of("us-east-1");
 
     @Bean
     public SnsClient snsClient() {
