@@ -1,0 +1,97 @@
+dashboards:
+  provider: CloudWatch
+
+  dashboards:
+    - name: "Coffeeshop Service Health"
+      widgets:
+        - title: "Request Rate (RPM) per Service"
+          type: metric
+          metrics:
+            - ordering-service.http.request.count
+            - preparation-service.http.request.count
+            - inventory-service.http.request.count
+            - reporting-service.http.request.count
+
+        - title: "Error Rate (%) per Service"
+          type: metric
+          metrics:
+            - ordering-service.http.error.rate
+            - preparation-service.http.error.rate
+            - inventory-service.http.error.rate
+
+        - title: "P99 Latency per Service"
+          type: metric
+          metrics:
+            - ordering-service.http.duration.p99
+            - preparation-service.http.duration.p99
+            - inventory-service.http.duration.p99
+
+        - title: "SLO Burn Rate"
+          type: metric
+          metrics:
+            - ordering-service.slo.burn_rate
+            - preparation-service.slo.burn_rate
+            - inventory-service.slo.burn_rate
+
+    - name: "Coffeeshop Business Metrics"
+      widgets:
+        - title: "Orders per Hour"
+          type: metric
+          source: "OrderPlaced event count, grouped by hour"
+
+        - title: "Revenue (running total)"
+          type: metric
+          source: "Sum of PaymentProcessed.amountDue"
+
+        - title: "Average Preparation Time"
+          type: metric
+          source: "PreparationStarted → CoffeePrepared duration"
+
+        - title: "Popular Coffee Types"
+          type: pie_chart
+          source: "OrderItem.coffeeType distribution"
+
+    - name: "Coffeeshop Inventory"
+      widgets:
+        - title: "Stock Levels (%)"
+          type: gauge
+          metrics:
+            - coffee_beans.percentage
+            - milk.percentage
+            - soy_milk.percentage
+            - filter_paper.percentage
+          thresholds: { warning: 50, critical: 30 }
+
+        - title: "Deduction Rate (per hour)"
+          type: metric
+          source: "IngredientDeducted event count, grouped by material"
+
+        - title: "Active Alerts"
+          type: alarm_status
+          source: "LowStockAlertTriggered active count"
+
+    - name: "Coffeeshop Infrastructure"
+      widgets:
+        - title: "EKS Node CPU/Memory"
+          type: metric
+          source: "CloudWatch Container Insights"
+
+        - title: "RDS Connections / CPU / Storage"
+          type: metric
+
+        - title: "SQS Queue Depth"
+          type: metric
+          metrics:
+            - preparation-from-ordering.ApproximateNumberOfMessages
+            - inventory-from-preparation.ApproximateNumberOfMessages
+            - reporting-from-ordering.ApproximateNumberOfMessages
+
+        - title: "DLQ Message Count"
+          type: alarm
+          metrics:
+            - preparation-from-ordering-dlq.ApproximateNumberOfMessages
+            - inventory-from-preparation-dlq.ApproximateNumberOfMessages
+          alarm_threshold: "> 0"
+
+        - title: "CloudFront Cache Hit Ratio"
+          type: metric

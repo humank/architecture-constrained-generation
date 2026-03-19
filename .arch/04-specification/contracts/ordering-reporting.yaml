@@ -1,0 +1,138 @@
+contract:
+  name: Ordering-Reporting Integration
+  version: "1.0"
+  description: >
+    Async messaging contract between the Ordering BC and the Reporting BC.
+    Ordering publishes OrderCompleted when a customer order is fulfilled.
+    Reporting consumes this to build sales dashboards and analytics.
+
+  bounded-contexts:
+    producer: Ordering
+    consumer: Reporting
+
+  transport:
+    ordering-to-reporting:
+      type: async
+      protocol: SNS-SQS
+      sns-topic: ordering-events
+      sqs-queue: reporting-from-ordering
+      region: us-east-1
+      message-format: JSON
+      delivery: at-least-once
+      ordering: best-effort
+
+      subscription-filter-policy:
+        description: >
+          Only OrderCompleted events should reach the Reporting queue.
+          Other ordering events (OrderSubmittedToBarista, etc.) are excluded.
+        filter:
+          eventType:
+            - OrderCompleted
+        filter-policy-scope: MessageBody
+
+  events:
+    - name: OrderCompleted
+      direction: Ordering -> Reporting
+      description: >
+        Published when an order has been delivered to the customer's table
+        and marked as complete. Contains the full order summary for reporting.
+      topic: ordering-events
+      queue: reporting-from-ordering
+      schema:
+        type: object
+        required:
+          - eventType
+          - orderId
+          - tableNumber
+          - items
+          - total
+          - placedAt
+          - completedAt
+        properties:
+          eventType:
+            type: string
+            const: OrderCompleted
+          orderId:
+            type: string
+            format: uuid
+            description: Unique identifier for the completed order
+            example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          tableNumber:
+            type: integer
+            minimum: 1
+            maximum: 5
+            description: Table the order was delivered to
+            example: 3
+          items:
+            type: array
+            minItems: 1
+            description: Summary of all items in the order
+            items:
+              type: object
+              required:
+                - coffeeType
+                - size
+                - quantity
+                - unitPrice
+                - lineTotal
+              properties:
+                coffeeType:
+                  type: string
+                  enum:
+                    - Espresso
+                    - Americano
+                    - Cappuccino
+                    - Latte
+                    - Mocha
+                  example: Cappuccino
+                size:
+                  type: string
+                  enum:
+                    - Small
+                    - Medium
+                    - Large
+                  example: Medium
+                quantity:
+                  type: integer
+                  minimum: 1
+                  example: 2
+                unitPrice:
+                  type: number
+                  minimum: 0
+                  description: Price per unit in dollars
+                  example: 4.50
+                lineTotal:
+                  type: number
+                  minimum: 0
+                  description: quantity * unitPrice
+                  example: 9.00
+          total:
+            type: number
+            minimum: 0
+            description: Total order amount in dollars
+            example: 13.50
+          placedAt:
+            type: string
+            format: date-time
+            description: ISO 8601 timestamp when the order was placed
+            example: "2026-03-19T10:30:00Z"
+          completedAt:
+            type: string
+            format: date-time
+            description: ISO 8601 timestamp when the order was delivered
+            example: "2026-03-19T10:36:15Z"
+
+  idempotency:
+    strategy: orderId-based deduplication
+    description: >
+      Reporting must deduplicate using orderId to avoid double-counting
+      revenue or order volume in dashboards.
+
+  error-handling:
+    dead-letter-queue:
+      ordering-to-reporting: reporting-from-ordering-dlq
+    max-receive-count: 3
+    retry-policy:
+      initial-backoff-seconds: 1
+      max-backoff-seconds: 60
+      multiplier: 2

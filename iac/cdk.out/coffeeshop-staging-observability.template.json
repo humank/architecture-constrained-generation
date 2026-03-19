@@ -1,0 +1,609 @@
+{
+ "Resources": {
+  "AlarmNotificationsA4AFC78C": {
+   "Type": "AWS::SNS::Topic",
+   "Properties": {
+    "DisplayName": "Coffeeshop Alarm Notifications",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "TopicName": "coffeeshop-staging-alarm-notifications"
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-observability/AlarmNotifications/Resource"
+   }
+  },
+  "DlqAlarmpreparationfromorderingF4229130": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmActions": [
+     {
+      "Ref": "AlarmNotificationsA4AFC78C"
+     }
+    ],
+    "AlarmDescription": "Messages in DLQ: preparation-from-ordering. Investigate failed event processing immediately.",
+    "AlarmName": "coffeeshop-staging-dlq-preparation-from-ordering",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "QueueName",
+      "Value": {
+       "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttpreparationfromorderingdlq5ECBEADDQueueName31289E5C"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "ApproximateNumberOfMessagesVisible",
+    "Namespace": "AWS/SQS",
+    "Period": 60,
+    "Statistic": "Maximum",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "Threshold": 0,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-observability/DlqAlarm-preparation-from-ordering/Resource"
+   }
+  },
+  "DlqAlarmorderingfrompreparation4230F4C6": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmActions": [
+     {
+      "Ref": "AlarmNotificationsA4AFC78C"
+     }
+    ],
+    "AlarmDescription": "Messages in DLQ: ordering-from-preparation. Investigate failed event processing immediately.",
+    "AlarmName": "coffeeshop-staging-dlq-ordering-from-preparation",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "QueueName",
+      "Value": {
+       "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttorderingfrompreparationdlqDD9D91FEQueueName7A56F0A3"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "ApproximateNumberOfMessagesVisible",
+    "Namespace": "AWS/SQS",
+    "Period": 60,
+    "Statistic": "Maximum",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "Threshold": 0,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-observability/DlqAlarm-ordering-from-preparation/Resource"
+   }
+  },
+  "DlqAlarminventoryfrompreparationAB83D982": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmActions": [
+     {
+      "Ref": "AlarmNotificationsA4AFC78C"
+     }
+    ],
+    "AlarmDescription": "Messages in DLQ: inventory-from-preparation. Investigate failed event processing immediately.",
+    "AlarmName": "coffeeshop-staging-dlq-inventory-from-preparation",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "QueueName",
+      "Value": {
+       "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttinventoryfrompreparationdlq97819957QueueName055E5278"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "ApproximateNumberOfMessagesVisible",
+    "Namespace": "AWS/SQS",
+    "Period": 60,
+    "Statistic": "Maximum",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "Threshold": 0,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-observability/DlqAlarm-inventory-from-preparation/Resource"
+   }
+  },
+  "DlqAlarmreportingfromorderingE904C66C": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmActions": [
+     {
+      "Ref": "AlarmNotificationsA4AFC78C"
+     }
+    ],
+    "AlarmDescription": "Messages in DLQ: reporting-from-ordering. Investigate failed event processing immediately.",
+    "AlarmName": "coffeeshop-staging-dlq-reporting-from-ordering",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "QueueName",
+      "Value": {
+       "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfromorderingdlq53EA8A20QueueName75306640"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "ApproximateNumberOfMessagesVisible",
+    "Namespace": "AWS/SQS",
+    "Period": 60,
+    "Statistic": "Maximum",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "Threshold": 0,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-observability/DlqAlarm-reporting-from-ordering/Resource"
+   }
+  },
+  "DlqAlarmreportingfrominventory6D539735": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmActions": [
+     {
+      "Ref": "AlarmNotificationsA4AFC78C"
+     }
+    ],
+    "AlarmDescription": "Messages in DLQ: reporting-from-inventory. Investigate failed event processing immediately.",
+    "AlarmName": "coffeeshop-staging-dlq-reporting-from-inventory",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "QueueName",
+      "Value": {
+       "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfrominventorydlqE03894C4QueueNameA3A7F871"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "ApproximateNumberOfMessagesVisible",
+    "Namespace": "AWS/SQS",
+    "Period": 60,
+    "Statistic": "Maximum",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "Threshold": 0,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-observability/DlqAlarm-reporting-from-inventory/Resource"
+   }
+  },
+  "QueueDepthpreparationfromorderingA4D850E4": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "Queue preparation-from-ordering depth > 100. Check consumer health.",
+    "AlarmName": "coffeeshop-staging-queue-depth-preparation-from-ordering",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "QueueName",
+      "Value": {
+       "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttpreparationfromordering1DD587E7QueueName70CC1941"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "ApproximateNumberOfMessagesVisible",
+    "Namespace": "AWS/SQS",
+    "Period": 300,
+    "Statistic": "Maximum",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "Threshold": 100
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-observability/QueueDepth-preparation-from-ordering/Resource"
+   }
+  },
+  "QueueDepthorderingfrompreparation22E18155": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "Queue ordering-from-preparation depth > 100. Check consumer health.",
+    "AlarmName": "coffeeshop-staging-queue-depth-ordering-from-preparation",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "QueueName",
+      "Value": {
+       "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttorderingfrompreparationB4262829QueueName779F33FB"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "ApproximateNumberOfMessagesVisible",
+    "Namespace": "AWS/SQS",
+    "Period": 300,
+    "Statistic": "Maximum",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "Threshold": 100
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-observability/QueueDepth-ordering-from-preparation/Resource"
+   }
+  },
+  "QueueDepthinventoryfrompreparationA42A85DB": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "Queue inventory-from-preparation depth > 100. Check consumer health.",
+    "AlarmName": "coffeeshop-staging-queue-depth-inventory-from-preparation",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "QueueName",
+      "Value": {
+       "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttinventoryfrompreparationDAFB6C47QueueName3A53FB81"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "ApproximateNumberOfMessagesVisible",
+    "Namespace": "AWS/SQS",
+    "Period": 300,
+    "Statistic": "Maximum",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "Threshold": 100
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-observability/QueueDepth-inventory-from-preparation/Resource"
+   }
+  },
+  "QueueDepthreportingfromordering3E437BC1": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "Queue reporting-from-ordering depth > 100. Check consumer health.",
+    "AlarmName": "coffeeshop-staging-queue-depth-reporting-from-ordering",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "QueueName",
+      "Value": {
+       "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfromordering39E4ABF5QueueName6B773BF1"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "ApproximateNumberOfMessagesVisible",
+    "Namespace": "AWS/SQS",
+    "Period": 300,
+    "Statistic": "Maximum",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "Threshold": 100
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-observability/QueueDepth-reporting-from-ordering/Resource"
+   }
+  },
+  "QueueDepthreportingfrominventoryBD8B7173": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmDescription": "Queue reporting-from-inventory depth > 100. Check consumer health.",
+    "AlarmName": "coffeeshop-staging-queue-depth-reporting-from-inventory",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "Dimensions": [
+     {
+      "Name": "QueueName",
+      "Value": {
+       "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfrominventory99F82EBDQueueName6A717A2A"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "ApproximateNumberOfMessagesVisible",
+    "Namespace": "AWS/SQS",
+    "Period": 300,
+    "Statistic": "Maximum",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "Threshold": 100
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-observability/QueueDepth-reporting-from-inventory/Resource"
+   }
+  },
+  "ServiceHealthDashboard0DCECFF0": {
+   "Type": "AWS::CloudWatch::Dashboard",
+   "Properties": {
+    "DashboardBody": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"widgets\":[{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":0,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Queue: preparation-from-ordering\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/SQS\",\"ApproximateNumberOfMessagesVisible\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttpreparationfromordering1DD587E7QueueName70CC1941"
+       },
+       "\",{\"stat\":\"Maximum\"}],[\"AWS/SQS\",\"NumberOfMessagesReceived\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttpreparationfromordering1DD587E7QueueName70CC1941"
+       },
+       "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":6,\"y\":0,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Queue: ordering-from-preparation\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/SQS\",\"ApproximateNumberOfMessagesVisible\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttorderingfrompreparationB4262829QueueName779F33FB"
+       },
+       "\",{\"stat\":\"Maximum\"}],[\"AWS/SQS\",\"NumberOfMessagesReceived\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttorderingfrompreparationB4262829QueueName779F33FB"
+       },
+       "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":12,\"y\":0,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Queue: inventory-from-preparation\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/SQS\",\"ApproximateNumberOfMessagesVisible\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttinventoryfrompreparationDAFB6C47QueueName3A53FB81"
+       },
+       "\",{\"stat\":\"Maximum\"}],[\"AWS/SQS\",\"NumberOfMessagesReceived\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttinventoryfrompreparationDAFB6C47QueueName3A53FB81"
+       },
+       "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":18,\"y\":0,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Queue: reporting-from-ordering\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/SQS\",\"ApproximateNumberOfMessagesVisible\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfromordering39E4ABF5QueueName6B773BF1"
+       },
+       "\",{\"stat\":\"Maximum\"}],[\"AWS/SQS\",\"NumberOfMessagesReceived\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfromordering39E4ABF5QueueName6B773BF1"
+       },
+       "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":6,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Queue: reporting-from-inventory\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/SQS\",\"ApproximateNumberOfMessagesVisible\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfrominventory99F82EBDQueueName6A717A2A"
+       },
+       "\",{\"stat\":\"Maximum\"}],[\"AWS/SQS\",\"NumberOfMessagesReceived\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfrominventory99F82EBDQueueName6A717A2A"
+       },
+       "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":12,\"properties\":{\"view\":\"timeSeries\",\"title\":\"DLQ: preparation-from-ordering\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/SQS\",\"ApproximateNumberOfMessagesVisible\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttpreparationfromorderingdlq5ECBEADDQueueName31289E5C"
+       },
+       "\",{\"stat\":\"Maximum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":6,\"y\":12,\"properties\":{\"view\":\"timeSeries\",\"title\":\"DLQ: ordering-from-preparation\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/SQS\",\"ApproximateNumberOfMessagesVisible\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttorderingfrompreparationdlqDD9D91FEQueueName7A56F0A3"
+       },
+       "\",{\"stat\":\"Maximum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":12,\"y\":12,\"properties\":{\"view\":\"timeSeries\",\"title\":\"DLQ: inventory-from-preparation\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/SQS\",\"ApproximateNumberOfMessagesVisible\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttinventoryfrompreparationdlq97819957QueueName055E5278"
+       },
+       "\",{\"stat\":\"Maximum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":18,\"y\":12,\"properties\":{\"view\":\"timeSeries\",\"title\":\"DLQ: reporting-from-ordering\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/SQS\",\"ApproximateNumberOfMessagesVisible\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfromorderingdlq53EA8A20QueueName75306640"
+       },
+       "\",{\"stat\":\"Maximum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":18,\"properties\":{\"view\":\"timeSeries\",\"title\":\"DLQ: reporting-from-inventory\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/SQS\",\"ApproximateNumberOfMessagesVisible\",\"QueueName\",\"",
+       {
+        "Fn::ImportValue": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfrominventorydlqE03894C4QueueNameA3A7F871"
+       },
+       "\",{\"stat\":\"Maximum\"}]],\"yAxis\":{}}}]}"
+      ]
+     ]
+    },
+    "DashboardName": "coffeeshop-staging-service-health"
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-observability/ServiceHealthDashboard/Resource"
+   }
+  }
+ },
+ "Outputs": {
+  "AlarmTopicArn": {
+   "Value": {
+    "Ref": "AlarmNotificationsA4AFC78C"
+   }
+  },
+  "DashboardUrl": {
+   "Value": "https://ap-east-2.console.aws.amazon.com/cloudwatch/home?region=ap-east-2#dashboards:name=coffeeshop-staging-service-health"
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

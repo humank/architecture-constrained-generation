@@ -1,0 +1,201 @@
+{
+  "/coffeeshop-staging-network": [
+    {
+      "type": "aws:cdk:stack-tags",
+      "data": [
+        {
+          "key": "Environment",
+          "value": "staging"
+        },
+        {
+          "key": "ManagedBy",
+          "value": "CDK"
+        },
+        {
+          "key": "Project",
+          "value": "coffeeshop"
+        }
+      ]
+    }
+  ],
+  "/coffeeshop-staging-network/VpcId": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcId"
+    }
+  ],
+  "/coffeeshop-staging-network/VpcCidr": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VpcCidr"
+    }
+  ],
+  "/coffeeshop-staging-network/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/coffeeshop-staging-network/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcE924060A"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/IGW": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcIGWB2FC8AC7"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/VPCGW": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcVPCGW510BBDA1"
+    }
+  ],
+  "/coffeeshop-staging-network/DbSecurityGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DbSecurityGroupE9D701AD"
+    }
+  ],
+  "/coffeeshop-staging-network/Exports/Output{\"Ref\":\"CoffeeshopVpcPrivateSubnet1SubnetFE59E58C\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefCoffeeshopVpcPrivateSubnet1SubnetFE59E58C7DF1E42E"
+    }
+  ],
+  "/coffeeshop-staging-network/Exports/Output{\"Ref\":\"CoffeeshopVpcPrivateSubnet2Subnet4F458433\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefCoffeeshopVpcPrivateSubnet2Subnet4F45843304EF5934"
+    }
+  ],
+  "/coffeeshop-staging-network/Exports/Output{\"Fn::GetAtt\":[\"DbSecurityGroupE9D701AD\",\"GroupId\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttDbSecurityGroupE9D701ADGroupId7A7C114A"
+    }
+  ],
+  "/coffeeshop-staging-network/Exports/Output{\"Ref\":\"CoffeeshopVpcE924060A\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefCoffeeshopVpcE924060AD40F2944"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPublicSubnet1SubnetC2CCAC0F"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPublicSubnet1RouteTable4FE1BAE1"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPublicSubnet1RouteTableAssociation2FED8EF9"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPublicSubnet1DefaultRoute6C9617FB"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1/EIP": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPublicSubnet1EIP19E73EAE"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1/NATGateway": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPublicSubnet1NATGateway6384B7C4"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet2/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPublicSubnet2SubnetDEDA7095"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet2/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPublicSubnet2RouteTableA6D139D3"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet2/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPublicSubnet2RouteTableAssociation4BEB9080"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet2/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPublicSubnet2DefaultRouteD72017FB"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet1/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPrivateSubnet1SubnetFE59E58C"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet1/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPrivateSubnet1RouteTable8424FB62"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet1/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPrivateSubnet1RouteTableAssociation35D04533"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet1/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPrivateSubnet1DefaultRoute1977DD31"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet2/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPrivateSubnet2Subnet4F458433"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet2/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPrivateSubnet2RouteTableA480F0D8"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet2/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPrivateSubnet2RouteTableAssociation51D796AD"
+    }
+  ],
+  "/coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet2/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopVpcPrivateSubnet2DefaultRoute68155EE0"
+    }
+  ]
+}

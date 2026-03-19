@@ -1,0 +1,69 @@
+alerting:
+  provider: CloudWatch Alarms + SNS Notifications
+
+  alerts:
+    # === SLO-based alerts ===
+    - name: "ordering-slo-critical"
+      condition: "Error burn rate > 14.4x over 1h"
+      severity: critical
+      action: "Page on-call, auto-rollback canary"
+      runbook: "runbooks/high-error-rate.md"
+
+    - name: "ordering-latency-critical"
+      condition: "P99 latency > 2000ms over 5min"
+      severity: critical
+      action: "Page on-call"
+      runbook: "runbooks/high-latency.md"
+
+    # === Infrastructure alerts ===
+    - name: "rds-cpu-high"
+      condition: "RDS CPU > 80% over 10min"
+      severity: warning
+      action: "Notify Slack"
+
+    - name: "rds-connections-high"
+      condition: "RDS connections > 80% of max"
+      severity: warning
+
+    - name: "rds-storage-low"
+      condition: "RDS free storage < 5GB"
+      severity: critical
+
+    - name: "eks-node-cpu-high"
+      condition: "Node CPU > 85% over 15min"
+      severity: warning
+      action: "HPA should auto-scale, alert if already at max"
+
+    - name: "eks-pod-restart"
+      condition: "Pod restart count > 3 in 10min"
+      severity: warning
+      runbook: "runbooks/pod-restart.md"
+
+    # === Queue alerts ===
+    - name: "dlq-messages"
+      condition: "Any DLQ ApproximateNumberOfMessages > 0"
+      severity: critical
+      action: "Investigate failed message processing immediately"
+      runbook: "runbooks/dlq-messages.md"
+
+    - name: "queue-depth-high"
+      condition: "Any queue depth > 100 messages over 5min"
+      severity: warning
+      action: "Check consumer health, may need scaling"
+
+    # === Business alerts ===
+    - name: "inventory-low-stock"
+      condition: "LowStockAlertTriggered event"
+      severity: warning
+      action: "Notify Counter Staff (email/SMS)"
+      description: "Material below 30% threshold"
+
+    - name: "replenishment-sla-breach"
+      condition: "Replenishment request open > 3 days"
+      severity: critical
+      action: "Escalate to manager"
+
+    - name: "zero-orders"
+      condition: "No OrderPlaced events in 2h during business hours (8am-8pm)"
+      severity: warning
+      action: "Check system health — may indicate outage"

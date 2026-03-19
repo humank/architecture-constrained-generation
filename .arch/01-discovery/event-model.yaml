@@ -1,0 +1,118 @@
+event_model:
+  description: "Event Model — swimlanes showing command → event → read model flow"
+
+  swimlanes:
+    - name: "Order Lifecycle"
+      slices:
+        - command: PlaceOrder
+          actor: Waiter
+          event: OrderPlaced
+          read_model: "Order Summary (table, items, total)"
+
+        - command: ConfirmOrder
+          actor: "Counter Staff"
+          event: OrderConfirmed
+          read_model: "Confirmed Order (ready for payment)"
+
+        - command: ProcessPayment
+          actor: "Counter Staff"
+          event: PaymentProcessed
+          read_model: "Payment Receipt (amount, change)"
+
+        - automation: "Auto-submit to Barista"
+          trigger_event: PaymentProcessed
+          output_event: OrderSubmittedToBarista
+          read_model: "Barista Queue (pending orders with recipes)"
+
+        - command: DeliverOrder
+          actor: Waiter
+          event: OrderDelivered
+          read_model: "Delivery Status"
+
+        - command: CompleteOrder
+          actor: Waiter
+          event: OrderCompleted
+          read_model: "Completed Orders"
+
+    - name: "Preparation"
+      slices:
+        - command: StartPreparation
+          actor: Barista
+          event: PreparationStarted
+          read_model: "In-Progress Items"
+          side_effect: "Publishes to Inventory BC for ingredient deduction"
+
+        - command: CompleteCoffeePreparation
+          actor: Barista
+          event: CoffeePrepared
+          read_model: "Prepared Items"
+
+        - automation: "All items prepared check"
+          trigger_event: CoffeePrepared
+          condition: "All items in order prepared"
+          output_event: OrderReadyForDelivery
+          read_model: "Ready for Pickup (table number)"
+
+    - name: "Inventory"
+      slices:
+        - automation: "Deduct on preparation"
+          trigger_event: PreparationStarted
+          output_event: IngredientDeducted
+          read_model: "Current Stock Levels"
+
+        - automation: "Low-stock check"
+          trigger_event: IngredientDeducted
+          condition: "Level < 30%"
+          output_event: LowStockAlertTriggered
+          read_model: "Active Alerts"
+
+        - command: RequestReplenishment
+          actor: Barista
+          event: ReplenishmentRequested
+          read_model: "Pending Replenishments"
+
+        - command: CreatePurchaseOrder
+          actor: "Counter Staff"
+          event: PurchaseOrderCreated
+          read_model: "Purchase Orders"
+
+        - command: ConfirmReplenishment
+          actor: Barista
+          event: ReplenishmentConfirmed
+          read_model: "Updated Stock Levels (100%)"
+
+    - name: "Reporting"
+      slices:
+        - automation: "Aggregate sales data"
+          trigger_event: OrderCompleted
+          read_model: "Sales Report (daily, weekly, monthly totals, revenue, orders by hour)"
+
+        - automation: "Aggregate inventory data"
+          trigger_event: IngredientDeducted
+          read_model: "Inventory Report (current levels, consumption trends)"
+
+  information_flow:
+    - from: "Ordering BC"
+      to: "Preparation BC"
+      event: OrderSubmittedToBarista
+      data: "orderId, items with recipes"
+
+    - from: "Preparation BC"
+      to: "Inventory BC"
+      event: PreparationStarted
+      data: "recipe ingredients to deduct"
+
+    - from: "Preparation BC"
+      to: "Ordering BC"
+      event: OrderReadyForDelivery
+      data: "orderId, tableNumber"
+
+    - from: "Ordering BC"
+      to: "Reporting BC"
+      event: OrderCompleted
+      data: "orderId, items, total, timestamps"
+
+    - from: "Inventory BC"
+      to: "Reporting BC"
+      event: IngredientDeducted
+      data: "material, quantity, remaining level"

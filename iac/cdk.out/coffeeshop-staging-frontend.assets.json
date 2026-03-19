@@ -1,0 +1,36 @@
+{
+  "version": "52.0.0",
+  "files": {
+    "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6": {
+      "displayName": "coffeeshop-staging-frontend/Custom::S3AutoDeleteObjectsCustomResourceProvider Code",
+      "source": {
+        "path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "584518143473-ap-east-2-62456c0c": {
+          "bucketName": "cdk-hnb659fds-assets-584518143473-ap-east-2",
+          "objectKey": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip",
+          "region": "ap-east-2",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-file-publishing-role-584518143473-ap-east-2"
+        }
+      }
+    },
+    "38923dd6436c62a7ef9c83cc63bb181f0c54825929305c7a1b7cd1bffdb8e129": {
+      "displayName": "coffeeshop-staging-frontend Template",
+      "source": {
+        "path": "coffeeshop-staging-frontend.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "584518143473-ap-east-2-92c733fa": {
+          "bucketName": "cdk-hnb659fds-assets-584518143473-ap-east-2",
+          "objectKey": "38923dd6436c62a7ef9c83cc63bb181f0c54825929305c7a1b7cd1bffdb8e129.json",
+          "region": "ap-east-2",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-file-publishing-role-584518143473-ap-east-2"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

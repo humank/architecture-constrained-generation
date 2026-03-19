@@ -1,0 +1,157 @@
+aggregate:
+  name: Order
+  bounded_context: Ordering
+  description: "Manages the full lifecycle of a customer order from placement to completion"
+
+  root_entity:
+    name: Order
+    identity: { field: orderId, type: UUID }
+    fields:
+      - { name: tableNumber, type: int, constraints: "1-5" }
+      - { name: items, type: "List<OrderItem>", constraints: "non-empty" }
+      - { name: totalAmount, type: Money, constraints: ">= 0" }
+      - { name: cashReceived, type: Money, nullable: true }
+      - { name: changeGiven, type: Money, nullable: true }
+      - { name: status, type: OrderStatus }
+      - { name: placedAt, type: DateTime }
+      - { name: confirmedAt, type: DateTime, nullable: true }
+      - { name: paidAt, type: DateTime, nullable: true }
+      - { name: deliveredAt, type: DateTime, nullable: true }
+      - { name: completedAt, type: DateTime, nullable: true }
+
+  entities:
+    - name: OrderItem
+      identity: { field: itemId, type: UUID }
+      fields:
+        - { name: coffeeType, type: CoffeeType }
+        - { name: size, type: CoffeeSize }
+        - { name: quantity, type: int, constraints: ">= 1" }
+        - { name: customizations, type: "List<Customization>" }
+        - { name: unitPrice, type: Money }
+        - { name: surcharge, type: Money, default: 0 }
+        - { name: lineTotal, type: Money, computed: "(unitPrice + surcharge) * quantity" }
+
+  value_objects:
+    - name: Money
+      fields: [{ name: amount, type: int, constraints: ">= 0, currency TWD (no decimals)" }]
+
+    - name: CoffeeType
+      type: enum
+      values: [Espresso, Americano, Latte, Cappuccino]
+
+    - name: CoffeeSize
+      type: enum
+      values: [Single, Double, Short, Tall, Grande, Venti]
+      constraints:
+        - "Espresso: Single, Double only"
+        - "Americano/Latte/Cappuccino: Short, Tall, Grande, Venti only"
+
+    - name: Customization
+      type: enum
+      values:
+        - NoFoam        # Latte only
+        - WithFoam      # Latte only
+        - MoreFoam      # Latte only
+        - DryFoam       # Cappuccino only
+        - WetFoam       # Cappuccino only
+        - WhippedCream  # Cappuccino only, +$20
+        - SoyMilk       # Latte & Cappuccino only
+
+    - name: OrderStatus
+      type: enum
+      values: [Placed, Confirmed, Paid, Preparing, Ready, Delivered, Completed]
+
+  commands:
+    - name: PlaceOrder
+      actor: Waiter
+      parameters: [tableNumber, items: [{ coffeeType, size, quantity, customizations }]]
+      preconditions:
+        - "tableNumber must be 1-5"
+        - "items must be non-empty"
+        - "coffee type/size combination must be valid"
+        - "customizations must be valid for coffee type"
+      postconditions:
+        - "Order created with status Placed"
+        - "Total auto-calculated with surcharges"
+      events: [OrderPlaced]
+      business_logic:
+        - "Validate size compatibility per coffee type"
+        - "Validate customization compatibility per coffee type"
+        - "Calculate unit price from menu"
+        - "Add surcharges (whipped cream +$20)"
+        - "Compute lineTotal = (unitPrice + surcharge) * quantity"
+        - "Compute totalAmount = sum(lineTotal)"
+
+    - name: ConfirmOrder
+      actor: Counter Staff
+      parameters: [orderId]
+      preconditions:
+        - "Order status must be Placed"
+      postconditions:
+        - "Order status changes to Confirmed"
+      events: [OrderConfirmed]
+
+    - name: ProcessPayment
+      actor: Counter Staff
+      parameters: [orderId, cashReceived]
+      preconditions:
+        - "Order status must be Confirmed"
+        - "cashReceived >= totalAmount"
+      postconditions:
+        - "Order status changes to Paid"
+        - "changeGiven = cashReceived - totalAmount"
+        - "Order automatically submitted to Barista queue"
+      events: [PaymentProcessed, OrderSubmittedToBarista]
+      business_logic:
+        - "Calculate change = cashReceived - totalAmount"
+        - "Enrich OrderSubmittedToBarista with recipe for each item"
+
+    - name: MarkReady
+      actor: System
+      parameters: [orderId]
+      preconditions:
+        - "Order status must be Paid or Preparing"
+        - "Received OrderReadyForDelivery from Preparation BC"
+      postconditions:
+        - "Order status changes to Ready"
+      events: []
+      notes: "Triggered by consuming OrderReadyForDelivery event"
+
+    - name: DeliverOrder
+      actor: Waiter
+      parameters: [orderId]
+      preconditions:
+        - "Order status must be Ready"
+      postconditions:
+        - "Order status changes to Delivered"
+      events: [OrderDelivered]
+
+    - name: CompleteOrder
+      actor: Waiter
+      parameters: [orderId]
+      preconditions:
+        - "Order status must be Delivered"
+      postconditions:
+        - "Order status changes to Completed"
+      events: [OrderCompleted]
+
+  invariants:
+    - "Order must have valid table number (1-5)"
+    - "Order must have at least one item"
+    - "Espresso only available in Single/Double size"
+    - "Americano/Latte/Cappuccino only available in Short/Tall/Grande/Venti"
+    - "Foam customization only applies to Latte"
+    - "Cappuccino style (dry/wet) only applies to Cappuccino"
+    - "Whipped cream only applies to Cappuccino (+$20 surcharge)"
+    - "Soy milk only applies to Latte and Cappuccino"
+    - "Cash received must be >= total amount"
+    - "Status transitions must follow: Placed → Confirmed → Paid → Ready → Delivered → Completed"
+
+  state_machine:
+    states: [Placed, Confirmed, Paid, Ready, Delivered, Completed]
+    transitions:
+      - { from: Placed, to: Confirmed, trigger: ConfirmOrder, actor: "Counter Staff" }
+      - { from: Confirmed, to: Paid, trigger: ProcessPayment, actor: "Counter Staff" }
+      - { from: Paid, to: Ready, trigger: "OrderReadyForDelivery (from Preparation BC)", actor: System }
+      - { from: Ready, to: Delivered, trigger: DeliverOrder, actor: Waiter }
+      - { from: Delivered, to: Completed, trigger: CompleteOrder, actor: Waiter }

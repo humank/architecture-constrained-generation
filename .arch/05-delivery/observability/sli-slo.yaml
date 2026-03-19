@@ -1,0 +1,96 @@
+sli_slo:
+  services:
+    - service: ordering-service
+      slis:
+        - name: availability
+          definition: "Successful HTTP responses (2xx, 3xx) / total requests"
+          target: 99.9%
+        - name: latency
+          definition: "P99 response time for order placement"
+          target: "< 2000ms"
+          budget: "< 500ms P50"
+        - name: order_accuracy
+          definition: "Orders with correct pricing / total orders"
+          target: 99.99%
+      slos:
+        - name: "Order Service Availability"
+          target: 99.9%
+          window: 30d
+          error_budget: "43.2 minutes/month"
+          burn_rate_alerts:
+            - { rate: 14.4, window: 1h, severity: critical }   # 2% budget in 1h
+            - { rate: 6, window: 6h, severity: warning }       # 5% budget in 6h
+            - { rate: 1, window: 3d, severity: ticket }        # on track to exceed
+
+    - service: preparation-service
+      slis:
+        - name: availability
+          target: 99.9%
+        - name: event_processing_latency
+          definition: "Time from OrderSubmittedToBarista received to PreparationStarted emitted"
+          target: "< 5000ms P99"
+        - name: outbox_lag
+          definition: "Time from outbox entry creation to SNS publish"
+          target: "< 10000ms P99"
+      slos:
+        - name: "Preparation Service Availability"
+          target: 99.9%
+          window: 30d
+          error_budget: "43.2 minutes/month"
+
+    - service: inventory-service
+      slis:
+        - name: availability
+          target: 99.5%
+        - name: deduction_accuracy
+          definition: "Correct ingredient deductions / total deductions"
+          target: 99.99%
+        - name: event_processing_latency
+          definition: "Time from PreparationStarted received to IngredientDeducted emitted"
+          target: "< 3000ms P99"
+      slos:
+        - name: "Inventory Service Availability"
+          target: 99.5%
+          window: 30d
+          error_budget: "3.6 hours/month"
+
+    - service: reporting-service
+      slis:
+        - name: availability
+          target: 99.0%
+        - name: data_freshness
+          definition: "Time from source event to projection update"
+          target: "< 30000ms P99"
+      slos:
+        - name: "Reporting Service Availability"
+          target: 99.0%
+          window: 30d
+          error_budget: "7.2 hours/month"
+
+    - service: frontend
+      slis:
+        - name: lcp
+          definition: "Largest Contentful Paint"
+          target: "< 2500ms P75"
+        - name: fid
+          definition: "First Input Delay"
+          target: "< 100ms P75"
+        - name: cls
+          definition: "Cumulative Layout Shift"
+          target: "< 0.1 P75"
+
+  composite_slos:
+    - journey: "Order to Completion"
+      services: [ordering-service, preparation-service, inventory-service]
+      composite_target: "99.9% × 99.9% × 99.5% ≈ 99.3%"
+      notes: "End-to-end journey depends on all three services"
+
+  error_budget_policy:
+    - condition: "Budget > 50% remaining"
+      action: "Normal development velocity"
+    - condition: "Budget 20-50% remaining"
+      action: "Reduce risky deployments, increase testing"
+    - condition: "Budget < 20% remaining"
+      action: "Feature freeze, focus on reliability"
+    - condition: "Budget exhausted"
+      action: "All hands on reliability, no feature work"

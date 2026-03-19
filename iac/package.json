@@ -1,0 +1,25 @@
+{
+  "name": "coffeeshop-iac",
+  "version": "1.0.0",
+  "bin": {
+    "coffeeshop-iac": "bin/app.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy:staging": "cdk deploy --all -c environment=staging",
+    "deploy:production": "cdk deploy --all -c environment=production"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "aws-cdk": "^2.170.0",
+    "typescript": "~5.6.0"
+  },
+  "dependencies": {
+    "@aws-cdk/lambda-layer-kubectl-v31": "^2.1.0",
+    "aws-cdk-lib": "^2.170.0",
+    "constructs": "^10.4.0"
+  }
+}

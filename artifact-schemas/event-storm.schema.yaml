@@ -1,0 +1,76 @@
+schema:
+  version: "1.0"
+  description: "Event Storming output (Big Picture + Process + Design Level)"
+
+event_storm:
+  domain_events:
+    type: array
+    items:
+      name: string  # past tense: "OrderPlaced"
+      description: string
+      trigger:
+        type: enum [command, policy, external, time]
+        source: string
+      bounded_context: string  # candidate BC
+      data: object  # key fields carried by this event
+
+  commands:
+    type: array
+    items:
+      name: string  # imperative: "PlaceOrder"
+      description: string
+      actor: string  # who/what triggers it
+      aggregate: string  # target aggregate
+      bounded_context: string
+      produces_events: array[string]  # refs to domain_events[].name
+      input_data: object
+
+  aggregates:
+    type: array
+    items:
+      name: string
+      bounded_context: string
+      commands: array[string]
+      events: array[string]
+      description: string
+
+  policies:
+    type: array
+    items:
+      name: string
+      description: string  # "WHEN [event] THEN [command]"
+      trigger_event: string
+      resulting_command: string
+      bounded_context: string
+
+  read_models:
+    type: array
+    items:
+      name: string
+      description: string
+      source_events: array[string]
+      consumers: array[string]  # who reads this
+      bounded_context: string
+
+  external_systems:
+    type: array
+    items:
+      name: string
+      description: string
+      integration_type: enum [inbound, outbound, bidirectional]
+
+  hot_spots:
+    type: array
+    items:
+      description: string
+      location: string  # near which event/command
+      resolution_status: enum [open, resolved, deferred]
+      resolution: string
+
+  bounded_context_candidates:
+    type: array
+    items:
+      name: string
+      pivotal_events: array[string]  # events that mark BC boundary
+      aggregates: array[string]
+      description: string

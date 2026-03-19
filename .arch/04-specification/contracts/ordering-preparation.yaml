@@ -1,0 +1,206 @@
+contract:
+  name: Ordering-Preparation Integration
+  version: "1.0"
+  description: >
+    Async messaging contract between the Ordering BC and the Preparation BC.
+    Ordering publishes OrderSubmittedToBarista when a customer order is placed.
+    Preparation publishes OrderReadyForDelivery when all items are prepared.
+
+  bounded-contexts:
+    producer-a: Ordering
+    consumer-a: Preparation
+    producer-b: Preparation
+    consumer-b: Ordering
+
+  transport:
+    ordering-to-preparation:
+      type: async
+      protocol: SNS-SQS
+      sns-topic: ordering-events
+      sqs-queue: preparation-from-ordering
+      region: us-east-1
+      message-format: JSON
+      delivery: at-least-once
+      ordering: best-effort
+
+    preparation-to-ordering:
+      type: async
+      protocol: SNS-SQS
+      sns-topic: preparation-events
+      sqs-queue: ordering-from-preparation
+      region: us-east-1
+      message-format: JSON
+      delivery: at-least-once
+      ordering: best-effort
+
+  events:
+    - name: OrderSubmittedToBarista
+      direction: Ordering -> Preparation
+      description: >
+        Published when a customer order has been validated, priced, and persisted
+        by the Ordering service. Preparation picks this up to begin making drinks.
+      topic: ordering-events
+      queue: preparation-from-ordering
+      schema:
+        type: object
+        required:
+          - eventType
+          - orderId
+          - tableNumber
+          - items
+          - occurredAt
+        properties:
+          eventType:
+            type: string
+            const: OrderSubmittedToBarista
+          orderId:
+            type: string
+            format: uuid
+            description: Unique identifier for the order
+            example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          tableNumber:
+            type: integer
+            minimum: 1
+            maximum: 5
+            description: The table number the order is assigned to
+            example: 3
+          items:
+            type: array
+            minItems: 1
+            items:
+              type: object
+              required:
+                - coffeeType
+                - size
+                - quantity
+                - recipe
+              properties:
+                coffeeType:
+                  type: string
+                  enum:
+                    - Espresso
+                    - Americano
+                    - Cappuccino
+                    - Latte
+                    - Mocha
+                  description: Type of coffee beverage
+                  example: Cappuccino
+                size:
+                  type: string
+                  enum:
+                    - Small
+                    - Medium
+                    - Large
+                  description: Drink size
+                  example: Medium
+                quantity:
+                  type: integer
+                  minimum: 1
+                  description: Number of this drink to prepare
+                  example: 2
+                customizations:
+                  type: object
+                  description: Optional customer customizations
+                  properties:
+                    extraShot:
+                      type: boolean
+                      default: false
+                    milkType:
+                      type: string
+                      enum:
+                        - Whole
+                        - Skim
+                        - Oat
+                        - Almond
+                        - Soy
+                      default: Whole
+                    syrup:
+                      type: string
+                      enum:
+                        - Vanilla
+                        - Caramel
+                        - Hazelnut
+                        - None
+                      default: None
+                recipe:
+                  type: object
+                  description: Resolved recipe for this drink size and customizations
+                  required:
+                    - ingredients
+                  properties:
+                    ingredients:
+                      type: array
+                      minItems: 1
+                      items:
+                        type: object
+                        required:
+                          - material
+                          - quantity
+                          - unit
+                        properties:
+                          material:
+                            type: string
+                            example: Coffee Beans
+                          quantity:
+                            type: number
+                            example: 18
+                          unit:
+                            type: string
+                            enum: [g, ml, oz, shots, pumps]
+                            example: g
+          occurredAt:
+            type: string
+            format: date-time
+            description: ISO 8601 timestamp when the event occurred
+            example: "2026-03-19T10:30:00Z"
+
+    - name: OrderReadyForDelivery
+      direction: Preparation -> Ordering
+      description: >
+        Published when all items in an order have been prepared and are ready
+        for delivery to the customer's table.
+      topic: preparation-events
+      queue: ordering-from-preparation
+      schema:
+        type: object
+        required:
+          - eventType
+          - orderId
+          - tableNumber
+          - readyAt
+        properties:
+          eventType:
+            type: string
+            const: OrderReadyForDelivery
+          orderId:
+            type: string
+            format: uuid
+            description: Unique identifier for the completed order
+            example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          tableNumber:
+            type: integer
+            minimum: 1
+            maximum: 5
+            description: The table number to deliver to
+            example: 3
+          readyAt:
+            type: string
+            format: date-time
+            description: ISO 8601 timestamp when the order became ready
+            example: "2026-03-19T10:35:42Z"
+
+  idempotency:
+    strategy: orderId-based deduplication
+    description: >
+      Consumers must deduplicate using orderId. Processing the same orderId
+      more than once must be a no-op.
+
+  error-handling:
+    dead-letter-queue:
+      ordering-to-preparation: preparation-from-ordering-dlq
+      preparation-to-ordering: ordering-from-preparation-dlq
+    max-receive-count: 3
+    retry-policy:
+      initial-backoff-seconds: 1
+      max-backoff-seconds: 60
+      multiplier: 2

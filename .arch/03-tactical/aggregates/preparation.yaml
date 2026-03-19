@@ -1,0 +1,123 @@
+aggregate:
+  name: Preparation
+  bounded_context: Preparation
+  description: "Manages the coffee preparation workflow for a single order"
+
+  root_entity:
+    name: Preparation
+    identity: { field: preparationId, type: UUID }
+    fields:
+      - { name: orderId, type: UUID }
+      - { name: tableNumber, type: int }
+      - { name: items, type: "List<PreparationItem>" }
+      - { name: status, type: PreparationStatus }
+      - { name: createdAt, type: DateTime }
+      - { name: completedAt, type: DateTime, nullable: true }
+
+  entities:
+    - name: PreparationItem
+      identity: { field: itemId, type: UUID }
+      fields:
+        - { name: coffeeType, type: CoffeeType }
+        - { name: size, type: CoffeeSize }
+        - { name: customizations, type: "List<String>" }
+        - { name: recipe, type: Recipe }
+        - { name: status, type: ItemPreparationStatus }
+        - { name: startedAt, type: DateTime, nullable: true }
+        - { name: completedAt, type: DateTime, nullable: true }
+
+  value_objects:
+    - name: Recipe
+      fields:
+        - { name: ingredients, type: "List<Ingredient>" }
+      description: "Exact quantities of materials needed for this coffee"
+
+    - name: Ingredient
+      fields:
+        - { name: material, type: String }
+        - { name: quantity, type: number }
+        - { name: unit, type: String }
+
+    - name: PreparationStatus
+      type: enum
+      values: [Pending, InProgress, Ready]
+
+    - name: ItemPreparationStatus
+      type: enum
+      values: [Pending, InProgress, Done]
+
+  commands:
+    - name: StartPreparation
+      actor: Barista
+      parameters: [preparationId, itemId]
+      preconditions:
+        - "Preparation must exist"
+        - "Item status must be Pending"
+      postconditions:
+        - "Item status changes to InProgress"
+        - "Preparation status changes to InProgress (if first item)"
+        - "PreparationStarted event published with recipe (for Inventory BC)"
+      events: [PreparationStarted]
+      business_logic:
+        - "Resolve recipe based on coffeeType + size + customizations"
+        - "Include recipe in event so Inventory BC can deduct"
+
+    - name: CompleteCoffeePreparation
+      actor: Barista
+      parameters: [preparationId, itemId]
+      preconditions:
+        - "Item status must be InProgress"
+      postconditions:
+        - "Item status changes to Done"
+        - "If ALL items Done → Preparation status changes to Ready → OrderReadyForDelivery"
+      events: [CoffeePrepared, "OrderReadyForDelivery (conditional)"]
+
+  invariants:
+    - "Cannot start preparation for already-in-progress or done item"
+    - "Cannot complete preparation for item not yet started"
+    - "OrderReadyForDelivery only fires when ALL items are Done"
+
+  state_machine:
+    states: [Pending, InProgress, Ready]
+    transitions:
+      - { from: Pending, to: InProgress, trigger: "StartPreparation (first item)", actor: Barista }
+      - { from: InProgress, to: Ready, trigger: "CompleteCoffeePreparation (last item)", actor: Barista }
+
+  recipe_resolution:
+    description: "StandardRecipeResolution — calculates ingredients per coffee type/size/customization"
+    rules:
+      base_shots:
+        Espresso_Single: 1
+        Espresso_Double: 2
+        Short: 1
+        Tall: 1
+        Grande: 2
+        Venti: 2
+      coffee_beans_per_shot: 20  # grams
+      espresso_per_shot: 30      # ml
+
+      milk_amounts:
+        Short: 150    # ml
+        Tall: 200
+        Grande: 250
+        Venti: 300
+      foam_ratios:
+        Latte:
+          no_foam: { milk: 1.0, foam: 0.0 }
+          with_foam: { milk: 0.85, foam: 0.15 }
+          more_foam: { milk: 0.7, foam: 0.3 }
+        Cappuccino:
+          dry_foam: { milk: 0.33, foam: 0.67 }  # 1:2 milk-to-foam
+          wet_foam: { milk: 0.67, foam: 0.33 }  # 2:1 milk-to-foam
+
+      water_amounts:  # Americano only
+        Short: 120
+        Tall: 170
+        Grande: 220
+        Venti: 270
+
+      filter_paper: 1  # per espresso shot extraction
+
+      whipped_cream: 20  # ml, Cappuccino only with WhippedCream customization
+
+      soy_milk_substitution: "Replace milk with soy_milk in recipe when SoyMilk customization present"

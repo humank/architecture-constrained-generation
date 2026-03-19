@@ -1,0 +1,31 @@
+schema:
+  version: "1.0"
+  description: "Quality Gate report for phase transitions"
+
+quality_report:
+  phase: string  # which phase was checked
+  timestamp: string  # ISO 8601
+  status: enum [pass, warn, fail]
+
+  checks:
+    type: array
+    items:
+      name: string
+      category: enum [anti-pattern, completeness, consistency, thread-check]
+      status: enum [pass, warn, fail]
+      message: string
+      recommendation: string
+
+  language_consistency:
+    new_terms: array[string]
+    undefined_terms: array[string]  # terms used but not in glossary
+    status: enum [pass, fail]
+
+  feedback_loops_triggered:
+    type: array
+    items:
+      from_phase: string
+      to_phase: string
+      reason: string
+
+  next_action: enum [proceed, review-and-proceed, block-fix-required, feedback-loop]

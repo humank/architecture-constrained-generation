@@ -1,0 +1,52 @@
+domain_model:
+  bounded_context: Inventory
+
+  classes:
+    - name: InventoryItem
+      type: AggregateRoot
+      fields:
+        - { name: materialId, type: String, key: true }
+        - { name: materialName, type: String }
+        - { name: currentLevel, type: number }
+        - { name: maxCapacity, type: number }
+        - { name: unit, type: String }
+        - { name: alertThreshold, type: number, default: 0.3 }
+        - { name: alertTriggered, type: boolean }
+        - { name: lastUpdated, type: DateTime }
+      methods:
+        - "deduct(quantity): reduces level, checks threshold, emits events"
+        - "restore(): sets currentLevel = maxCapacity, resets alert"
+        - "getPercentage(): currentLevel / maxCapacity * 100"
+
+    - name: Replenishment
+      type: AggregateRoot
+      fields:
+        - { name: replenishmentId, type: UUID, key: true }
+        - { name: materialId, type: String }
+        - { name: status, type: ReplenishmentStatus }
+        - { name: requestedAt, type: DateTime }
+        - { name: purchaseOrderId, type: UUID, nullable: true }
+        - { name: supplier, type: String, nullable: true }
+        - { name: expectedDeliveryDate, type: Date, nullable: true }
+        - { name: confirmedAt, type: DateTime, nullable: true }
+      methods:
+        - "request(materialId): creates in Requested state"
+        - "createPurchaseOrder(supplier, expectedDate): transitions to PurchaseOrdered"
+        - "confirmDelivery(): transitions to Delivered, triggers inventory restore"
+
+    - name: DeductInventoryService
+      type: DomainService
+      methods:
+        - "deductForPreparation(recipe): iterates recipe ingredients, deducts each from InventoryItem"
+      description: "Orchestrates multi-material deduction from a single PreparationStarted event"
+      error_handling: "If material not found → log error + send to DLQ. NEVER swallow silently."
+
+  seed_data_strategy:
+    tool: "Flyway (V1__init_inventory.sql)"
+    timing: "MUST run before any SQS consumer starts polling"
+    verification: "Health check: GET /api/inventory returns 4 items with initialLevel == maxCapacity"
+    failure_mode: >
+      If seed data missing when PreparationStarted arrives:
+      → InventoryItem not found exception
+      → SQS message retried 3x then sent to DLQ
+      → Inventory never deducted (IRRECOVERABLE without manual intervention)

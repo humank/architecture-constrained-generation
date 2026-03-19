@@ -1,0 +1,297 @@
+{
+  "/coffeeshop-staging-messaging": [
+    {
+      "type": "aws:cdk:stack-tags",
+      "data": [
+        {
+          "key": "Environment",
+          "value": "staging"
+        },
+        {
+          "key": "ManagedBy",
+          "value": "CDK"
+        },
+        {
+          "key": "Project",
+          "value": "coffeeshop"
+        }
+      ]
+    }
+  ],
+  "/coffeeshop-staging-messaging/Topic-ordering-events": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Topicorderingevents"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Topic-preparation-events": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Topicpreparationevents"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Topic-inventory-events": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Topicinventoryevents"
+    }
+  ],
+  "/coffeeshop-staging-messaging/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/coffeeshop-staging-messaging/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/coffeeshop-staging-messaging/OrderingEventsTopic/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OrderingEventsTopicA3C8AA12"
+    }
+  ],
+  "/coffeeshop-staging-messaging/PreparationEventsTopic/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PreparationEventsTopicC401A7D2"
+    }
+  ],
+  "/coffeeshop-staging-messaging/InventoryEventsTopic/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "InventoryEventsTopicBD02F970"
+    }
+  ],
+  "/coffeeshop-staging-messaging/preparation-from-ordering-dlq/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "preparationfromorderingdlq5ECBEADD"
+    }
+  ],
+  "/coffeeshop-staging-messaging/preparation-from-ordering/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "preparationfromordering1DD587E7"
+    }
+  ],
+  "/coffeeshop-staging-messaging/ordering-from-preparation-dlq/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "orderingfrompreparationdlqDD9D91FE"
+    }
+  ],
+  "/coffeeshop-staging-messaging/ordering-from-preparation/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "orderingfrompreparationB4262829"
+    }
+  ],
+  "/coffeeshop-staging-messaging/inventory-from-preparation-dlq/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "inventoryfrompreparationdlq97819957"
+    }
+  ],
+  "/coffeeshop-staging-messaging/inventory-from-preparation/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "inventoryfrompreparationDAFB6C47"
+    }
+  ],
+  "/coffeeshop-staging-messaging/reporting-from-ordering-dlq/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "reportingfromorderingdlq53EA8A20"
+    }
+  ],
+  "/coffeeshop-staging-messaging/reporting-from-ordering/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "reportingfromordering39E4ABF5"
+    }
+  ],
+  "/coffeeshop-staging-messaging/reporting-from-inventory-dlq/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "reportingfrominventorydlqE03894C4"
+    }
+  ],
+  "/coffeeshop-staging-messaging/reporting-from-inventory/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "reportingfrominventory99F82EBD"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Ref\":\"OrderingEventsTopicA3C8AA12\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefOrderingEventsTopicA3C8AA121FB7E52F"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"orderingfrompreparationB4262829\",\"Arn\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttorderingfrompreparationB4262829Arn608F0966"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Ref\":\"PreparationEventsTopicC401A7D2\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefPreparationEventsTopicC401A7D22C14D665"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"preparationfromordering1DD587E7\",\"Arn\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttpreparationfromordering1DD587E7Arn96FD192C"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Ref\":\"InventoryEventsTopicBD02F970\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefInventoryEventsTopicBD02F9700169DFB2"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"inventoryfrompreparationDAFB6C47\",\"Arn\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttinventoryfrompreparationDAFB6C47ArnAC7E9568"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"reportingfromordering39E4ABF5\",\"Arn\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttreportingfromordering39E4ABF5Arn73C45592"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"reportingfrominventory99F82EBD\",\"Arn\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttreportingfrominventory99F82EBDArn631C15D3"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"preparationfromorderingdlq5ECBEADD\",\"QueueName\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttpreparationfromorderingdlq5ECBEADDQueueName31289E5C"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"orderingfrompreparationdlqDD9D91FE\",\"QueueName\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttorderingfrompreparationdlqDD9D91FEQueueName7A56F0A3"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"inventoryfrompreparationdlq97819957\",\"QueueName\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttinventoryfrompreparationdlq97819957QueueName055E5278"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"reportingfromorderingdlq53EA8A20\",\"QueueName\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttreportingfromorderingdlq53EA8A20QueueName75306640"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"reportingfrominventorydlqE03894C4\",\"QueueName\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttreportingfrominventorydlqE03894C4QueueNameA3A7F871"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"preparationfromordering1DD587E7\",\"QueueName\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttpreparationfromordering1DD587E7QueueName70CC1941"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"orderingfrompreparationB4262829\",\"QueueName\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttorderingfrompreparationB4262829QueueName779F33FB"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"inventoryfrompreparationDAFB6C47\",\"QueueName\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttinventoryfrompreparationDAFB6C47QueueName3A53FB81"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"reportingfromordering39E4ABF5\",\"QueueName\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttreportingfromordering39E4ABF5QueueName6B773BF1"
+    }
+  ],
+  "/coffeeshop-staging-messaging/Exports/Output{\"Fn::GetAtt\":[\"reportingfrominventory99F82EBD\",\"QueueName\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttreportingfrominventory99F82EBDQueueName6A717A2A"
+    }
+  ],
+  "/coffeeshop-staging-messaging/preparation-from-ordering/Policy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "preparationfromorderingPolicyB1CF2C99"
+    }
+  ],
+  "/coffeeshop-staging-messaging/preparation-from-ordering/coffeeshopstagingmessagingOrderingEventsTopic5C12DAB3/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "preparationfromorderingcoffeeshopstagingmessagingOrderingEventsTopic5C12DAB3DABDAD82"
+    }
+  ],
+  "/coffeeshop-staging-messaging/ordering-from-preparation/Policy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "orderingfrompreparationPolicy63748F7C"
+    }
+  ],
+  "/coffeeshop-staging-messaging/ordering-from-preparation/coffeeshopstagingmessagingPreparationEventsTopic11CBA5CE/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "orderingfrompreparationcoffeeshopstagingmessagingPreparationEventsTopic11CBA5CE26B80B57"
+    }
+  ],
+  "/coffeeshop-staging-messaging/inventory-from-preparation/Policy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "inventoryfrompreparationPolicy69C73286"
+    }
+  ],
+  "/coffeeshop-staging-messaging/inventory-from-preparation/coffeeshopstagingmessagingPreparationEventsTopic11CBA5CE/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "inventoryfrompreparationcoffeeshopstagingmessagingPreparationEventsTopic11CBA5CEBBF82D03"
+    }
+  ],
+  "/coffeeshop-staging-messaging/reporting-from-ordering/Policy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "reportingfromorderingPolicy5E4616C5"
+    }
+  ],
+  "/coffeeshop-staging-messaging/reporting-from-ordering/coffeeshopstagingmessagingOrderingEventsTopic5C12DAB3/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "reportingfromorderingcoffeeshopstagingmessagingOrderingEventsTopic5C12DAB3A70DC234"
+    }
+  ],
+  "/coffeeshop-staging-messaging/reporting-from-inventory/Policy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "reportingfrominventoryPolicy38A5CBE2"
+    }
+  ],
+  "/coffeeshop-staging-messaging/reporting-from-inventory/coffeeshopstagingmessagingInventoryEventsTopic5BA1D9BB/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "reportingfrominventorycoffeeshopstagingmessagingInventoryEventsTopic5BA1D9BB20E2775B"
+    }
+  ]
+}

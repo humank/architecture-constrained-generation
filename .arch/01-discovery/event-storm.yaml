@@ -1,0 +1,134 @@
+event_storm:
+  description: "Big-picture Event Storming for Coffeeshop Management System"
+
+  domain_events:
+    # === Ordering ===
+    - event: OrderPlaced
+      trigger: { command: PlaceOrder, actor: Waiter }
+      data: { orderId, tableNumber, items: [{ coffeeType, size, quantity, customizations }] }
+      aggregate: Order
+      notes: "System auto-calculates total including surcharges"
+
+    - event: OrderConfirmed
+      trigger: { command: ConfirmOrder, actor: "Counter Staff" }
+      data: { orderId, confirmedTotal }
+      aggregate: Order
+
+    # === Payment ===
+    - event: PaymentProcessed
+      trigger: { command: ProcessPayment, actor: "Counter Staff" }
+      data: { orderId, amountDue, cashReceived, changeGiven }
+      aggregate: Order
+      notes: "Cash only. Change = cashReceived - amountDue"
+
+    - event: OrderSubmittedToBarista
+      trigger: { policy: "After PaymentProcessed" }
+      data: { orderId, items: [{ coffeeType, size, customizations, recipe }] }
+      aggregate: Order
+      notes: "Automatic — paid order enters barista queue"
+
+    # === Preparation ===
+    - event: PreparationStarted
+      trigger: { command: StartPreparation, actor: Barista }
+      data: { orderId, itemId, recipe: { ingredients: [{ material, quantity }] } }
+      aggregate: Preparation
+      notes: "Triggers ingredient deduction from inventory"
+
+    - event: CoffeePrepared
+      trigger: { command: CompleteCoffeePreparation, actor: Barista }
+      data: { orderId, itemId }
+      aggregate: Preparation
+
+    - event: OrderReadyForDelivery
+      trigger: { policy: "When all items in order are prepared" }
+      data: { orderId, tableNumber }
+      aggregate: Preparation
+
+    # === Delivery ===
+    - event: OrderDelivered
+      trigger: { command: DeliverOrder, actor: Waiter }
+      data: { orderId, tableNumber }
+      aggregate: Order
+
+    - event: OrderCompleted
+      trigger: { command: CompleteOrder, actor: Waiter }
+      data: { orderId, completedAt }
+      aggregate: Order
+
+    # === Inventory ===
+    - event: IngredientDeducted
+      trigger: { policy: "On PreparationStarted — deduct recipe ingredients" }
+      data: { material, quantityDeducted, remainingLevel, percentageRemaining }
+      aggregate: Inventory
+
+    - event: LowStockAlertTriggered
+      trigger: { policy: "When material drops below 30% capacity" }
+      data: { material, currentLevel, threshold, maxCapacity }
+      aggregate: Inventory
+      notes: "Sends notification to Counter Staff (text/email)"
+
+    - event: ReplenishmentRequested
+      trigger: { command: RequestReplenishment, actor: Barista }
+      data: { material, currentLevel, requestedQuantity }
+      aggregate: Inventory
+
+    - event: PurchaseOrderCreated
+      trigger: { command: CreatePurchaseOrder, actor: "Counter Staff" }
+      data: { material, quantity, supplier, expectedDeliveryDate }
+      aggregate: Inventory
+
+    - event: ReplenishmentConfirmed
+      trigger: { command: ConfirmReplenishment, actor: Barista }
+      data: { material, quantityReceived, newLevel }
+      aggregate: Inventory
+      notes: "Restores to 100% capacity"
+
+  commands:
+    - PlaceOrder
+    - ConfirmOrder
+    - ProcessPayment
+    - StartPreparation
+    - CompleteCoffeePreparation
+    - DeliverOrder
+    - CompleteOrder
+    - RequestReplenishment
+    - CreatePurchaseOrder
+    - ConfirmReplenishment
+
+  policies:
+    - name: "Auto-submit after payment"
+      trigger: PaymentProcessed
+      action: "Submit order to barista queue"
+    - name: "Deduct ingredients on preparation start"
+      trigger: PreparationStarted
+      action: "Deduct recipe ingredients from inventory"
+    - name: "Low-stock alert"
+      trigger: IngredientDeducted
+      condition: "Material level < 30% capacity"
+      action: "Trigger LowStockAlertTriggered"
+    - name: "Order ready when all items prepared"
+      trigger: CoffeePrepared
+      condition: "All items in order are prepared"
+      action: "Trigger OrderReadyForDelivery"
+
+  hot_spots:
+    - topic: "Recipe granularity"
+      question: "Do we need exact recipe per type/size/customization combo stored in system?"
+      resolution: "Yes — recipes are essential for accurate ingredient deduction"
+    - topic: "Partial order delivery"
+      question: "Can waiter deliver items one by one, or only when entire order is ready?"
+      resolution: "Entire order — OrderReadyForDelivery fires when ALL items are prepared"
+    - topic: "Concurrent orders for same table"
+      question: "Can a table have multiple active orders?"
+      resolution: "Yes — orders are independent, identified by orderId"
+
+  bounded_context_candidates:
+    - name: "Ordering"
+      events: [OrderPlaced, OrderConfirmed, PaymentProcessed, OrderSubmittedToBarista, OrderDelivered, OrderCompleted]
+    - name: "Preparation"
+      events: [PreparationStarted, CoffeePrepared, OrderReadyForDelivery]
+    - name: "Inventory"
+      events: [IngredientDeducted, LowStockAlertTriggered, ReplenishmentRequested, PurchaseOrderCreated, ReplenishmentConfirmed]
+    - name: "Reporting"
+      events: [OrderCompleted, IngredientDeducted]
+      notes: "Consumes events from other BCs for dashboards"

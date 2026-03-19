@@ -1,0 +1,135 @@
+contract:
+  name: Preparation-Inventory Integration
+  version: "1.0"
+  description: >
+    Async messaging contract between the Preparation BC and the Inventory BC.
+    Preparation publishes PreparationStarted when a barista begins making a drink.
+    Inventory consumes this to deduct ingredients from stock levels.
+    CRITICAL: The SQS subscription uses a filter policy so that only
+    PreparationStarted events reach the Inventory queue. Other events on the
+    preparation-events topic (CoffeePrepared, OrderReadyForDelivery) are excluded.
+
+  bounded-contexts:
+    producer: Preparation
+    consumer: Inventory
+
+  transport:
+    preparation-to-inventory:
+      type: async
+      protocol: SNS-SQS
+      sns-topic: preparation-events
+      sqs-queue: inventory-from-preparation
+      region: us-east-1
+      message-format: JSON
+      delivery: at-least-once
+      ordering: best-effort
+
+      subscription-filter-policy:
+        description: >
+          CRITICAL: This filter ensures that only PreparationStarted events
+          are delivered to the inventory-from-preparation queue.
+          The preparation-events topic also carries CoffeePrepared and
+          OrderReadyForDelivery events which must NOT reach Inventory.
+        filter:
+          eventType:
+            - PreparationStarted
+        filter-policy-scope: MessageBody
+
+  events:
+    - name: PreparationStarted
+      direction: Preparation -> Inventory
+      description: >
+        Published when a barista begins preparing an individual drink item.
+        Inventory uses the embedded recipe to deduct the required ingredients
+        from current stock levels.
+      topic: preparation-events
+      queue: inventory-from-preparation
+      schema:
+        type: object
+        required:
+          - eventType
+          - orderId
+          - itemId
+          - recipe
+          - occurredAt
+        properties:
+          eventType:
+            type: string
+            const: PreparationStarted
+          orderId:
+            type: string
+            format: uuid
+            description: The parent order this item belongs to
+            example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          itemId:
+            type: string
+            format: uuid
+            description: Unique identifier for this specific drink item
+            example: "f1e2d3c4-b5a6-7890-fedc-ba0987654321"
+          recipe:
+            type: object
+            required:
+              - ingredients
+            properties:
+              ingredients:
+                type: array
+                minItems: 1
+                items:
+                  type: object
+                  required:
+                    - material
+                    - quantity
+                    - unit
+                  properties:
+                    material:
+                      type: string
+                      description: Inventory material name (must match Inventory BC material catalog)
+                      example: Coffee Beans
+                    quantity:
+                      type: number
+                      minimum: 0
+                      exclusiveMinimum: true
+                      description: Amount of material required
+                      example: 18
+                    unit:
+                      type: string
+                      enum: [g, ml, oz, shots, pumps]
+                      description: Unit of measure
+                      example: g
+          occurredAt:
+            type: string
+            format: date-time
+            description: ISO 8601 timestamp when preparation began
+            example: "2026-03-19T10:31:05Z"
+
+  filtered-out-events:
+    description: >
+      The following events are published to the same preparation-events SNS topic
+      but MUST NOT be delivered to the inventory-from-preparation queue. The
+      subscription filter policy above ensures this.
+    events:
+      - name: CoffeePrepared
+        description: Published when a single drink item finishes preparation
+      - name: OrderReadyForDelivery
+        description: Published when all items in an order are prepared
+
+  idempotency:
+    strategy: itemId-based deduplication
+    description: >
+      Inventory must deduplicate using itemId. Deducting ingredients for the
+      same itemId more than once would cause incorrect stock levels.
+
+  error-handling:
+    dead-letter-queue:
+      preparation-to-inventory: inventory-from-preparation-dlq
+    max-receive-count: 3
+    retry-policy:
+      initial-backoff-seconds: 1
+      max-backoff-seconds: 60
+      multiplier: 2
+
+  stock-alerts:
+    description: >
+      When ingredient deduction causes stock to fall below the low-stock
+      threshold, Inventory publishes an IngredientLow event on the
+      inventory-events topic. This is defined in a separate contract.

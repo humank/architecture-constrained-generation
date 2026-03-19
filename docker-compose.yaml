@@ -1,0 +1,144 @@
+version: '3.8'
+
+services:
+  # === Infrastructure ===
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: coffeeshop
+      POSTGRES_USER: coffeeshop_admin
+      POSTGRES_PASSWORD: coffeeshop_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/init-schemas.sql:/docker-entrypoint-initdb.d/01-init-schemas.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coffeeshop_admin -d coffeeshop"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  localstack:
+    image: localstack/localstack:3.8
+    environment:
+      SERVICES: sns,sqs
+      DEFAULT_REGION: ap-east-2
+    ports:
+      - "4566:4566"
+    volumes:
+      - ./infra/localstack-init.sh:/etc/localstack/init/ready.d/init.sh
+
+  # === Backend Services ===
+  ordering-service:
+    build:
+      context: .
+      dockerfile: services/ordering-service/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/coffeeshop?currentSchema=ordering
+      SPRING_DATASOURCE_USERNAME: coffeeshop_admin
+      SPRING_DATASOURCE_PASSWORD: coffeeshop_dev_password
+      SPRING_FLYWAY_SCHEMAS: ordering
+      AWS_ENDPOINT_URL: http://localstack:4566
+      AWS_REGION: ap-east-2
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      SNS_TOPIC_ARN: arn:aws:sns:ap-east-2:000000000000:ordering-events
+      SQS_QUEUE_URL: http://localstack:4566/000000000000/ordering-from-preparation
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_started
+
+  preparation-service:
+    build:
+      context: .
+      dockerfile: services/preparation-service/Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/coffeeshop?currentSchema=preparation
+      SPRING_DATASOURCE_USERNAME: coffeeshop_admin
+      SPRING_DATASOURCE_PASSWORD: coffeeshop_dev_password
+      SPRING_FLYWAY_SCHEMAS: preparation
+      AWS_ENDPOINT_URL: http://localstack:4566
+      AWS_REGION: ap-east-2
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      SNS_TOPIC_ARN: arn:aws:sns:ap-east-2:000000000000:preparation-events
+      SQS_QUEUE_URL: http://localstack:4566/000000000000/preparation-from-ordering
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_started
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: services/inventory-service/Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/coffeeshop?currentSchema=inventory
+      SPRING_DATASOURCE_USERNAME: coffeeshop_admin
+      SPRING_DATASOURCE_PASSWORD: coffeeshop_dev_password
+      SPRING_FLYWAY_SCHEMAS: inventory
+      AWS_ENDPOINT_URL: http://localstack:4566
+      AWS_REGION: ap-east-2
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      SNS_TOPIC_ARN: arn:aws:sns:ap-east-2:000000000000:inventory-events
+      SQS_QUEUE_URL: http://localstack:4566/000000000000/inventory-from-preparation
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_started
+
+  reporting-service:
+    build:
+      context: .
+      dockerfile: services/reporting-service/Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/coffeeshop?currentSchema=reporting
+      SPRING_DATASOURCE_USERNAME: coffeeshop_admin
+      SPRING_DATASOURCE_PASSWORD: coffeeshop_dev_password
+      SPRING_FLYWAY_SCHEMAS: reporting
+      AWS_ENDPOINT_URL: http://localstack:4566
+      AWS_REGION: ap-east-2
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      SQS_REPORTING_ORDERING_URL: http://localstack:4566/000000000000/reporting-from-ordering
+      SQS_REPORTING_INVENTORY_URL: http://localstack:4566/000000000000/reporting-from-inventory
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_started
+
+  # === Frontend ===
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_ORDERING_URL: http://ordering-service:8081
+      VITE_API_PREPARATION_URL: http://preparation-service:8082
+      VITE_API_INVENTORY_URL: http://inventory-service:8083
+      VITE_API_REPORTING_URL: http://reporting-service:8084
+    depends_on:
+      - ordering-service
+      - preparation-service
+      - inventory-service
+      - reporting-service
+
+volumes:
+  postgres_data:

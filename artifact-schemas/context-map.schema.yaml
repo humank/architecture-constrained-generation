@@ -1,0 +1,22 @@
+schema:
+  version: "1.0"
+  description: "Context Map with integration patterns"
+
+context_map:
+  relationships:
+    type: array
+    items:
+      upstream: string  # BC name
+      downstream: string  # BC name
+      pattern:
+        type: enum [partnership, shared-kernel, customer-supplier, conformist, acl, ohs, published-language, separate-ways]
+      api_technology:
+        type: enum [rest, grpc, graphql, async-events, bff]
+      communication:
+        type: enum [synchronous, asynchronous, hybrid]
+      contract_strategy:
+        type: string  # e.g., "consumer-driven (Pact)"
+      schema_format:
+        type: enum [openapi, asyncapi, protobuf, avro, json-schema]
+      description: string
+      acl_details: string  # if pattern is ACL, describe translation

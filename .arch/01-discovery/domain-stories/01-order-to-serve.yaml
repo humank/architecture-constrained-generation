@@ -1,0 +1,46 @@
+domain_story:
+  name: "Order to Serve"
+  actors: [Customer, Waiter, Counter Staff, Barista]
+  narrative: >
+    Customer sits at Table 3 and tells Waiter they want a Tall Latte with soy milk
+    and a Grande Cappuccino dry foam with whipped cream.
+    Waiter goes to counter and enters the order into the system with Table 3.
+    System calculates total: Tall Latte $120 + Grande Cappuccino $140 + whipped cream $20 = $280.
+    Counter Staff reviews and confirms the order.
+    Customer pays $300 cash at counter. Counter Staff processes payment, $20 change.
+    System submits the paid order to Barista queue.
+    Barista sees Order #42 in queue: Tall Latte (soy milk) + Grande Cappuccino (dry foam, whipped cream).
+    Barista starts preparing Tall Latte — system deducts: 20g coffee beans, 200ml soy milk, 1 filter paper.
+    Barista completes Tall Latte.
+    Barista starts preparing Grande Cappuccino — system deducts: 30g coffee beans, 150ml milk, 50ml foam, 20ml whipped cream.
+    Barista completes Grande Cappuccino.
+    Barista marks entire order as ready.
+    Waiter sees Order #42 is ready for Table 3.
+    Waiter delivers to Table 3. Marks order as complete.
+
+  work_objects:
+    - Order
+    - Order Item
+    - Menu
+    - Recipe
+    - Cash Payment
+    - Inventory
+    - Table
+
+---
+domain_story:
+  name: "Inventory Alert and Replenishment"
+  actors: [Barista, Counter Staff]
+  narrative: >
+    After several orders, coffee beans drop to 28,000g (28% of 100,000g capacity).
+    System triggers low-stock alert to Counter Staff.
+    Barista also sees low stock on inventory dashboard and requests replenishment for coffee beans.
+    Counter Staff receives replenishment request, places purchase order with supplier.
+    Supplier delivers 72kg of coffee beans within 2 days (within 3-day SLA).
+    Barista confirms delivery, system restores coffee beans to 100,000g (100%).
+
+  work_objects:
+    - Inventory
+    - Material
+    - Low-Stock Alert
+    - Replenishment

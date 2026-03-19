@@ -1,0 +1,168 @@
+pipeline:
+  architecture: microservices
+  strategy: independent_pipeline_per_service
+  ci_cd: AWS CodePipeline + CodeBuild
+  container_registry: ECR
+
+  services:
+    - name: ordering-service
+      classification: Core
+      stages:
+        - stage: commit
+          timeout: 10m
+          steps:
+            - "Checkout source"
+            - "Gradle compile"
+            - "Unit tests (JUnit 5)"
+            - "Lint (Checkstyle/SpotBugs)"
+            - "SAST (CodeGuru/Snyk)"
+            - "SCA (dependency check)"
+            - "Build Docker image"
+            - "Push to ECR"
+
+        - stage: integration_test
+          timeout: 15m
+          steps:
+            - "Start PostgreSQL testcontainer"
+            - "Run repository integration tests"
+            - "Run SQS consumer integration tests (LocalStack)"
+            - "Run SNS publisher integration tests (LocalStack)"
+            - "Error path tests (≥20%)"
+
+        - stage: acceptance_test
+          timeout: 10m
+          steps:
+            - "Run BDD scenarios (Cucumber + Spring Boot Test)"
+            - "Ordering feature scenarios"
+
+        - stage: contract_test
+          timeout: 5m
+          steps:
+            - "Pact provider verification (OrderSubmittedToBarista, OrderCompleted)"
+            - "Pact consumer verification (OrderReadyForDelivery)"
+
+        - stage: performance_test
+          timeout: 10m
+          steps:
+            - "k6 load test: order placement < 2s P99"
+            - "k6 load test: concurrent order processing"
+
+        - stage: deploy_staging
+          steps:
+            - "kubectl apply to EKS staging namespace"
+            - "Health check: /actuator/health"
+            - "Smoke tests"
+
+        - stage: deploy_production
+          strategy: canary
+          steps:
+            - "Canary 10% traffic"
+            - "Monitor SLOs for 5 min"
+            - "Canary 50% traffic"
+            - "Monitor SLOs for 5 min"
+            - "Full rollout 100%"
+            - "Auto-rollback on SLO violation"
+
+    - name: preparation-service
+      classification: Core
+      stages:
+        - stage: commit
+          timeout: 10m
+          steps:
+            - "Checkout, compile, unit tests, lint, SAST, SCA"
+            - "Recipe resolution unit tests (all type/size/customization combos)"
+            - "Build & push Docker image to ECR"
+
+        - stage: integration_test
+          timeout: 15m
+          steps:
+            - "PostgreSQL testcontainer (outbox table)"
+            - "SQS consumer tests (OrderSubmittedToBarista)"
+            - "SNS publisher tests (PreparationStarted, OrderReadyForDelivery)"
+            - "Outbox poller tests"
+
+        - stage: acceptance_test
+          timeout: 10m
+          steps: ["BDD scenarios: preparation.feature"]
+
+        - stage: contract_test
+          timeout: 5m
+          steps:
+            - "Pact provider: PreparationStarted, OrderReadyForDelivery"
+            - "Pact consumer: OrderSubmittedToBarista"
+
+        - stage: deploy_production
+          strategy: canary
+
+    - name: inventory-service
+      classification: Supporting
+      stages:
+        - stage: commit
+          timeout: 10m
+          steps: ["Checkout, compile, unit tests, lint, SAST, SCA, Docker build/push"]
+
+        - stage: integration_test
+          timeout: 15m
+          steps:
+            - "PostgreSQL testcontainer (seed data via Flyway)"
+            - "SQS consumer tests (PreparationStarted)"
+            - "Deduction logic tests"
+            - "Alert threshold tests"
+            - "Error path: unknown material handling"
+
+        - stage: acceptance_test
+          timeout: 10m
+          steps: ["BDD scenarios: inventory.feature"]
+
+        - stage: contract_test
+          timeout: 5m
+          steps: ["Pact consumer: PreparationStarted"]
+
+        - stage: deploy_production
+          strategy: blue_green
+
+    - name: reporting-service
+      classification: Generic
+      stages:
+        - stage: commit
+          timeout: 10m
+          steps: ["Checkout, compile, unit tests, lint, SAST, SCA, Docker build/push"]
+
+        - stage: integration_test
+          timeout: 10m
+          steps:
+            - "Projection tests (OrderCompleted → sales aggregation)"
+            - "Projection tests (IngredientDeducted → inventory report)"
+
+        - stage: deploy_production
+          strategy: rolling_update
+
+    - name: frontend
+      stages:
+        - stage: commit
+          timeout: 10m
+          steps:
+            - "npm install"
+            - "tsc --noEmit (zero errors required)"
+            - "ESLint"
+            - "Unit tests (Vitest)"
+            - "Build (Vite)"
+
+        - stage: integration_test
+          timeout: 10m
+          steps:
+            - "Component tests (Testing Library + MSW)"
+            - "Error state tests (service unavailable mocks)"
+
+        - stage: e2e_test
+          timeout: 15m
+          steps:
+            - "Playwright CUJs: order placement, payment, preparation, delivery"
+            - "Playwright: inventory dashboard"
+            - "Lighthouse CI: CWV budgets (LCP < 2.5s, FID < 100ms, CLS < 0.1)"
+
+        - stage: deploy
+          steps:
+            - "Build static assets"
+            - "Upload to S3"
+            - "Invalidate CloudFront cache"

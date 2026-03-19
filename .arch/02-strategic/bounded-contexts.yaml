@@ -1,0 +1,113 @@
+bounded_contexts:
+  architecture_style: microservices
+  communication: async_messaging_sns_sqs
+  database: single_rds_schema_per_bc
+  deployment: aws_eks
+  region: ap-east-2
+
+  contexts:
+    - name: Ordering
+      classification: Core
+      description: >
+        Manages the full order lifecycle from placement through payment to completion.
+        This is the primary revenue-generating workflow.
+      owner_team: "Order Team"
+      aggregates: [Order]
+      commands:
+        - PlaceOrder
+        - ConfirmOrder
+        - ProcessPayment
+        - DeliverOrder
+        - CompleteOrder
+      events_produced:
+        - OrderPlaced
+        - OrderConfirmed
+        - PaymentProcessed
+        - OrderSubmittedToBarista
+        - OrderDelivered
+        - OrderCompleted
+      events_consumed:
+        - OrderReadyForDelivery  # from Preparation BC
+      data_store:
+        schema: ordering
+        tables: [orders, order_items, payments]
+      service:
+        name: ordering-service
+        port: 8081
+
+    - name: Preparation
+      classification: Core
+      description: >
+        Handles coffee preparation workflow. Barista receives paid orders,
+        starts preparation (triggering inventory deduction), and marks items complete.
+      owner_team: "Preparation Team"
+      aggregates: [Preparation]
+      commands:
+        - StartPreparation
+        - CompleteCoffeePreparation
+      events_produced:
+        - PreparationStarted
+        - CoffeePrepared
+        - OrderReadyForDelivery
+      events_consumed:
+        - OrderSubmittedToBarista  # from Ordering BC
+      data_store:
+        schema: preparation
+        tables: [preparations, preparation_items, recipes, outbox]
+      service:
+        name: preparation-service
+        port: 8082
+
+    - name: Inventory
+      classification: Supporting
+      description: >
+        Tracks raw material stock levels, triggers low-stock alerts at 30% threshold,
+        and manages the replenishment lifecycle.
+      owner_team: "Inventory Team"
+      aggregates: [InventoryItem, Replenishment]
+      commands:
+        - RequestReplenishment
+        - CreatePurchaseOrder
+        - ConfirmReplenishment
+      events_produced:
+        - IngredientDeducted
+        - LowStockAlertTriggered
+        - ReplenishmentRequested
+        - PurchaseOrderCreated
+        - ReplenishmentConfirmed
+      events_consumed:
+        - PreparationStarted  # from Preparation BC — triggers ingredient deduction
+      data_store:
+        schema: inventory
+        tables: [inventory_items, replenishments, purchase_orders]
+      service:
+        name: inventory-service
+        port: 8083
+
+    - name: Reporting
+      classification: Generic
+      description: >
+        Read-only BC that consumes events from other BCs to build
+        sales and inventory dashboards. CQRS read model projections.
+      owner_team: "Shared"
+      aggregates: []
+      commands: []
+      events_produced: []
+      events_consumed:
+        - OrderCompleted       # from Ordering BC
+        - IngredientDeducted   # from Inventory BC
+      read_models:
+        - name: SalesReport
+          projection_type: aggregated
+          source_events: [OrderCompleted]
+          fields: [totalOrders, totalRevenue, averageOrderValue, ordersByHour]
+        - name: InventoryReport
+          projection_type: pass_through
+          source_events: [IngredientDeducted]
+          fields: [material, currentLevel, maxCapacity, percentage]
+      data_store:
+        schema: reporting
+        tables: [sales_projections, inventory_projections]
+      service:
+        name: reporting-service
+        port: 8084

@@ -1,0 +1,28 @@
+schema:
+  version: "1.0"
+  description: "User Story Map (Jeff Patton)"
+
+story_map:
+  narrative: string  # The big story (who, what, why)
+  backbone:
+    type: array
+    description: "Activities in narrative flow order (left to right)"
+    items:
+      activity: string
+      description: string
+      actor: string
+      tasks:
+        type: array
+        description: "Stories under this activity, ordered by priority (top to bottom)"
+        items:
+          story: string
+          description: string
+          acceptance_criteria: array[string]
+          release: string  # which release slice (mvp, r1, r2, ...)
+          size: enum [small, medium, large]
+  releases:
+    type: array
+    items:
+      name: string  # mvp, r1, r2
+      goal: string
+      stories: array[string]  # refs to story names

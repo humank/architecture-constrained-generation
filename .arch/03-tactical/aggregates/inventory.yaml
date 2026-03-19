@@ -1,0 +1,114 @@
+aggregate:
+  name: InventoryItem
+  bounded_context: Inventory
+  description: "Tracks stock level for a single raw material"
+
+  root_entity:
+    name: InventoryItem
+    identity: { field: materialId, type: String }
+    fields:
+      - { name: materialName, type: String }
+      - { name: currentLevel, type: number }
+      - { name: maxCapacity, type: number }
+      - { name: unit, type: String }
+      - { name: alertThreshold, type: number, default: 0.3, description: "30% of max capacity" }
+      - { name: alertTriggered, type: boolean, default: false }
+      - { name: lastUpdated, type: DateTime }
+
+  value_objects:
+    - name: StockPercentage
+      computed: "currentLevel / maxCapacity * 100"
+
+  commands:
+    - name: DeductIngredient
+      actor: System
+      parameters: [materialId, quantity]
+      preconditions:
+        - "Material must exist in inventory"
+        - "currentLevel >= quantity (sufficient stock)"
+      postconditions:
+        - "currentLevel reduced by quantity"
+        - "If level drops below 30% threshold → LowStockAlertTriggered"
+      events: [IngredientDeducted, "LowStockAlertTriggered (conditional)"]
+      business_logic:
+        - "newLevel = currentLevel - quantity"
+        - "If newLevel / maxCapacity < 0.3 AND alertTriggered == false → trigger alert"
+        - "Set alertTriggered = true after first alert (avoid duplicate alerts)"
+
+    - name: RequestReplenishment
+      actor: Barista
+      parameters: [materialId]
+      preconditions:
+        - "Material exists"
+      postconditions:
+        - "Replenishment request created"
+      events: [ReplenishmentRequested]
+
+    - name: CreatePurchaseOrder
+      actor: Counter Staff
+      parameters: [materialId, quantity, supplier]
+      preconditions:
+        - "Replenishment request exists for material"
+      postconditions:
+        - "Purchase order recorded"
+      events: [PurchaseOrderCreated]
+
+    - name: ConfirmReplenishment
+      actor: Barista
+      parameters: [materialId, quantityReceived]
+      preconditions:
+        - "Purchase order exists for material"
+      postconditions:
+        - "currentLevel restored to maxCapacity"
+        - "alertTriggered reset to false"
+      events: [ReplenishmentConfirmed]
+      business_logic:
+        - "Set currentLevel = maxCapacity (restore to 100%)"
+        - "Reset alertTriggered = false"
+
+  invariants:
+    - "currentLevel must be >= 0"
+    - "currentLevel must not exceed maxCapacity"
+    - "Low-stock alert triggers at 30% threshold"
+    - "Replenishment restores to exactly 100% (maxCapacity)"
+    - "Replenishment SLA: 3 days from request to delivery"
+
+  seed_data:
+    description: "CRITICAL: Must be loaded via Flyway/Liquibase BEFORE consumers start"
+    items:
+      - { materialId: coffee_beans, name: "Coffee Beans", maxCapacity: 100000, unit: g, initialLevel: 100000 }
+      - { materialId: milk, name: "Milk", maxCapacity: 100000, unit: ml, initialLevel: 100000 }
+      - { materialId: soy_milk, name: "Soy Milk", maxCapacity: 40000, unit: ml, initialLevel: 40000 }
+      - { materialId: filter_paper, name: "Filter Paper", maxCapacity: 20000, unit: sheets, initialLevel: 20000 }
+
+---
+aggregate:
+  name: Replenishment
+  bounded_context: Inventory
+  description: "Tracks the lifecycle of a material replenishment request"
+
+  root_entity:
+    name: Replenishment
+    identity: { field: replenishmentId, type: UUID }
+    fields:
+      - { name: materialId, type: String }
+      - { name: status, type: ReplenishmentStatus }
+      - { name: requestedAt, type: DateTime }
+      - { name: purchaseOrderId, type: UUID, nullable: true }
+      - { name: supplier, type: String, nullable: true }
+      - { name: expectedDeliveryDate, type: Date, nullable: true }
+      - { name: confirmedAt, type: DateTime, nullable: true }
+
+  value_objects:
+    - name: ReplenishmentStatus
+      type: enum
+      values: [Requested, PurchaseOrdered, Delivered]
+
+  state_machine:
+    states: [Requested, PurchaseOrdered, Delivered]
+    transitions:
+      - { from: Requested, to: PurchaseOrdered, trigger: CreatePurchaseOrder, actor: "Counter Staff" }
+      - { from: PurchaseOrdered, to: Delivered, trigger: ConfirmReplenishment, actor: Barista }
+
+  invariants:
+    - "SLA: Delivered must occur within 3 days of Requested"

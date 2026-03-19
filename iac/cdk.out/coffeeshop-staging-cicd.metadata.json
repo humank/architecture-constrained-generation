@@ -1,0 +1,117 @@
+{
+  "/coffeeshop-staging-cicd": [
+    {
+      "type": "aws:cdk:stack-tags",
+      "data": [
+        {
+          "key": "Environment",
+          "value": "staging"
+        },
+        {
+          "key": "ManagedBy",
+          "value": "CDK"
+        },
+        {
+          "key": "Project",
+          "value": "coffeeshop"
+        }
+      ]
+    }
+  ],
+  "/coffeeshop-staging-cicd/EcrUri-ordering-service": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EcrUriorderingservice"
+    }
+  ],
+  "/coffeeshop-staging-cicd/EcrUri-preparation-service": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EcrUripreparationservice"
+    }
+  ],
+  "/coffeeshop-staging-cicd/EcrUri-inventory-service": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EcrUriinventoryservice"
+    }
+  ],
+  "/coffeeshop-staging-cicd/EcrUri-reporting-service": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EcrUrireportingservice"
+    }
+  ],
+  "/coffeeshop-staging-cicd/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/coffeeshop-staging-cicd/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Ecr-ordering-service/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Ecrorderingservice20CBEBA7"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Ecr-preparation-service/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EcrpreparationserviceB882794A"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Ecr-inventory-service/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EcrinventoryserviceDC5BCAEE"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Ecr-reporting-service/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EcrreportingserviceF8A9E7CB"
+    }
+  ],
+  "/coffeeshop-staging-cicd/ServiceBuild/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ServiceBuildAA6134C7"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FrontendBuild/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FrontendBuildD4632151"
+    }
+  ],
+  "/coffeeshop-staging-cicd/ServiceBuild/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ServiceBuildRoleE2429B6A"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FrontendBuild/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FrontendBuildRole0F0B131E"
+    }
+  ],
+  "/coffeeshop-staging-cicd/ServiceBuild/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ServiceBuildRoleDefaultPolicyDAC27EBF"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FrontendBuild/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FrontendBuildRoleDefaultPolicyDA9694DB"
+    }
+  ]
+}

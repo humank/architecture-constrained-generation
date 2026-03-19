@@ -1,0 +1,28 @@
+# Schema for .arch/glossary.yaml
+# Shared across ALL phases. Every skill reads and contributes.
+schema:
+  version: "1.0"
+  description: "Ubiquitous Language Glossary"
+
+terms:
+  type: array
+  items:
+    term:
+      type: string
+      description: "The term in ubiquitous language"
+    definition:
+      type: string
+      description: "Precise definition agreed by domain experts"
+    bounded_context:
+      type: string
+      description: "Which BC this term belongs to (or 'shared')"
+    aliases:
+      type: array
+      items: string
+      description: "Alternative terms that map to this concept"
+    examples:
+      type: array
+      items: string
+    first_discovered_in:
+      type: string
+      enum: [domain-storytelling, event-storming, event-modeling, strategic-design, tactical-design, bdd, implementation]

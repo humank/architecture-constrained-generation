@@ -1,0 +1,117 @@
+{
+  "/coffeeshop-staging-observability": [
+    {
+      "type": "aws:cdk:stack-tags",
+      "data": [
+        {
+          "key": "Environment",
+          "value": "staging"
+        },
+        {
+          "key": "ManagedBy",
+          "value": "CDK"
+        },
+        {
+          "key": "Project",
+          "value": "coffeeshop"
+        }
+      ]
+    }
+  ],
+  "/coffeeshop-staging-observability/AlarmTopicArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AlarmTopicArn"
+    }
+  ],
+  "/coffeeshop-staging-observability/DashboardUrl": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DashboardUrl"
+    }
+  ],
+  "/coffeeshop-staging-observability/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/coffeeshop-staging-observability/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/coffeeshop-staging-observability/AlarmNotifications/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AlarmNotificationsA4AFC78C"
+    }
+  ],
+  "/coffeeshop-staging-observability/DlqAlarm-preparation-from-ordering/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DlqAlarmpreparationfromorderingF4229130"
+    }
+  ],
+  "/coffeeshop-staging-observability/DlqAlarm-ordering-from-preparation/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DlqAlarmorderingfrompreparation4230F4C6"
+    }
+  ],
+  "/coffeeshop-staging-observability/DlqAlarm-inventory-from-preparation/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DlqAlarminventoryfrompreparationAB83D982"
+    }
+  ],
+  "/coffeeshop-staging-observability/DlqAlarm-reporting-from-ordering/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DlqAlarmreportingfromorderingE904C66C"
+    }
+  ],
+  "/coffeeshop-staging-observability/DlqAlarm-reporting-from-inventory/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DlqAlarmreportingfrominventory6D539735"
+    }
+  ],
+  "/coffeeshop-staging-observability/QueueDepth-preparation-from-ordering/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "QueueDepthpreparationfromorderingA4D850E4"
+    }
+  ],
+  "/coffeeshop-staging-observability/QueueDepth-ordering-from-preparation/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "QueueDepthorderingfrompreparation22E18155"
+    }
+  ],
+  "/coffeeshop-staging-observability/QueueDepth-inventory-from-preparation/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "QueueDepthinventoryfrompreparationA42A85DB"
+    }
+  ],
+  "/coffeeshop-staging-observability/QueueDepth-reporting-from-ordering/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "QueueDepthreportingfromordering3E437BC1"
+    }
+  ],
+  "/coffeeshop-staging-observability/QueueDepth-reporting-from-inventory/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "QueueDepthreportingfrominventoryBD8B7173"
+    }
+  ],
+  "/coffeeshop-staging-observability/ServiceHealthDashboard/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ServiceHealthDashboard0DCECFF0"
+    }
+  ]
+}

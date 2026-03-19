@@ -1,0 +1,260 @@
+threat-model:
+  name: Coffeeshop Management System STRIDE Threat Model
+  version: "1.0"
+  methodology: STRIDE
+  scope: >
+    All four bounded contexts (Ordering, Preparation, Inventory, Reporting)
+    and their async messaging infrastructure (SNS/SQS).
+  date: "2026-03-19"
+
+  system-overview:
+    description: >
+      A microservices-based coffeeshop management system with four bounded
+      contexts communicating via SNS/SQS async messaging. The system handles
+      customer orders, drink preparation, ingredient inventory, and operational
+      reporting.
+    services:
+      - name: Ordering
+        port: 8081
+        exposure: Internal network (staff-facing UI)
+      - name: Preparation
+        port: 8082
+        exposure: Internal network (barista-facing UI)
+      - name: Inventory
+        port: 8083
+        exposure: Internal network (manager-facing UI)
+      - name: Reporting
+        port: 8084
+        exposure: Internal network (manager-facing dashboard)
+
+  threats:
+    - id: T-01
+      category: Spoofing
+      title: Staff identity impersonation
+      description: >
+        An attacker could impersonate a barista or manager to place fraudulent
+        orders, mark items as prepared, or access reporting data without
+        authorization.
+      affected-components:
+        - Ordering API
+        - Preparation API
+        - Inventory API
+        - Reporting API
+      severity: High
+      likelihood: Medium
+      risk: High
+      mitigations:
+        - id: M-01a
+          description: >
+            Implement role-based authentication for all service endpoints.
+            Each staff member authenticates with unique credentials tied to
+            their role (cashier, barista, manager).
+          status: planned
+        - id: M-01b
+          description: >
+            Use JWT tokens with short expiry (15 min) and role claims.
+            Tokens are validated on every API request.
+          status: planned
+        - id: M-01c
+          description: >
+            Log all authentication events (login, logout, failed attempts)
+            for audit trail.
+          status: planned
+
+    - id: T-02
+      category: Tampering
+      title: Order and pricing manipulation
+      description: >
+        A malicious actor could intercept or modify order data to change
+        prices, quantities, or item types — either through API manipulation
+        or by publishing crafted messages to SNS topics.
+      affected-components:
+        - Ordering API
+        - SNS topics (ordering-events, preparation-events)
+        - SQS queues
+      severity: High
+      likelihood: Medium
+      risk: High
+      mitigations:
+        - id: M-02a
+          description: >
+            Enforce server-side pricing calculation. The Ordering service
+            resolves prices from its own pricing catalog; client-submitted
+            prices are ignored.
+          status: planned
+        - id: M-02b
+          description: >
+            Validate all incoming order payloads against the contract schema
+            before processing. Reject malformed or suspicious payloads.
+          status: planned
+        - id: M-02c
+          description: >
+            Restrict SNS publish permissions to the owning service only via
+            IAM policies. No external system or user can publish directly
+            to topics.
+          status: planned
+        - id: M-02d
+          description: >
+            Enable SNS message signing to verify message authenticity at
+            the consumer side.
+          status: planned
+
+    - id: T-03
+      category: Repudiation
+      title: Payment and order disputes
+      description: >
+        Staff or customers could deny that an order was placed, a payment
+        was made, or that certain items were included. Without adequate
+        logging, disputes cannot be resolved.
+      affected-components:
+        - Ordering service
+        - Reporting service
+      severity: Medium
+      likelihood: Medium
+      risk: Medium
+      mitigations:
+        - id: M-03a
+          description: >
+            Maintain an immutable audit log of all order state transitions
+            (placed, submitted-to-barista, ready, completed). Each entry
+            includes timestamp, actor, and before/after state.
+          status: planned
+        - id: M-03b
+          description: >
+            Publish all domain events to the Reporting BC which stores them
+            as an append-only event log for historical querying.
+          status: planned
+        - id: M-03c
+          description: >
+            Include placedAt and completedAt timestamps in OrderCompleted
+            events to establish a verifiable timeline.
+          status: planned
+
+    - id: T-04
+      category: Information Disclosure
+      title: Customer and sales data exposure
+      description: >
+        Sensitive business data (sales figures, order volumes, pricing
+        strategies) could be exposed through unprotected API endpoints,
+        unencrypted message queues, or log files.
+      affected-components:
+        - Reporting API and dashboard
+        - SNS/SQS message payloads
+        - Application logs
+      severity: Medium
+      likelihood: Low
+      risk: Medium
+      mitigations:
+        - id: M-04a
+          description: >
+            Enable encryption at rest for all SQS queues and SNS topics
+            using AWS KMS managed keys.
+          status: planned
+        - id: M-04b
+          description: >
+            Enable encryption in transit (TLS) for all service-to-service
+            communication and AWS SDK calls.
+          status: planned
+        - id: M-04c
+          description: >
+            Restrict Reporting API access to manager role only. Cashier
+            and barista roles cannot access sales or inventory reports.
+          status: planned
+        - id: M-04d
+          description: >
+            Sanitize application logs to exclude sensitive data. Use
+            structured logging with field-level redaction where needed.
+          status: planned
+
+    - id: T-05
+      category: Denial of Service
+      title: Queue flooding and resource exhaustion
+      description: >
+        An attacker or misbehaving service could flood SNS topics or SQS
+        queues with excessive messages, overwhelming consumers and causing
+        service degradation or outages.
+      affected-components:
+        - SNS topics (all)
+        - SQS queues (all)
+        - Preparation service (CPU-bound drink processing)
+        - Inventory service (stock calculation)
+      severity: High
+      likelihood: Low
+      risk: Medium
+      mitigations:
+        - id: M-05a
+          description: >
+            Implement API-level rate limiting on all service endpoints.
+            Ordering: max 30 orders/min. Other services: proportional limits.
+          status: planned
+        - id: M-05b
+          description: >
+            Configure dead-letter queues (DLQ) for all SQS queues with
+            maxReceiveCount of 3. Poison messages are moved to DLQ instead
+            of blocking the main queue.
+          status: planned
+        - id: M-05c
+          description: >
+            Set SQS visibility timeout and maximum message retention to
+            prevent unbounded queue growth.
+          status: planned
+        - id: M-05d
+          description: >
+            Monitor queue depth with CloudWatch alarms. Alert when queue
+            depth exceeds threshold (e.g., 100 messages) indicating a
+            potential flooding attack or consumer failure.
+          status: planned
+        - id: M-05e
+          description: >
+            Implement circuit breaker pattern in consumers to prevent
+            cascading failures when downstream services are overwhelmed.
+          status: planned
+
+    - id: T-06
+      category: Elevation of Privilege
+      title: Role escalation to manager/admin
+      description: >
+        A cashier or barista could attempt to escalate their privileges to
+        access manager-only functions such as inventory replenishment,
+        reporting dashboards, or system configuration.
+      affected-components:
+        - All service APIs
+        - Inventory replenishment endpoint
+        - Reporting dashboard
+      severity: High
+      likelihood: Low
+      risk: Medium
+      mitigations:
+        - id: M-06a
+          description: >
+            Implement role-based access control (RBAC) with clearly defined
+            roles: cashier (Ordering only), barista (Preparation only),
+            manager (Inventory + Reporting + Ordering).
+          status: planned
+        - id: M-06b
+          description: >
+            Enforce RBAC at the API gateway / middleware layer so that role
+            checks cannot be bypassed by calling services directly.
+          status: planned
+        - id: M-06c
+          description: >
+            Apply principle of least privilege to AWS IAM roles for each
+            service. No service should have permissions beyond what it needs.
+          status: planned
+        - id: M-06d
+          description: >
+            Conduct periodic access reviews to ensure role assignments
+            remain appropriate and no privilege creep has occurred.
+          status: planned
+
+  residual-risks:
+    - description: >
+        Internal network trust model assumes the coffeeshop network is
+        physically secured. If the network is compromised, all services
+        are exposed. Future enhancement: mTLS between services.
+      severity: Medium
+    - description: >
+        SNS/SQS message ordering is best-effort. In rare cases, out-of-order
+        processing could cause temporary data inconsistency. Mitigated by
+        idempotency but not fully eliminated.
+      severity: Low

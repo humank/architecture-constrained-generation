@@ -1,0 +1,104 @@
+contract:
+  name: Inventory-Reporting Integration
+  version: "1.0"
+  description: >
+    Async messaging contract between the Inventory BC and the Reporting BC.
+    Inventory publishes IngredientDeducted after processing each ingredient
+    consumption. Reporting consumes this to build inventory level dashboards.
+
+  bounded-contexts:
+    producer: Inventory
+    consumer: Reporting
+
+  transport:
+    inventory-to-reporting:
+      type: async
+      protocol: SNS-SQS
+      sns-topic: inventory-events
+      sqs-queue: reporting-from-inventory
+      region: us-east-1
+      message-format: JSON
+      delivery: at-least-once
+      ordering: best-effort
+
+      subscription-filter-policy:
+        description: >
+          Only IngredientDeducted events should reach the Reporting queue.
+          Other inventory events (IngredientLow, IngredientReplenished, etc.)
+          are excluded from this subscription.
+        filter:
+          eventType:
+            - IngredientDeducted
+        filter-policy-scope: MessageBody
+
+  events:
+    - name: IngredientDeducted
+      direction: Inventory -> Reporting
+      description: >
+        Published after Inventory has successfully deducted an ingredient
+        from stock. Contains the current stock state for the affected material.
+      topic: inventory-events
+      queue: reporting-from-inventory
+      schema:
+        type: object
+        required:
+          - eventType
+          - material
+          - quantityDeducted
+          - remainingLevel
+          - maxCapacity
+          - percentageRemaining
+          - occurredAt
+        properties:
+          eventType:
+            type: string
+            const: IngredientDeducted
+          material:
+            type: string
+            description: Name of the ingredient that was consumed
+            example: Coffee Beans
+          quantityDeducted:
+            type: number
+            minimum: 0
+            exclusiveMinimum: true
+            description: Amount that was deducted in this operation
+            example: 18
+          remainingLevel:
+            type: number
+            minimum: 0
+            description: Current stock level after deduction
+            example: 482
+          maxCapacity:
+            type: number
+            minimum: 0
+            exclusiveMinimum: true
+            description: Maximum storage capacity for this material
+            example: 500
+          percentageRemaining:
+            type: number
+            minimum: 0
+            maximum: 100
+            description: >
+              (remainingLevel / maxCapacity) * 100, rounded to one decimal.
+              Used by Reporting dashboards for visual stock indicators.
+            example: 96.4
+          occurredAt:
+            type: string
+            format: date-time
+            description: ISO 8601 timestamp when the deduction occurred
+            example: "2026-03-19T10:31:08Z"
+
+  idempotency:
+    strategy: material-plus-occurredAt deduplication
+    description: >
+      Reporting should deduplicate using a composite key of material + occurredAt
+      to avoid double-counting deductions in inventory trend reports.
+
+  error-handling:
+    dead-letter-queue:
+      inventory-to-reporting: reporting-from-inventory-dlq
+    max-receive-count: 3
+    retry-policy:
+      initial-backoff-seconds: 1
+      max-backoff-seconds: 60
+      multiplier: 2

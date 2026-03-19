@@ -1,0 +1,29 @@
+schema:
+  version: "1.0"
+  description: "Impact Map (Gojko Adzic)"
+
+impact_map:
+  goal:
+    description: string
+    measurable_outcome: string
+    timeframe: string
+  actors:
+    type: array
+    items:
+      name: string
+      type: enum [primary, secondary, internal, external]
+      current_behavior: string
+  impacts:
+    type: array
+    items:
+      actor: string  # ref to actors[].name
+      impact: string  # behavior change we want
+      priority: enum [high, medium, low]
+      measurement: string  # how to validate this impact
+      deliverables:
+        type: array
+        items:
+          name: string
+          description: string
+          in_mvp: boolean
+          effort_estimate: enum [small, medium, large]

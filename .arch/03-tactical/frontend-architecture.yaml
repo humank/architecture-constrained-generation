@@ -1,0 +1,179 @@
+frontend_architecture:
+  type: SPA
+  description: "Single Page Application serving all actor roles with role-based views"
+
+  actor_views:
+    - actor: Waiter
+      pages:
+        - page: "Order Placement"
+          path: "/waiter/orders/new"
+          description: "Select table, add coffee items with sizes/customizations, submit order"
+          data_source:
+            endpoint: "GET /api/menu"
+            service: ordering-service
+            loading_state: "Skeleton loader for menu grid"
+            error_state: "Retry banner: 'Unable to load menu. Tap to retry.'"
+            empty_state: "N/A — menu is static"
+          submit_action:
+            endpoint: "POST /api/orders"
+            service: ordering-service
+            request_dto:
+              tableNumber: int
+              items:
+                - coffeeType: string
+                  size: string
+                  quantity: int
+                  customizations: string[]
+            response_dto:
+              orderId: string
+              totalAmount: int
+              status: string
+            on_error: "Toast: 'Failed to place order. Please try again.'"
+
+        - page: "Ready Orders"
+          path: "/waiter/orders/ready"
+          description: "List of orders ready for delivery, grouped by table"
+          data_source:
+            endpoint: "GET /api/orders?status=Ready"
+            service: ordering-service
+            loading_state: "Skeleton list"
+            error_state: "Retry banner"
+            empty_state: "Illustration: 'No orders ready yet'"
+          row_action:
+            endpoint: "PATCH /api/orders/{orderId}/deliver"
+            service: ordering-service
+            on_error: "Toast: 'Failed to update order status.'"
+
+        - page: "Active Orders"
+          path: "/waiter/orders"
+          description: "All active orders with status tracking"
+          data_source:
+            endpoint: "GET /api/orders?status=active"
+            service: ordering-service
+            loading_state: "Skeleton list"
+            error_state: "Retry banner"
+            empty_state: "Illustration: 'No active orders'"
+          row_action:
+            endpoint: "PATCH /api/orders/{orderId}/complete"
+            service: ordering-service
+            on_error: "Toast: 'Failed to complete order.'"
+
+    - actor: "Counter Staff (Cashier)"
+      pages:
+        - page: "Order Confirmation"
+          path: "/cashier/orders/pending"
+          description: "Review and confirm placed orders"
+          data_source:
+            endpoint: "GET /api/orders?status=Placed"
+            service: ordering-service
+            loading_state: "Skeleton list"
+            error_state: "Retry banner"
+            empty_state: "Illustration: 'No pending orders'"
+          row_action:
+            endpoint: "PATCH /api/orders/{orderId}/confirm"
+            service: ordering-service
+            on_error: "Toast: 'Failed to confirm order.'"
+
+        - page: "Payment Processing"
+          path: "/cashier/orders/confirmed"
+          description: "Process cash payment for confirmed orders"
+          data_source:
+            endpoint: "GET /api/orders?status=Confirmed"
+            service: ordering-service
+            loading_state: "Skeleton list"
+            error_state: "Retry banner"
+            empty_state: "Illustration: 'No orders awaiting payment'"
+          submit_action:
+            endpoint: "POST /api/orders/{orderId}/pay"
+            service: ordering-service
+            request_dto:
+              cashReceived: int
+            response_dto:
+              orderId: string
+              totalAmount: int
+              cashReceived: int
+              changeGiven: int
+              status: string
+            on_error: "Toast: 'Payment failed. Please try again.'"
+
+        - page: "Sales Report"
+          path: "/cashier/reports/sales"
+          description: "Daily/weekly/monthly sales dashboard"
+          data_source:
+            endpoint: "GET /api/reporting/sales"
+            service: reporting-service
+            response_dto:
+              type: object
+              projection_type: aggregated
+              fields:
+                totalOrders: int
+                totalRevenue: int
+                averageOrderValue: int
+                ordersByHour: [{ hour: string, count: int }]
+            loading_state: "Skeleton cards + chart placeholder"
+            error_state: "Banner: 'Unable to load sales data. Tap to retry.'"
+            empty_state: "Illustration: 'No sales data yet'"
+
+    - actor: Barista
+      pages:
+        - page: "Preparation Queue"
+          path: "/barista/queue"
+          description: "Incoming paid orders to prepare, with recipe details"
+          data_source:
+            endpoint: "GET /api/preparations?status=Pending,InProgress"
+            service: preparation-service
+            loading_state: "Skeleton cards"
+            error_state: "Retry banner"
+            empty_state: "Illustration: 'No orders in queue'"
+          row_action:
+            endpoint: "PATCH /api/preparations/{preparationId}/items/{itemId}/start"
+            service: preparation-service
+            on_error: "Toast: 'Failed to start preparation.'"
+          row_action_complete:
+            endpoint: "PATCH /api/preparations/{preparationId}/items/{itemId}/complete"
+            service: preparation-service
+            on_error: "Toast: 'Failed to complete preparation.'"
+
+        - page: "Inventory Dashboard"
+          path: "/barista/inventory"
+          description: "Current stock levels with visual indicators"
+          data_source:
+            endpoint: "GET /api/inventory"
+            service: inventory-service
+            response_dto:
+              type: list
+              items:
+                materialId: string
+                materialName: string
+                currentLevel: number
+                maxCapacity: number
+                percentage: number
+                alertTriggered: boolean
+            loading_state: "Skeleton progress bars"
+            error_state: "Retry banner"
+            empty_state: "N/A — always has 4 materials"
+
+        - page: "Replenishment"
+          path: "/barista/inventory/replenish"
+          description: "Request and track material replenishment"
+          data_source:
+            endpoint: "GET /api/inventory/replenishments"
+            service: inventory-service
+            loading_state: "Skeleton list"
+            error_state: "Retry banner"
+            empty_state: "Illustration: 'No active replenishment requests'"
+          submit_action:
+            endpoint: "POST /api/inventory/{materialId}/replenish"
+            service: inventory-service
+            on_error: "Toast: 'Failed to request replenishment.'"
+
+  api_contract:
+    base_urls:
+      ordering: "/api/orders"
+      preparation: "/api/preparations"
+      inventory: "/api/inventory"
+      reporting: "/api/reporting"
+    notes:
+      - "All endpoints are the canonical single source of truth"
+      - "Frontend Vite proxy must route to correct service port"
+      - "Response shapes must match response_dto exactly — backend MUST implement aggregation server-side for aggregated projections"

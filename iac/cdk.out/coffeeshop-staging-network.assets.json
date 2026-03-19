@@ -1,0 +1,21 @@
+{
+  "version": "52.0.0",
+  "files": {
+    "4d819a597dd3aeb2a12255cac46e9e5e3bc2c6fefece79c988fae5aabaebda3f": {
+      "displayName": "coffeeshop-staging-network Template",
+      "source": {
+        "path": "coffeeshop-staging-network.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "584518143473-ap-east-2-55261d89": {
+          "bucketName": "cdk-hnb659fds-assets-584518143473-ap-east-2",
+          "objectKey": "4d819a597dd3aeb2a12255cac46e9e5e3bc2c6fefece79c988fae5aabaebda3f.json",
+          "region": "ap-east-2",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-file-publishing-role-584518143473-ap-east-2"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

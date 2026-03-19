@@ -1,0 +1,561 @@
+{
+  "/coffeeshop-staging-compute": [
+    {
+      "type": "aws:cdk:stack-tags",
+      "data": [
+        {
+          "key": "Environment",
+          "value": "staging"
+        },
+        {
+          "key": "ManagedBy",
+          "value": "CDK"
+        },
+        {
+          "key": "Project",
+          "value": "coffeeshop"
+        }
+      ]
+    }
+  ],
+  "/coffeeshop-staging-compute/Custom::AWSCDKOpenIdConnectProviderCustomResourceProvider": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
+      "data": true
+    }
+  ],
+  "/coffeeshop-staging-compute/AWSCDKCfnUtilsProviderCustomResourceProvider": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
+      "data": true
+    }
+  ],
+  "/coffeeshop-staging-compute/ClusterName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ClusterName"
+    }
+  ],
+  "/coffeeshop-staging-compute/ClusterEndpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ClusterEndpoint"
+    }
+  ],
+  "/coffeeshop-staging-compute/ClusterArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ClusterArn"
+    }
+  ],
+  "/coffeeshop-staging-compute/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/coffeeshop-staging-compute/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/coffeeshop-staging-compute/KubectlLayer/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "KubectlLayer600207B5"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/KubectlReadyBarrier": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterKubectlReadyBarrier867A2F20"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/HasEcrPublic": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterHasEcrPublic1D12A0AE"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/OnEventHandler": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-runtime-family",
+      "data": 0
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/IsCompleteHandler": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-runtime-family",
+      "data": 0
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/coffeeshopstagingcomputeawscdkawseksClusterResourceProviderOnEventHandlerServiceRole0D0FDC91Arn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "coffeeshopstagingcomputeawscdkawseksClusterResourceProviderOnEventHandlerServiceRole0D0FDC91Arn"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/coffeeshopstagingcomputeawscdkawseksClusterResourceProviderIsCompleteHandlerServiceRoleC50C406AArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "coffeeshopstagingcomputeawscdkawseksClusterResourceProviderIsCompleteHandlerServiceRoleC50C406AArn"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/coffeeshopstagingcomputeawscdkawseksClusterResourceProviderframeworkonEvent56C282F4Arn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "coffeeshopstagingcomputeawscdkawseksClusterResourceProviderframeworkonEvent56C282F4Arn"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider.NestedStack/@aws-cdk--aws-eks.ClusterResourceProvider.NestedStackResource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "awscdkawseksClusterResourceProviderNestedStackawscdkawseksClusterResourceProviderNestedStackResource9827C454"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.KubectlProvider/Handler": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-runtime-family",
+      "data": 2
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.KubectlProvider/coffeeshopstagingcomputeawscdkawseksKubectlProviderframeworkonEventF52515A9Arn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "coffeeshopstagingcomputeawscdkawseksKubectlProviderframeworkonEventF52515A9Arn"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.KubectlProvider/reference-to-coffeeshopstagingcomputeKubectlLayer10D19F90Ref": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetocoffeeshopstagingcomputeKubectlLayer10D19F90Ref"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.KubectlProvider/reference-to-coffeeshopstagingcomputeCoffeeshopClusterKubectlHandlerRole7CE978F7Arn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetocoffeeshopstagingcomputeCoffeeshopClusterKubectlHandlerRole7CE978F7Arn"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.KubectlProvider/reference-to-coffeeshopstagingcomputeCoffeeshopCluster76CF0B7AClusterSecurityGroupId": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetocoffeeshopstagingcomputeCoffeeshopCluster76CF0B7AClusterSecurityGroupId"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.KubectlProvider.NestedStack/@aws-cdk--aws-eks.KubectlProvider.NestedStackResource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "awscdkawseksKubectlProviderNestedStackawscdkawseksKubectlProviderNestedStackResourceA7AEBA6B"
+    }
+  ],
+  "/coffeeshop-staging-compute/Custom::AWSCDKOpenIdConnectProviderCustomResourceProvider/Role": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomAWSCDKOpenIdConnectProviderCustomResourceProviderRole517FED65"
+    }
+  ],
+  "/coffeeshop-staging-compute/Custom::AWSCDKOpenIdConnectProviderCustomResourceProvider/Handler": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomAWSCDKOpenIdConnectProviderCustomResourceProviderHandlerF2C543E0"
+    }
+  ],
+  "/coffeeshop-staging-compute/AWSCDKCfnUtilsProviderCustomResourceProvider/Role": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AWSCDKCfnUtilsProviderCustomResourceProviderRoleFE0EE867"
+    }
+  ],
+  "/coffeeshop-staging-compute/AWSCDKCfnUtilsProviderCustomResourceProvider/Handler": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AWSCDKCfnUtilsProviderCustomResourceProviderHandlerCF82AA57"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/KubectlHandlerRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterKubectlHandlerRole208DE6B0"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterRoleC18F2A18"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/ControlPlaneSecurityGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterControlPlaneSecurityGroupF03BD70B"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/NodegroupAppNodeGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterNodegroupAppNodeGroupEB2273DE"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/NodeProxyAgentLayer/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "NodeProxyAgentLayer924C1971"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/OnEventHandler/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OnEventHandler42BEBAE0"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/IsCompleteHandler/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IsCompleteHandler7073F4DA"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.KubectlProvider/Handler/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Handler886CB40B"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.KubectlProvider/AwsCliLayer/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AwsCliLayerF44AAF94"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/KubectlHandlerRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterKubectlHandlerRoleDefaultPolicyC1CC5C28"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/Resource/CreationRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterCreationRole8A496F49"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/Resource/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopCluster0BADC19F"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/NodegroupAppNodeGroup/NodeGroupRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterNodegroupAppNodeGroupNodeGroupRoleBF65B7CC"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/AwsLoadBalancerController/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterAwsLoadBalancerControllerRole0CD96338"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/OpenIdConnectProvider/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterOpenIdConnectProviderB3245541"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/chart-AwsLoadBalancerController/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterchartAwsLoadBalancerControllerADC1E55E"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/ClusterAutoscaler/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterClusterAutoscalerRoleD21E4FD7"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/chart-ClusterAutoscaler/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterchartClusterAutoscaler4F887E18"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/manifest-AppNamespace/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClustermanifestAppNamespaceA845A374"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/OrderingServiceAccount/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterOrderingServiceAccountRole8091D944"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/PreparationServiceAccount/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterPreparationServiceAccountRoleD0BE7FA2"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/InventoryServiceAccount/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterInventoryServiceAccountRoleED2C6645"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/ReportingServiceAccount/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterReportingServiceAccountRole087C7949"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/AdotCollector/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterAdotCollectorRole82A99364"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/manifest-OtelNamespace/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClustermanifestOtelNamespace1DD0DCAE"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/chart-AdotCollector/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterchartAdotCollector131A349C"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/OnEventHandler/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OnEventHandlerServiceRole15A26729"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/IsCompleteHandler/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IsCompleteHandlerServiceRole5810CC58"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider/framework-onEvent/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProviderframeworkonEvent83C1D0A7"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider/framework-isComplete/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProviderframeworkisComplete26D7B0CB"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider/framework-onTimeout/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProviderframeworkonTimeout0B47CA38"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider/waiter-state-machine/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Providerwaiterstatemachine5D4A9DF0"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.KubectlProvider/Provider/framework-onEvent/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProviderframeworkonEvent83C1D0A7"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/Resource/CreationRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterCreationRoleDefaultPolicy1EFC6CA6"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/AwsAuth/manifest/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterAwsAuthmanifest93406088"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/AwsLoadBalancerController/ConditionJson/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterAwsLoadBalancerControllerConditionJson3D185523"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/AwsLoadBalancerController/manifest-AwsLoadBalancerControllerServiceAccountResource/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterAwsLoadBalancerControllermanifestAwsLoadBalancerControllerServiceAccountResourceD93D6252"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/ClusterAutoscaler/ConditionJson/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterClusterAutoscalerConditionJson9C642B24"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/ClusterAutoscaler/manifest-ClusterAutoscalerServiceAccountResource/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterClusterAutoscalermanifestClusterAutoscalerServiceAccountResourceEAA348BE"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/OrderingServiceAccount/ConditionJson/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterOrderingServiceAccountConditionJson58966B5C"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/OrderingServiceAccount/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterOrderingServiceAccountRoleDefaultPolicyE0CB5633"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/OrderingServiceAccount/manifest-OrderingServiceAccountServiceAccountResource/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterOrderingServiceAccountmanifestOrderingServiceAccountServiceAccountResource66B91260"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/PreparationServiceAccount/ConditionJson/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterPreparationServiceAccountConditionJson2FF0B174"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/PreparationServiceAccount/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterPreparationServiceAccountRoleDefaultPolicyCB94EB58"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/PreparationServiceAccount/manifest-PreparationServiceAccountServiceAccountResource/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterPreparationServiceAccountmanifestPreparationServiceAccountServiceAccountResource2E538A40"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/InventoryServiceAccount/ConditionJson/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterInventoryServiceAccountConditionJson17537AC3"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/InventoryServiceAccount/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterInventoryServiceAccountRoleDefaultPolicyBE2F5C6E"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/InventoryServiceAccount/manifest-InventoryServiceAccountServiceAccountResource/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterInventoryServiceAccountmanifestInventoryServiceAccountServiceAccountResourceF904CAB1"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/ReportingServiceAccount/ConditionJson/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterReportingServiceAccountConditionJsonF8DB099C"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/ReportingServiceAccount/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterReportingServiceAccountRoleDefaultPolicy4C1FC116"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/ReportingServiceAccount/manifest-ReportingServiceAccountServiceAccountResource/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterReportingServiceAccountmanifestReportingServiceAccountServiceAccountResourceF800DB29"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/AdotCollector/ConditionJson/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterAdotCollectorConditionJson7727384C"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/AdotCollector/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterAdotCollectorRoleDefaultPolicy641DDAE1"
+    }
+  ],
+  "/coffeeshop-staging-compute/CoffeeshopCluster/AdotCollector/manifest-AdotCollectorServiceAccountResource/Resource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopClusterAdotCollectormanifestAdotCollectorServiceAccountResource0582500E"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider/framework-onEvent/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProviderframeworkonEventServiceRole9FF04296"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider/framework-isComplete/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProviderframeworkisCompleteServiceRoleB1087139"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider/framework-onTimeout/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProviderframeworkonTimeoutServiceRole28643D26"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider/waiter-state-machine/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProviderwaiterstatemachineRole0C7159F9"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.KubectlProvider/Provider/framework-onEvent/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProviderframeworkonEventServiceRole9FF04296"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider/framework-onEvent/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProviderframeworkonEventServiceRoleDefaultPolicy48CD2133"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider/framework-isComplete/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProviderframeworkisCompleteServiceRoleDefaultPolicy2E7140AC"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider/framework-onTimeout/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProviderframeworkonTimeoutServiceRoleDefaultPolicy2688969F"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider/waiter-state-machine/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProviderwaiterstatemachineRoleDefaultPolicyD3C3DA1A"
+    }
+  ],
+  "/coffeeshop-staging-compute/@aws-cdk--aws-eks.KubectlProvider/Provider/framework-onEvent/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ProviderframeworkonEventServiceRoleDefaultPolicy48CD2133"
+    }
+  ]
+}

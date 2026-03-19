@@ -1,0 +1,58 @@
+domain_model:
+  bounded_context: Ordering
+
+  classes:
+    - name: Order
+      type: AggregateRoot
+      fields:
+        - { name: orderId, type: UUID, key: true }
+        - { name: tableNumber, type: int }
+        - { name: items, type: "List<OrderItem>" }
+        - { name: totalAmount, type: Money }
+        - { name: cashReceived, type: Money, nullable: true }
+        - { name: changeGiven, type: Money, nullable: true }
+        - { name: status, type: OrderStatus }
+        - { name: placedAt, type: DateTime }
+        - { name: confirmedAt, type: DateTime, nullable: true }
+        - { name: paidAt, type: DateTime, nullable: true }
+        - { name: deliveredAt, type: DateTime, nullable: true }
+        - { name: completedAt, type: DateTime, nullable: true }
+      methods:
+        - "placeOrder(tableNumber, items): validates menu, calculates pricing"
+        - "confirm(): transitions Placed → Confirmed"
+        - "processPayment(cashReceived): validates amount, calculates change, transitions to Paid"
+        - "markReady(): transitions Paid → Ready (on OrderReadyForDelivery)"
+        - "deliver(): transitions Ready → Delivered"
+        - "complete(): transitions Delivered → Completed"
+
+    - name: OrderItem
+      type: Entity
+      fields:
+        - { name: itemId, type: UUID, key: true }
+        - { name: coffeeType, type: CoffeeType }
+        - { name: size, type: CoffeeSize }
+        - { name: quantity, type: int }
+        - { name: customizations, type: "List<Customization>" }
+        - { name: unitPrice, type: Money }
+        - { name: surcharge, type: Money }
+        - { name: lineTotal, type: Money }
+
+    - name: Money
+      type: ValueObject
+      fields: [{ name: amount, type: int }]
+
+    - name: MenuService
+      type: DomainService
+      methods:
+        - "getPrice(coffeeType, size): Money"
+        - "getSurcharge(customization): Money"
+        - "validateCombination(coffeeType, size, customizations): boolean"
+
+  pricing_table:
+    Espresso: { Single: 60, Double: 80 }
+    Americano: { Short: 80, Tall: 100, Grande: 120, Venti: 140 }
+    Latte: { Short: 100, Tall: 120, Grande: 140, Venti: 160 }
+    Cappuccino: { Short: 100, Tall: 120, Grande: 140, Venti: 160 }
+
+  surcharges:
+    WhippedCream: 20

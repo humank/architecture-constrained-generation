@@ -1,0 +1,118 @@
+story_map:
+  backbone:
+    - activity: "Order Taking"
+      steps:
+        - step: "View Menu"
+          stories:
+            - id: US-01
+              story: "As a Waiter, I want to see the full menu with prices so I can inform the customer"
+              priority: MVP
+            - id: US-02
+              story: "As a Customer, I want to see available coffee types, sizes, and customizations"
+              priority: MVP
+
+        - step: "Place Order"
+          stories:
+            - id: US-03
+              story: "As a Waiter, I want to place an order with table number, items, sizes, and customizations"
+              priority: MVP
+            - id: US-04
+              story: "As a Waiter, I want the system to auto-calculate total including customization surcharges"
+              priority: MVP
+
+        - step: "Confirm Order"
+          stories:
+            - id: US-05
+              story: "As Counter Staff, I want to review and confirm the order before payment"
+              priority: MVP
+
+    - activity: "Payment"
+      steps:
+        - step: "Process Payment"
+          stories:
+            - id: US-06
+              story: "As Counter Staff, I want to process cash payment and record the amount received"
+              priority: MVP
+            - id: US-07
+              story: "As Counter Staff, I want to see change amount after cash payment"
+              priority: MVP
+
+    - activity: "Preparation"
+      steps:
+        - step: "Receive Order"
+          stories:
+            - id: US-08
+              story: "As a Barista, I want to see incoming paid orders in my queue with recipe details"
+              priority: MVP
+
+        - step: "Prepare Coffee"
+          stories:
+            - id: US-09
+              story: "As a Barista, I want to see the exact recipe (shots, milk, foam) for each item"
+              priority: MVP
+            - id: US-10
+              story: "As a Barista, I want to mark each item as preparation started (triggers ingredient deduction)"
+              priority: MVP
+            - id: US-11
+              story: "As a Barista, I want to mark each item as prepared/ready"
+              priority: MVP
+
+        - step: "Deliver"
+          stories:
+            - id: US-12
+              story: "As a Waiter, I want to see which orders are ready for delivery with table number"
+              priority: MVP
+            - id: US-13
+              story: "As a Waiter, I want to mark an order as delivered/complete"
+              priority: MVP
+
+    - activity: "Inventory Management"
+      steps:
+        - step: "Monitor Stock"
+          stories:
+            - id: US-14
+              story: "As a Barista, I want to see current inventory levels for all materials"
+              priority: MVP
+            - id: US-15
+              story: "As Counter Staff, I want to receive alerts when any material drops below 30%"
+              priority: MVP
+
+        - step: "Replenishment"
+          stories:
+            - id: US-16
+              story: "As a Barista, I want to request replenishment for low-stock materials"
+              priority: MVP
+            - id: US-17
+              story: "As Counter Staff, I want to record a purchase order for replenishment"
+              priority: MVP
+            - id: US-18
+              story: "As a Barista, I want to confirm replenishment delivery and restore stock to 100%"
+              priority: MVP
+
+    - activity: "Reporting"
+      steps:
+        - step: "View Reports"
+          stories:
+            - id: US-19
+              story: "As Counter Staff, I want to see daily/weekly/monthly sales reports"
+              priority: MVP
+            - id: US-20
+              story: "As Counter Staff, I want to see real-time inventory dashboard"
+              priority: MVP
+
+  mvp_scope:
+    included:
+      - "Full order workflow (place → confirm → pay → prepare → deliver → complete)"
+      - "Menu with 4 coffee types, all sizes, all customizations"
+      - "Cash payment processing"
+      - "Recipe-based preparation with ingredient deduction"
+      - "Inventory monitoring with 30% threshold alerts"
+      - "Replenishment request and confirmation flow"
+      - "Sales and inventory dashboards"
+    excluded:
+      - "Digital/card payment"
+      - "Online ordering"
+      - "Delivery service"
+      - "Self-service kiosk"
+      - "Multi-location support"
+      - "Customer loyalty/rewards"

@@ -1,0 +1,54 @@
+impact_map:
+  goal: "Run efficient coffee shop operations with zero stockouts and full order traceability"
+
+  actors:
+    - actor: "Counter Staff (Cashier)"
+      impacts:
+        - impact: "Process orders quickly and accurately"
+          deliverables:
+            - "Order entry with auto-pricing (menu + customization surcharges)"
+            - "Cash payment confirmation"
+            - "Order queue management"
+        - impact: "Manage purchasing and replenishment"
+          deliverables:
+            - "Receive low-stock alerts"
+            - "Record purchase orders"
+            - "Track replenishment SLA (3 days)"
+
+    - actor: Waiter
+      impacts:
+        - impact: "Take orders efficiently at table"
+          deliverables:
+            - "Table-based order placement (table 1-5)"
+            - "Menu with sizes, customizations, pricing"
+        - impact: "Deliver and complete orders"
+          deliverables:
+            - "View preparation status"
+            - "Mark order as delivered/complete"
+
+    - actor: Barista
+      impacts:
+        - impact: "Prepare coffee correctly per recipe"
+          deliverables:
+            - "Order queue with recipe details"
+            - "Recipe reference per coffee type/size/customization"
+        - impact: "Manage ingredient availability"
+          deliverables:
+            - "View current inventory levels"
+            - "Request replenishment"
+            - "Confirm replenishment delivery"
+
+    - actor: Customer
+      impacts:
+        - impact: "Order and receive coffee smoothly"
+          deliverables:
+            - "View menu"
+            - "Receive order at table"
+
+    - actor: "Shop Owner / Manager"
+      impacts:
+        - impact: "Understand business performance"
+          deliverables:
+            - "Sales dashboard (daily, weekly, monthly)"
+            - "Real-time inventory dashboard"
+            - "Revenue reports"

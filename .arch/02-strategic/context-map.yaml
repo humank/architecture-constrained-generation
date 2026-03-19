@@ -1,0 +1,152 @@
+context_map:
+  style: microservices
+  communication: async_messaging
+
+  relationships:
+    - upstream: Ordering
+      downstream: Preparation
+      pattern: "Published Language"
+      relationship_type: "Customer-Supplier"
+      integration:
+        mechanism: SNS → SQS
+        topic: ordering-events
+        queue: preparation-from-ordering
+        events: [OrderSubmittedToBarista]
+        contract:
+          event: OrderSubmittedToBarista
+          fields:
+            - orderId: string (UUID)
+            - tableNumber: int (1-5)
+            - items:
+                - itemId: string (UUID)
+                - coffeeType: enum [Espresso, Americano, Latte, Cappuccino]
+                - size: enum [Single, Double, Short, Tall, Grande, Venti]
+                - quantity: int
+                - customizations: string[]
+                - recipe:
+                    ingredients:
+                      - material: string
+                        quantity: number
+                        unit: string
+
+    - upstream: Preparation
+      downstream: Ordering
+      pattern: "Published Language"
+      relationship_type: "Customer-Supplier"
+      integration:
+        mechanism: SNS → SQS
+        topic: preparation-events
+        queue: ordering-from-preparation
+        events: [OrderReadyForDelivery]
+        contract:
+          event: OrderReadyForDelivery
+          fields:
+            - orderId: string (UUID)
+            - tableNumber: int (1-5)
+            - readyAt: datetime (ISO 8601)
+
+    - upstream: Preparation
+      downstream: Inventory
+      pattern: "Published Language"
+      relationship_type: "Customer-Supplier"
+      integration:
+        mechanism: SNS → SQS
+        topic: preparation-events
+        queue: inventory-from-preparation
+        subscription_filter:
+          eventType: [PreparationStarted]  # CRITICAL: filter out CoffeePrepared events
+        events: [PreparationStarted]
+        contract:
+          event: PreparationStarted
+          fields:
+            - orderId: string (UUID)
+            - itemId: string (UUID)
+            - recipe:
+                ingredients:
+                  - material: string
+                    quantity: number
+                    unit: string
+
+    - upstream: Ordering
+      downstream: Reporting
+      pattern: "Published Language"
+      relationship_type: "Customer-Supplier"
+      integration:
+        mechanism: SNS → SQS
+        topic: ordering-events
+        queue: reporting-from-ordering
+        events: [OrderCompleted]
+        contract:
+          event: OrderCompleted
+          fields:
+            - orderId: string (UUID)
+            - tableNumber: int (1-5)
+            - items: [{ coffeeType, size, quantity, unitPrice, customizations }]
+            - total: decimal
+            - placedAt: datetime
+            - completedAt: datetime
+
+    - upstream: Inventory
+      downstream: Reporting
+      pattern: "Published Language"
+      relationship_type: "Customer-Supplier"
+      integration:
+        mechanism: SNS → SQS
+        topic: inventory-events
+        queue: reporting-from-inventory
+        events: [IngredientDeducted]
+        contract:
+          event: IngredientDeducted
+          fields:
+            - material: string
+            - quantityDeducted: number
+            - remainingLevel: number
+            - maxCapacity: number
+            - percentageRemaining: number
+
+  topics:
+    - name: ordering-events
+      publisher: Ordering
+      subscribers: [Preparation, Reporting]
+      events: [OrderSubmittedToBarista, OrderCompleted]
+
+    - name: preparation-events
+      publisher: Preparation
+      subscribers: [Ordering, Inventory]
+      events: [PreparationStarted, CoffeePrepared, OrderReadyForDelivery]
+      notes: "Inventory queue MUST have subscription filter for PreparationStarted only"
+
+    - name: inventory-events
+      publisher: Inventory
+      subscribers: [Reporting]
+      events: [IngredientDeducted, LowStockAlertTriggered]
+
+  queues:
+    - name: preparation-from-ordering
+      topic: ordering-events
+      consumer: Preparation
+      dlq: preparation-from-ordering-dlq
+
+    - name: ordering-from-preparation
+      topic: preparation-events
+      consumer: Ordering
+      filter: [OrderReadyForDelivery]
+      dlq: ordering-from-preparation-dlq
+
+    - name: inventory-from-preparation
+      topic: preparation-events
+      consumer: Inventory
+      filter: [PreparationStarted]
+      dlq: inventory-from-preparation-dlq
+
+    - name: reporting-from-ordering
+      topic: ordering-events
+      consumer: Reporting
+      filter: [OrderCompleted]
+      dlq: reporting-from-ordering-dlq
+
+    - name: reporting-from-inventory
+      topic: inventory-events
+      consumer: Reporting
+      filter: [IngredientDeducted]
+      dlq: reporting-from-inventory-dlq

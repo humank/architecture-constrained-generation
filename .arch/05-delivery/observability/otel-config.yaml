@@ -1,0 +1,88 @@
+opentelemetry:
+  collector: ADOT (AWS Distro for OpenTelemetry)
+
+  collector_config:
+    receivers:
+      otlp:
+        protocols:
+          grpc: { endpoint: "0.0.0.0:4317" }
+          http: { endpoint: "0.0.0.0:4318" }
+
+    processors:
+      batch:
+        timeout: 5s
+        send_batch_size: 256
+      resource:
+        attributes:
+          - key: service.namespace
+            value: coffeeshop
+          - key: deployment.environment
+            from_attribute: ENVIRONMENT
+
+    exporters:
+      awsxray:
+        region: ap-east-2
+      awsemf:
+        region: ap-east-2
+        namespace: Coffeeshop
+        log_group_name: "/coffeeshop/${ENVIRONMENT}/metrics"
+      awscloudwatchlogs:
+        region: ap-east-2
+        log_group_name: "/coffeeshop/${ENVIRONMENT}/traces"
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [batch, resource]
+          exporters: [awsxray]
+        metrics:
+          receivers: [otlp]
+          processors: [batch, resource]
+          exporters: [awsemf]
+        logs:
+          receivers: [otlp]
+          processors: [batch, resource]
+          exporters: [awscloudwatchlogs]
+
+  service_instrumentation:
+    java_services:
+      agent: "opentelemetry-javaagent.jar"
+      env_vars:
+        OTEL_SERVICE_NAME: "${SERVICE_NAME}"
+        OTEL_EXPORTER_OTLP_ENDPOINT: "http://adot-collector:4317"
+        OTEL_RESOURCE_ATTRIBUTES: "service.namespace=coffeeshop"
+        OTEL_TRACES_SAMPLER: "parentbased_traceid_ratio"
+        OTEL_TRACES_SAMPLER_ARG: "0.1"  # 10% sampling in production
+
+    custom_spans:
+      - service: ordering-service
+        spans:
+          - "order.place (tableNumber, itemCount, totalAmount)"
+          - "order.payment (amountDue, cashReceived)"
+      - service: preparation-service
+        spans:
+          - "preparation.start (coffeeType, size)"
+          - "preparation.recipe.resolve (ingredientCount)"
+          - "outbox.publish (eventType, aggregateId)"
+      - service: inventory-service
+        spans:
+          - "inventory.deduct (material, quantity, remainingPercentage)"
+          - "inventory.alert (material, level)"
+
+    trace_propagation:
+      http: "W3C Trace Context (traceparent, tracestate)"
+      sqs: "Message attributes: AWSTraceHeader + custom traceparent"
+      sns: "Message attributes propagated to SQS subscribers"
+
+  structured_logging:
+    format: JSON
+    fields:
+      - timestamp
+      - level
+      - service
+      - traceId
+      - spanId
+      - message
+      - orderId   # business correlation
+      - materialId  # for inventory operations

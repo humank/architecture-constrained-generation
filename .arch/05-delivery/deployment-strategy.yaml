@@ -1,0 +1,72 @@
+deployment_strategy:
+  target: AWS EKS
+  region: ap-east-2
+  namespace_strategy: "staging / production namespaces"
+
+  services:
+    - name: ordering-service
+      classification: Core
+      strategy: canary
+      replicas: { min: 2, max: 5 }
+      resources:
+        requests: { cpu: "250m", memory: "512Mi" }
+        limits: { cpu: "500m", memory: "1Gi" }
+      rollback:
+        automatic: true
+        trigger: "SLO violation (error rate > 1% or P99 > 2s)"
+      health_check:
+        liveness: "/actuator/health/liveness"
+        readiness: "/actuator/health/readiness"
+        startup_probe: { initialDelay: 30s, period: 5s, failureThreshold: 10 }
+
+    - name: preparation-service
+      classification: Core
+      strategy: canary
+      replicas: { min: 2, max: 4 }
+      resources:
+        requests: { cpu: "250m", memory: "512Mi" }
+        limits: { cpu: "500m", memory: "1Gi" }
+      rollback:
+        automatic: true
+        trigger: "SLO violation"
+      startup_dependencies:
+        - "RDS schema migration (Flyway) must complete before readiness"
+        - "Outbox poller starts after readiness probe passes"
+
+    - name: inventory-service
+      classification: Supporting
+      strategy: blue_green
+      replicas: { min: 2, max: 3 }
+      resources:
+        requests: { cpu: "200m", memory: "384Mi" }
+        limits: { cpu: "400m", memory: "768Mi" }
+      startup_dependencies:
+        - "CRITICAL: Flyway seed data (V1__init_inventory.sql) must complete BEFORE SQS consumer starts"
+        - "Health check must verify seed data exists: GET /api/inventory returns 4 items"
+        - "SQS consumer polling starts ONLY after health check passes"
+
+    - name: reporting-service
+      classification: Generic
+      strategy: rolling_update
+      replicas: { min: 1, max: 2 }
+      resources:
+        requests: { cpu: "150m", memory: "256Mi" }
+        limits: { cpu: "300m", memory: "512Mi" }
+
+    - name: frontend
+      strategy: s3_cloudfront
+      deployment:
+        - "Build static assets (Vite)"
+        - "Upload to S3 bucket"
+        - "Create CloudFront invalidation"
+      rollback: "Restore previous S3 version"
+
+  feature_flags:
+    provider: "Environment variables (simple) or AWS AppConfig (advanced)"
+    flags:
+      - name: REPORTING_ENABLED
+        default: true
+        description: "Toggle reporting dashboard"
+      - name: REPLENISHMENT_ENABLED
+        default: true
+        description: "Toggle replenishment workflow"

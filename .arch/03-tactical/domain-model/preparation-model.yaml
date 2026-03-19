@@ -1,0 +1,52 @@
+domain_model:
+  bounded_context: Preparation
+
+  classes:
+    - name: Preparation
+      type: AggregateRoot
+      fields:
+        - { name: preparationId, type: UUID, key: true }
+        - { name: orderId, type: UUID }
+        - { name: tableNumber, type: int }
+        - { name: items, type: "List<PreparationItem>" }
+        - { name: status, type: PreparationStatus }
+        - { name: createdAt, type: DateTime }
+        - { name: completedAt, type: DateTime, nullable: true }
+      methods:
+        - "createFromOrder(orderId, tableNumber, items): creates Preparation in Pending state"
+        - "startItem(itemId): resolves recipe, marks item InProgress, emits PreparationStarted"
+        - "completeItem(itemId): marks item Done, if all done → emit OrderReadyForDelivery"
+
+    - name: PreparationItem
+      type: Entity
+      fields:
+        - { name: itemId, type: UUID, key: true }
+        - { name: coffeeType, type: CoffeeType }
+        - { name: size, type: CoffeeSize }
+        - { name: customizations, type: "List<String>" }
+        - { name: recipe, type: Recipe, nullable: true }
+        - { name: status, type: ItemPreparationStatus }
+
+    - name: Recipe
+      type: ValueObject
+      fields:
+        - { name: ingredients, type: "List<Ingredient>" }
+
+    - name: Ingredient
+      type: ValueObject
+      fields:
+        - { name: material, type: String }
+        - { name: quantity, type: number }
+        - { name: unit, type: String }
+
+    - name: RecipeResolutionService
+      type: DomainService
+      methods:
+        - "resolve(coffeeType, size, customizations): Recipe"
+      description: "Calculates exact ingredients based on type/size/customizations"
+
+  outbox:
+    description: "Transactional outbox pattern for reliable event publishing"
+    table: outbox
+    fields: [id, aggregateId, eventType, payload, createdAt, publishedAt]
+    poller: "OutboxPoller reads unpublished entries, publishes to SNS preparation-events topic"

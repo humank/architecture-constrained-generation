@@ -1,0 +1,195 @@
+test-strategy:
+  name: Coffeeshop Management System Test Strategy
+  version: "1.0"
+  date: "2026-03-19"
+  description: >
+    Comprehensive test strategy for the coffeeshop microservices system.
+    Follows the test pyramid with emphasis on fast, isolated unit tests
+    at the base and targeted higher-level tests for integration confidence.
+
+  test-pyramid:
+    - level: Unit Tests
+      coverage-target: "60%"
+      description: >
+        Fast, isolated tests for domain logic. No external dependencies;
+        all collaborators are mocked or stubbed.
+      scope:
+        - Recipe resolution logic (size-based ingredient scaling, customization modifiers)
+        - Pricing calculation (base price lookup, size multiplier, customization surcharges)
+        - Order validation (table number range, item constraints, menu availability)
+        - Order aggregate state machine (placed -> submitted -> ready -> completed)
+        - Inventory stock level calculations (deduction, threshold checks)
+        - Domain event creation and payload assembly
+        - Value object validation (OrderId, TableNumber, CoffeeType, Size)
+      guidelines:
+        - Each domain entity and value object must have dedicated unit tests
+        - Test both happy paths and edge cases (boundary values, invalid inputs)
+        - Recipe resolution tests must cover all 5 coffee types x 3 sizes = 15 combinations
+        - Pricing tests must verify customization surcharges are additive
+        - Use deterministic test data; avoid randomness
+      tools:
+        - framework: Jest (TypeScript) or pytest (Python)
+        - mocking: Built-in mocks / test doubles
+
+    - level: Integration Tests
+      coverage-target: "25%"
+      description: >
+        Tests that verify interaction between components and external
+        dependencies (databases, message queues, AWS services).
+      scope:
+        - Database repository operations (CRUD for orders, inventory items)
+        - SQS consumer message processing (deserialization, handler dispatch)
+        - SNS publisher event publishing (serialization, topic routing)
+        - Database transaction behavior (rollback on failure, idempotency)
+        - SQS subscription filter verification (correct events reach correct queues)
+        - DLQ behavior (poison messages routed after maxReceiveCount)
+      error-path-requirement: >
+        At least 20% of integration tests MUST cover error scenarios including:
+        - Malformed message payloads (missing required fields, wrong types)
+        - Database connection failures and timeouts
+        - SQS message processing failures triggering DLQ
+        - Duplicate message handling (idempotency verification)
+        - Insufficient inventory for ingredient deduction
+        - SNS publish failures and retry behavior
+      guidelines:
+        - Use LocalStack or ElasticMQ for local SQS/SNS testing
+        - Use testcontainers for database integration tests
+        - Each SQS consumer must have at least one happy-path and one error-path test
+        - Verify DLQ routing for all queues
+        - Test subscription filter policies match contract specifications
+      tools:
+        - local-aws: LocalStack
+        - containers: testcontainers
+        - database: SQLite in-memory or testcontainers PostgreSQL
+
+    - level: E2E / BDD Tests
+      coverage-target: "10%"
+      description: >
+        End-to-end tests verifying critical user journeys across multiple
+        bounded contexts. Written in Gherkin (Given/When/Then) format.
+      scope:
+        - Order-to-complete journey:
+            description: >
+              Customer places order -> barista receives it -> preparation
+              starts -> ingredients deducted -> all items prepared ->
+              order marked ready -> order delivered and completed.
+            services: [Ordering, Preparation, Inventory]
+        - Inventory replenishment journey:
+            description: >
+              Ingredient stock falls below threshold -> low stock alert ->
+              manager replenishes -> stock level restored.
+            services: [Inventory]
+        - Reporting data flow:
+            description: >
+              Order completed -> Reporting receives event -> dashboard
+              reflects updated sales and inventory data.
+            services: [Ordering, Inventory, Reporting]
+      guidelines:
+        - Use real (local) instances of all four services
+        - Use LocalStack for SNS/SQS infrastructure
+        - Wait for async events with polling and reasonable timeouts (max 10s)
+        - Each scenario must clean up test data after execution
+        - BDD feature files live in .arch/04-specification/features/
+      tools:
+        - bdd: Cucumber / behave
+        - http: supertest or httpx for API calls
+
+    - level: Contract Tests
+      coverage-target: "5%"
+      description: >
+        Pact-based consumer-driven contract tests ensuring all BC
+        integrations honor their published schemas.
+      scope:
+        - Ordering-Preparation contract:
+            - OrderSubmittedToBarista schema compliance
+            - OrderReadyForDelivery schema compliance
+        - Preparation-Inventory contract:
+            - PreparationStarted schema compliance
+            - Subscription filter policy correctness
+        - Ordering-Reporting contract:
+            - OrderCompleted schema compliance
+        - Inventory-Reporting contract:
+            - IngredientDeducted schema compliance
+      guidelines:
+        - Consumer tests generate Pact files defining expected message schemas
+        - Producer tests verify they can generate messages matching Pact contracts
+        - Run contract tests in CI on every PR that touches event schemas
+        - Pact broker (or file-based exchange) for contract sharing between services
+        - Contract tests must fail the build if a breaking schema change is detected
+      tools:
+        - framework: Pact
+        - broker: Pact Broker (or pact-cli file exchange for local dev)
+
+  error-path-testing:
+    minimum-ratio: "20% of integration tests"
+    description: >
+      Error path testing is critical for a distributed async system.
+      At least 20% of integration tests must cover failure scenarios.
+    mandatory-scenarios:
+      - name: Malformed SQS message
+        description: Consumer receives a message that fails schema validation
+        expected-behavior: Message is rejected and routed to DLQ after 3 attempts
+      - name: Duplicate message delivery
+        description: Same event is delivered twice due to at-least-once semantics
+        expected-behavior: Second processing is a no-op (idempotent)
+      - name: Insufficient inventory
+        description: Ingredient deduction requested but stock is zero
+        expected-behavior: Deduction fails gracefully, alert event published
+      - name: Service timeout
+        description: Downstream service does not respond within timeout
+        expected-behavior: Circuit breaker opens, request fails fast
+      - name: Database unavailable
+        description: Database connection lost during write operation
+        expected-behavior: Transaction rolls back, message remains in queue for retry
+
+  performance-testing:
+    frontend:
+      tool: Lighthouse CI
+      description: >
+        Automated Lighthouse audits run in CI for any frontend components.
+      thresholds:
+        performance: 90
+        accessibility: 95
+        best-practices: 90
+    api:
+      tool: k6
+      description: >
+        Load testing for API endpoints and end-to-end order processing flow.
+      scenarios:
+        - name: Order processing latency
+          description: Single order from placement to completion
+          threshold: "<2s (p95)"
+          virtual-users: 1
+        - name: Concurrent orders
+          description: Multiple simultaneous orders (simulating peak hour)
+          threshold: "<3s (p95)"
+          virtual-users: 10
+        - name: SQS consumer throughput
+          description: Messages processed per second under load
+          threshold: ">50 msg/s per consumer"
+          virtual-users: 20
+
+  ci-integration:
+    pipeline-stages:
+      - stage: Unit Tests
+        trigger: Every commit
+        blocking: true
+        timeout: 2m
+      - stage: Integration Tests
+        trigger: Every commit
+        blocking: true
+        timeout: 5m
+        requires: LocalStack container
+      - stage: Contract Tests
+        trigger: Every PR touching event schemas
+        blocking: true
+        timeout: 3m
+      - stage: E2E Tests
+        trigger: Every PR to main
+        blocking: true
+        timeout: 10m
+        requires: All services + LocalStack
+      - stage: Performance Tests
+        trigger: Nightly / pre-release
+        blocking: false
+        timeout: 15m

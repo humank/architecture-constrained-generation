@@ -1,0 +1,39 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: reporting-service
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:coffeeshop}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: reporting
+    open-in-view: false
+  flyway:
+    enabled: true
+    schemas: reporting
+    default-schema: reporting
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+aws:
+  region: ${AWS_REGION:ap-east-2}
+  endpoint: ${AWS_ENDPOINT:}
+  access-key: ${AWS_ACCESS_KEY:localstack}
+  secret-key: ${AWS_SECRET_KEY:localstack}
+  sqs:
+    reporting-from-ordering-queue-url: ${AWS_SQS_REPORTING_FROM_ORDERING_QUEUE_URL:http://localhost:4566/000000000000/reporting-from-ordering}
+    reporting-from-inventory-queue-url: ${AWS_SQS_REPORTING_FROM_INVENTORY_QUEUE_URL:http://localhost:4566/000000000000/reporting-from-inventory}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

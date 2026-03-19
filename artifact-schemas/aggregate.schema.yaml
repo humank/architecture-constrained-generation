@@ -1,0 +1,68 @@
+schema:
+  version: "1.0"
+  description: "Aggregate specification from Tactical Design"
+
+aggregate:
+  name: string
+  bounded_context: string
+  description: string
+
+  root_entity:
+    name: string
+    identity:
+      field: string
+      type: string  # UUID, natural key, etc.
+
+  value_objects:
+    type: array
+    items:
+      name: string
+      fields: object  # field_name: type
+      invariants: array[string]  # validation rules
+
+  entities:
+    type: array
+    items:
+      name: string
+      identity_field: string
+      fields: object
+
+  commands:
+    type: array
+    items:
+      name: string
+      input: object  # field_name: type
+      preconditions: array[string]
+      postconditions: array[string]
+      events_produced: array[string]
+      error_cases: array[string]
+
+  domain_events:
+    type: array
+    items:
+      name: string
+      fields: object
+
+  invariants:
+    type: array
+    items:
+      description: string
+      type: enum [precondition, postcondition, class-invariant]
+      enforcement: string  # how it's enforced in code
+
+  specifications:
+    type: array
+    items:
+      name: string
+      description: string
+      composable: boolean  # AND/OR/NOT
+
+  data_pattern: enum [traditional, cqrs, event-sourcing, cqrs-es]
+
+  repository:
+    interface_name: string
+    methods: array[string]  # findById, save, etc.
+
+  factory:
+    creation_method: string
+    reconstitution_method: string

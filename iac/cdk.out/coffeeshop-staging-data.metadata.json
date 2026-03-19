@@ -1,0 +1,81 @@
+{
+  "/coffeeshop-staging-data": [
+    {
+      "type": "aws:cdk:stack-tags",
+      "data": [
+        {
+          "key": "Environment",
+          "value": "staging"
+        },
+        {
+          "key": "ManagedBy",
+          "value": "CDK"
+        },
+        {
+          "key": "Project",
+          "value": "coffeeshop"
+        }
+      ]
+    }
+  ],
+  "/coffeeshop-staging-data/DbEndpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DbEndpoint"
+    }
+  ],
+  "/coffeeshop-staging-data/DbSecretArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DbSecretArn"
+    }
+  ],
+  "/coffeeshop-staging-data/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/coffeeshop-staging-data/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/coffeeshop-staging-data/DbCredentials/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DbCredentials798065DE"
+    }
+  ],
+  "/coffeeshop-staging-data/CoffeeshopDb/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopDb588DA245"
+    }
+  ],
+  "/coffeeshop-staging-data/Exports/Output{\"Ref\":\"DbCredentials798065DE\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefDbCredentials798065DEB60EE37A"
+    }
+  ],
+  "/coffeeshop-staging-data/DbCredentials/Attachment/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DbCredentialsAttachmentD2151D4F"
+    }
+  ],
+  "/coffeeshop-staging-data/CoffeeshopDb/SubnetGroup/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopDbSubnetGroupC0071036"
+    }
+  ],
+  "/coffeeshop-staging-data/CoffeeshopDb/MonitoringRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CoffeeshopDbMonitoringRole067A712F"
+    }
+  ]
+}

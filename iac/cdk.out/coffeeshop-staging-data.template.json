@@ -1,0 +1,265 @@
+{
+ "Resources": {
+  "DbCredentials798065DE": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "GenerateSecretString": {
+     "ExcludePunctuation": true,
+     "GenerateStringKey": "password",
+     "PasswordLength": 32,
+     "SecretStringTemplate": "{\"username\":\"coffeeshop_admin\"}"
+    },
+    "Name": "coffeeshop/staging/db-credentials",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-data/DbCredentials/Resource"
+   }
+  },
+  "DbCredentialsAttachmentD2151D4F": {
+   "Type": "AWS::SecretsManager::SecretTargetAttachment",
+   "Properties": {
+    "SecretId": {
+     "Ref": "DbCredentials798065DE"
+    },
+    "TargetId": {
+     "Ref": "CoffeeshopDb588DA245"
+    },
+    "TargetType": "AWS::RDS::DBInstance"
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-data/DbCredentials/Attachment/Resource"
+   }
+  },
+  "CoffeeshopDbSubnetGroupC0071036": {
+   "Type": "AWS::RDS::DBSubnetGroup",
+   "Properties": {
+    "DBSubnetGroupDescription": "Subnet group for CoffeeshopDb database",
+    "SubnetIds": [
+     {
+      "Fn::ImportValue": "coffeeshop-staging-network:ExportsOutputRefCoffeeshopVpcPrivateSubnet1SubnetFE59E58C7DF1E42E"
+     },
+     {
+      "Fn::ImportValue": "coffeeshop-staging-network:ExportsOutputRefCoffeeshopVpcPrivateSubnet2Subnet4F45843304EF5934"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-data/CoffeeshopDb/SubnetGroup/Default"
+   }
+  },
+  "CoffeeshopDbMonitoringRole067A712F": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "monitoring.rds.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+       ]
+      ]
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-data/CoffeeshopDb/MonitoringRole/Resource"
+   }
+  },
+  "CoffeeshopDb588DA245": {
+   "Type": "AWS::RDS::DBInstance",
+   "Properties": {
+    "AllocatedStorage": "20",
+    "BackupRetentionPeriod": 7,
+    "CopyTagsToSnapshot": true,
+    "DBInstanceClass": "db.db.t3.medium",
+    "DBInstanceIdentifier": "coffeeshop-staging-db",
+    "DBName": "coffeeshop",
+    "DBSubnetGroupName": {
+     "Ref": "CoffeeshopDbSubnetGroupC0071036"
+    },
+    "DeletionProtection": false,
+    "EnablePerformanceInsights": true,
+    "Engine": "postgres",
+    "EngineVersion": "16.4",
+    "MasterUserPassword": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "DbCredentials798065DE"
+       },
+       ":SecretString:password::}}"
+      ]
+     ]
+    },
+    "MasterUsername": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "DbCredentials798065DE"
+       },
+       ":SecretString:username::}}"
+      ]
+     ]
+    },
+    "MaxAllocatedStorage": 40,
+    "MonitoringInterval": 60,
+    "MonitoringRoleArn": {
+     "Fn::GetAtt": [
+      "CoffeeshopDbMonitoringRole067A712F",
+      "Arn"
+     ]
+    },
+    "MultiAZ": false,
+    "PerformanceInsightsRetentionPeriod": 7,
+    "PubliclyAccessible": false,
+    "StorageEncrypted": true,
+    "StorageType": "gp2",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VPCSecurityGroups": [
+     {
+      "Fn::ImportValue": "coffeeshop-staging-network:ExportsOutputFnGetAttDbSecurityGroupE9D701ADGroupId7A7C114A"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-data/CoffeeshopDb/Resource"
+   }
+  }
+ },
+ "Outputs": {
+  "DbEndpoint": {
+   "Value": {
+    "Fn::GetAtt": [
+     "CoffeeshopDb588DA245",
+     "Endpoint.Address"
+    ]
+   }
+  },
+  "DbSecretArn": {
+   "Value": {
+    "Ref": "DbCredentials798065DE"
+   }
+  },
+  "ExportsOutputRefDbCredentials798065DEB60EE37A": {
+   "Value": {
+    "Ref": "DbCredentials798065DE"
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-data:ExportsOutputRefDbCredentials798065DEB60EE37A"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

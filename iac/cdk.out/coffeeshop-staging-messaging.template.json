@@ -1,0 +1,956 @@
+{
+ "Resources": {
+  "OrderingEventsTopicA3C8AA12": {
+   "Type": "AWS::SNS::Topic",
+   "Properties": {
+    "DisplayName": "Ordering BC Events (OrderSubmittedToBarista, OrderCompleted)",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "TopicName": "coffeeshop-staging-ordering-events"
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/OrderingEventsTopic/Resource"
+   }
+  },
+  "PreparationEventsTopicC401A7D2": {
+   "Type": "AWS::SNS::Topic",
+   "Properties": {
+    "DisplayName": "Preparation BC Events (PreparationStarted, CoffeePrepared, OrderReadyForDelivery)",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "TopicName": "coffeeshop-staging-preparation-events"
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/PreparationEventsTopic/Resource"
+   }
+  },
+  "InventoryEventsTopicBD02F970": {
+   "Type": "AWS::SNS::Topic",
+   "Properties": {
+    "DisplayName": "Inventory BC Events (IngredientDeducted, LowStockAlertTriggered)",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "TopicName": "coffeeshop-staging-inventory-events"
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/InventoryEventsTopic/Resource"
+   }
+  },
+  "preparationfromorderingdlq5ECBEADD": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "MessageRetentionPeriod": 1209600,
+    "QueueName": "coffeeshop-staging-preparation-from-ordering-dlq",
+    "SqsManagedSseEnabled": true,
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/preparation-from-ordering-dlq/Resource"
+   }
+  },
+  "preparationfromordering1DD587E7": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "MessageRetentionPeriod": 604800,
+    "QueueName": "coffeeshop-staging-preparation-from-ordering",
+    "RedrivePolicy": {
+     "deadLetterTargetArn": {
+      "Fn::GetAtt": [
+       "preparationfromorderingdlq5ECBEADD",
+       "Arn"
+      ]
+     },
+     "maxReceiveCount": 3
+    },
+    "SqsManagedSseEnabled": true,
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VisibilityTimeout": 60
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/preparation-from-ordering/Resource"
+   }
+  },
+  "preparationfromorderingPolicyB1CF2C99": {
+   "Type": "AWS::SQS::QueuePolicy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sqs:SendMessage",
+       "Condition": {
+        "ArnEquals": {
+         "aws:SourceArn": {
+          "Ref": "OrderingEventsTopicA3C8AA12"
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "sns.amazonaws.com"
+       },
+       "Resource": {
+        "Fn::GetAtt": [
+         "preparationfromordering1DD587E7",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Queues": [
+     {
+      "Ref": "preparationfromordering1DD587E7"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/preparation-from-ordering/Policy/Resource"
+   }
+  },
+  "preparationfromorderingcoffeeshopstagingmessagingOrderingEventsTopic5C12DAB3DABDAD82": {
+   "Type": "AWS::SNS::Subscription",
+   "Properties": {
+    "Endpoint": {
+     "Fn::GetAtt": [
+      "preparationfromordering1DD587E7",
+      "Arn"
+     ]
+    },
+    "FilterPolicy": {
+     "eventType": [
+      "OrderSubmittedToBarista"
+     ]
+    },
+    "Protocol": "sqs",
+    "TopicArn": {
+     "Ref": "OrderingEventsTopicA3C8AA12"
+    }
+   },
+   "DependsOn": [
+    "preparationfromorderingPolicyB1CF2C99"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/preparation-from-ordering/coffeeshopstagingmessagingOrderingEventsTopic5C12DAB3/Resource"
+   }
+  },
+  "orderingfrompreparationdlqDD9D91FE": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "MessageRetentionPeriod": 1209600,
+    "QueueName": "coffeeshop-staging-ordering-from-preparation-dlq",
+    "SqsManagedSseEnabled": true,
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/ordering-from-preparation-dlq/Resource"
+   }
+  },
+  "orderingfrompreparationB4262829": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "MessageRetentionPeriod": 604800,
+    "QueueName": "coffeeshop-staging-ordering-from-preparation",
+    "RedrivePolicy": {
+     "deadLetterTargetArn": {
+      "Fn::GetAtt": [
+       "orderingfrompreparationdlqDD9D91FE",
+       "Arn"
+      ]
+     },
+     "maxReceiveCount": 3
+    },
+    "SqsManagedSseEnabled": true,
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VisibilityTimeout": 60
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/ordering-from-preparation/Resource"
+   }
+  },
+  "orderingfrompreparationPolicy63748F7C": {
+   "Type": "AWS::SQS::QueuePolicy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sqs:SendMessage",
+       "Condition": {
+        "ArnEquals": {
+         "aws:SourceArn": {
+          "Ref": "PreparationEventsTopicC401A7D2"
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "sns.amazonaws.com"
+       },
+       "Resource": {
+        "Fn::GetAtt": [
+         "orderingfrompreparationB4262829",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Queues": [
+     {
+      "Ref": "orderingfrompreparationB4262829"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/ordering-from-preparation/Policy/Resource"
+   }
+  },
+  "orderingfrompreparationcoffeeshopstagingmessagingPreparationEventsTopic11CBA5CE26B80B57": {
+   "Type": "AWS::SNS::Subscription",
+   "Properties": {
+    "Endpoint": {
+     "Fn::GetAtt": [
+      "orderingfrompreparationB4262829",
+      "Arn"
+     ]
+    },
+    "FilterPolicy": {
+     "eventType": [
+      "OrderReadyForDelivery"
+     ]
+    },
+    "Protocol": "sqs",
+    "TopicArn": {
+     "Ref": "PreparationEventsTopicC401A7D2"
+    }
+   },
+   "DependsOn": [
+    "orderingfrompreparationPolicy63748F7C"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/ordering-from-preparation/coffeeshopstagingmessagingPreparationEventsTopic11CBA5CE/Resource"
+   }
+  },
+  "inventoryfrompreparationdlq97819957": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "MessageRetentionPeriod": 1209600,
+    "QueueName": "coffeeshop-staging-inventory-from-preparation-dlq",
+    "SqsManagedSseEnabled": true,
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/inventory-from-preparation-dlq/Resource"
+   }
+  },
+  "inventoryfrompreparationDAFB6C47": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "MessageRetentionPeriod": 604800,
+    "QueueName": "coffeeshop-staging-inventory-from-preparation",
+    "RedrivePolicy": {
+     "deadLetterTargetArn": {
+      "Fn::GetAtt": [
+       "inventoryfrompreparationdlq97819957",
+       "Arn"
+      ]
+     },
+     "maxReceiveCount": 3
+    },
+    "SqsManagedSseEnabled": true,
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VisibilityTimeout": 60
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/inventory-from-preparation/Resource"
+   }
+  },
+  "inventoryfrompreparationPolicy69C73286": {
+   "Type": "AWS::SQS::QueuePolicy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sqs:SendMessage",
+       "Condition": {
+        "ArnEquals": {
+         "aws:SourceArn": {
+          "Ref": "PreparationEventsTopicC401A7D2"
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "sns.amazonaws.com"
+       },
+       "Resource": {
+        "Fn::GetAtt": [
+         "inventoryfrompreparationDAFB6C47",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Queues": [
+     {
+      "Ref": "inventoryfrompreparationDAFB6C47"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/inventory-from-preparation/Policy/Resource"
+   }
+  },
+  "inventoryfrompreparationcoffeeshopstagingmessagingPreparationEventsTopic11CBA5CEBBF82D03": {
+   "Type": "AWS::SNS::Subscription",
+   "Properties": {
+    "Endpoint": {
+     "Fn::GetAtt": [
+      "inventoryfrompreparationDAFB6C47",
+      "Arn"
+     ]
+    },
+    "FilterPolicy": {
+     "eventType": [
+      "PreparationStarted"
+     ]
+    },
+    "Protocol": "sqs",
+    "TopicArn": {
+     "Ref": "PreparationEventsTopicC401A7D2"
+    }
+   },
+   "DependsOn": [
+    "inventoryfrompreparationPolicy69C73286"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/inventory-from-preparation/coffeeshopstagingmessagingPreparationEventsTopic11CBA5CE/Resource"
+   }
+  },
+  "reportingfromorderingdlq53EA8A20": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "MessageRetentionPeriod": 1209600,
+    "QueueName": "coffeeshop-staging-reporting-from-ordering-dlq",
+    "SqsManagedSseEnabled": true,
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/reporting-from-ordering-dlq/Resource"
+   }
+  },
+  "reportingfromordering39E4ABF5": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "MessageRetentionPeriod": 604800,
+    "QueueName": "coffeeshop-staging-reporting-from-ordering",
+    "RedrivePolicy": {
+     "deadLetterTargetArn": {
+      "Fn::GetAtt": [
+       "reportingfromorderingdlq53EA8A20",
+       "Arn"
+      ]
+     },
+     "maxReceiveCount": 3
+    },
+    "SqsManagedSseEnabled": true,
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VisibilityTimeout": 60
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/reporting-from-ordering/Resource"
+   }
+  },
+  "reportingfromorderingPolicy5E4616C5": {
+   "Type": "AWS::SQS::QueuePolicy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sqs:SendMessage",
+       "Condition": {
+        "ArnEquals": {
+         "aws:SourceArn": {
+          "Ref": "OrderingEventsTopicA3C8AA12"
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "sns.amazonaws.com"
+       },
+       "Resource": {
+        "Fn::GetAtt": [
+         "reportingfromordering39E4ABF5",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Queues": [
+     {
+      "Ref": "reportingfromordering39E4ABF5"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/reporting-from-ordering/Policy/Resource"
+   }
+  },
+  "reportingfromorderingcoffeeshopstagingmessagingOrderingEventsTopic5C12DAB3A70DC234": {
+   "Type": "AWS::SNS::Subscription",
+   "Properties": {
+    "Endpoint": {
+     "Fn::GetAtt": [
+      "reportingfromordering39E4ABF5",
+      "Arn"
+     ]
+    },
+    "FilterPolicy": {
+     "eventType": [
+      "OrderCompleted"
+     ]
+    },
+    "Protocol": "sqs",
+    "TopicArn": {
+     "Ref": "OrderingEventsTopicA3C8AA12"
+    }
+   },
+   "DependsOn": [
+    "reportingfromorderingPolicy5E4616C5"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/reporting-from-ordering/coffeeshopstagingmessagingOrderingEventsTopic5C12DAB3/Resource"
+   }
+  },
+  "reportingfrominventorydlqE03894C4": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "MessageRetentionPeriod": 1209600,
+    "QueueName": "coffeeshop-staging-reporting-from-inventory-dlq",
+    "SqsManagedSseEnabled": true,
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/reporting-from-inventory-dlq/Resource"
+   }
+  },
+  "reportingfrominventory99F82EBD": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "MessageRetentionPeriod": 604800,
+    "QueueName": "coffeeshop-staging-reporting-from-inventory",
+    "RedrivePolicy": {
+     "deadLetterTargetArn": {
+      "Fn::GetAtt": [
+       "reportingfrominventorydlqE03894C4",
+       "Arn"
+      ]
+     },
+     "maxReceiveCount": 3
+    },
+    "SqsManagedSseEnabled": true,
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VisibilityTimeout": 60
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/reporting-from-inventory/Resource"
+   }
+  },
+  "reportingfrominventoryPolicy38A5CBE2": {
+   "Type": "AWS::SQS::QueuePolicy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sqs:SendMessage",
+       "Condition": {
+        "ArnEquals": {
+         "aws:SourceArn": {
+          "Ref": "InventoryEventsTopicBD02F970"
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "sns.amazonaws.com"
+       },
+       "Resource": {
+        "Fn::GetAtt": [
+         "reportingfrominventory99F82EBD",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Queues": [
+     {
+      "Ref": "reportingfrominventory99F82EBD"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/reporting-from-inventory/Policy/Resource"
+   }
+  },
+  "reportingfrominventorycoffeeshopstagingmessagingInventoryEventsTopic5BA1D9BB20E2775B": {
+   "Type": "AWS::SNS::Subscription",
+   "Properties": {
+    "Endpoint": {
+     "Fn::GetAtt": [
+      "reportingfrominventory99F82EBD",
+      "Arn"
+     ]
+    },
+    "FilterPolicy": {
+     "eventType": [
+      "IngredientDeducted"
+     ]
+    },
+    "Protocol": "sqs",
+    "TopicArn": {
+     "Ref": "InventoryEventsTopicBD02F970"
+    }
+   },
+   "DependsOn": [
+    "reportingfrominventoryPolicy38A5CBE2"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/reporting-from-inventory/coffeeshopstagingmessagingInventoryEventsTopic5BA1D9BB/Resource"
+   }
+  }
+ },
+ "Outputs": {
+  "Topicorderingevents": {
+   "Value": {
+    "Ref": "OrderingEventsTopicA3C8AA12"
+   }
+  },
+  "Topicpreparationevents": {
+   "Value": {
+    "Ref": "PreparationEventsTopicC401A7D2"
+   }
+  },
+  "Topicinventoryevents": {
+   "Value": {
+    "Ref": "InventoryEventsTopicBD02F970"
+   }
+  },
+  "ExportsOutputRefOrderingEventsTopicA3C8AA121FB7E52F": {
+   "Value": {
+    "Ref": "OrderingEventsTopicA3C8AA12"
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputRefOrderingEventsTopicA3C8AA121FB7E52F"
+   }
+  },
+  "ExportsOutputFnGetAttorderingfrompreparationB4262829Arn608F0966": {
+   "Value": {
+    "Fn::GetAtt": [
+     "orderingfrompreparationB4262829",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttorderingfrompreparationB4262829Arn608F0966"
+   }
+  },
+  "ExportsOutputRefPreparationEventsTopicC401A7D22C14D665": {
+   "Value": {
+    "Ref": "PreparationEventsTopicC401A7D2"
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputRefPreparationEventsTopicC401A7D22C14D665"
+   }
+  },
+  "ExportsOutputFnGetAttpreparationfromordering1DD587E7Arn96FD192C": {
+   "Value": {
+    "Fn::GetAtt": [
+     "preparationfromordering1DD587E7",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttpreparationfromordering1DD587E7Arn96FD192C"
+   }
+  },
+  "ExportsOutputRefInventoryEventsTopicBD02F9700169DFB2": {
+   "Value": {
+    "Ref": "InventoryEventsTopicBD02F970"
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputRefInventoryEventsTopicBD02F9700169DFB2"
+   }
+  },
+  "ExportsOutputFnGetAttinventoryfrompreparationDAFB6C47ArnAC7E9568": {
+   "Value": {
+    "Fn::GetAtt": [
+     "inventoryfrompreparationDAFB6C47",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttinventoryfrompreparationDAFB6C47ArnAC7E9568"
+   }
+  },
+  "ExportsOutputFnGetAttreportingfromordering39E4ABF5Arn73C45592": {
+   "Value": {
+    "Fn::GetAtt": [
+     "reportingfromordering39E4ABF5",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfromordering39E4ABF5Arn73C45592"
+   }
+  },
+  "ExportsOutputFnGetAttreportingfrominventory99F82EBDArn631C15D3": {
+   "Value": {
+    "Fn::GetAtt": [
+     "reportingfrominventory99F82EBD",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfrominventory99F82EBDArn631C15D3"
+   }
+  },
+  "ExportsOutputFnGetAttpreparationfromorderingdlq5ECBEADDQueueName31289E5C": {
+   "Value": {
+    "Fn::GetAtt": [
+     "preparationfromorderingdlq5ECBEADD",
+     "QueueName"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttpreparationfromorderingdlq5ECBEADDQueueName31289E5C"
+   }
+  },
+  "ExportsOutputFnGetAttorderingfrompreparationdlqDD9D91FEQueueName7A56F0A3": {
+   "Value": {
+    "Fn::GetAtt": [
+     "orderingfrompreparationdlqDD9D91FE",
+     "QueueName"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttorderingfrompreparationdlqDD9D91FEQueueName7A56F0A3"
+   }
+  },
+  "ExportsOutputFnGetAttinventoryfrompreparationdlq97819957QueueName055E5278": {
+   "Value": {
+    "Fn::GetAtt": [
+     "inventoryfrompreparationdlq97819957",
+     "QueueName"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttinventoryfrompreparationdlq97819957QueueName055E5278"
+   }
+  },
+  "ExportsOutputFnGetAttreportingfromorderingdlq53EA8A20QueueName75306640": {
+   "Value": {
+    "Fn::GetAtt": [
+     "reportingfromorderingdlq53EA8A20",
+     "QueueName"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfromorderingdlq53EA8A20QueueName75306640"
+   }
+  },
+  "ExportsOutputFnGetAttreportingfrominventorydlqE03894C4QueueNameA3A7F871": {
+   "Value": {
+    "Fn::GetAtt": [
+     "reportingfrominventorydlqE03894C4",
+     "QueueName"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfrominventorydlqE03894C4QueueNameA3A7F871"
+   }
+  },
+  "ExportsOutputFnGetAttpreparationfromordering1DD587E7QueueName70CC1941": {
+   "Value": {
+    "Fn::GetAtt": [
+     "preparationfromordering1DD587E7",
+     "QueueName"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttpreparationfromordering1DD587E7QueueName70CC1941"
+   }
+  },
+  "ExportsOutputFnGetAttorderingfrompreparationB4262829QueueName779F33FB": {
+   "Value": {
+    "Fn::GetAtt": [
+     "orderingfrompreparationB4262829",
+     "QueueName"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttorderingfrompreparationB4262829QueueName779F33FB"
+   }
+  },
+  "ExportsOutputFnGetAttinventoryfrompreparationDAFB6C47QueueName3A53FB81": {
+   "Value": {
+    "Fn::GetAtt": [
+     "inventoryfrompreparationDAFB6C47",
+     "QueueName"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttinventoryfrompreparationDAFB6C47QueueName3A53FB81"
+   }
+  },
+  "ExportsOutputFnGetAttreportingfromordering39E4ABF5QueueName6B773BF1": {
+   "Value": {
+    "Fn::GetAtt": [
+     "reportingfromordering39E4ABF5",
+     "QueueName"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfromordering39E4ABF5QueueName6B773BF1"
+   }
+  },
+  "ExportsOutputFnGetAttreportingfrominventory99F82EBDQueueName6A717A2A": {
+   "Value": {
+    "Fn::GetAtt": [
+     "reportingfrominventory99F82EBD",
+     "QueueName"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-messaging:ExportsOutputFnGetAttreportingfrominventory99F82EBDQueueName6A717A2A"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

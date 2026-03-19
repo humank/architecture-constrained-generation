@@ -1,0 +1,48 @@
+schema:
+  version: "1.0"
+  description: "Parsed requirements from any input format"
+
+requirements:
+  project_name: string
+  project_description: string
+  business_goals:
+    type: array
+    items:
+      goal: string
+      measurable_outcome: string
+      priority: enum [critical, high, medium, low]
+  actors:
+    type: array
+    items:
+      name: string
+      type: enum [primary, secondary, system, external]
+      description: string
+  functional_requirements:
+    type: array
+    items:
+      id: string  # FR-001
+      description: string
+      actor: string
+      priority: enum [must, should, could, wont]
+      acceptance_criteria: array[string]
+  non_functional_requirements:
+    type: array
+    items:
+      id: string  # NFR-001
+      category: enum [performance, security, reliability, scalability, usability, accessibility, cost]
+      description: string
+      measurable_target: string
+  constraints:
+    type: array
+    items:
+      description: string
+      type: enum [technical, business, regulatory, timeline]
+  assumptions:
+    type: array
+    items: string
+  open_questions:
+    type: array
+    items:
+      question: string
+      impact: string
+      assigned_to: string

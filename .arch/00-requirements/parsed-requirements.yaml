@@ -1,0 +1,154 @@
+parsed_requirements:
+  system_name: "Coffeeshop Management System"
+  domain: "Food & Beverage — Small Coffee Shop Operations"
+  description: >
+    A system to manage a small coffee shop's daily operations: ordering, payment,
+    coffee preparation, and inventory management.
+
+  business_goals:
+    - id: BG-1
+      goal: "Streamline the order-to-serve workflow"
+      metric: "Every order accurately tracked from placement to delivery with correct pricing"
+    - id: BG-2
+      goal: "Prevent raw material stockouts"
+      metric: "Automated alerts at 30% threshold; zero stockout incidents per month"
+    - id: BG-3
+      goal: "Provide business visibility"
+      metric: "Dashboard showing real-time inventory, monthly and weekly sales"
+
+  actors:
+    - id: A-1
+      name: Customer
+      description: "Walks in, views menu, orders at table, pays cash, receives coffee"
+    - id: A-2
+      name: Waiter
+      description: "Goes to table, takes order with table number, delivers coffee"
+    - id: A-3
+      name: "Counter Staff (Cashier)"
+      description: "Confirms order, processes cash payment, submits to barista, handles purchasing"
+    - id: A-4
+      name: Barista
+      description: "Receives orders, prepares coffee per recipe, takes ingredients from warehouse, confirms replenishment"
+
+  menu:
+    products:
+      - name: Espresso
+        sizes:
+          - size: Single
+            price: 60
+          - size: Double
+            price: 80
+      - name: Americano
+        sizes:
+          - size: Short
+            price: 80
+          - size: Tall
+            price: 100
+          - size: Grande
+            price: 120
+          - size: Venti
+            price: 140
+      - name: Latte
+        sizes:
+          - size: Short
+            price: 100
+          - size: Tall
+            price: 120
+          - size: Grande
+            price: 140
+          - size: Venti
+            price: 160
+      - name: Cappuccino
+        sizes:
+          - size: Short
+            price: 100
+          - size: Tall
+            price: 120
+          - size: Grande
+            price: 140
+          - size: Venti
+            price: 160
+
+  customizations:
+    - name: "Latte foam level"
+      applies_to: [Latte]
+      options: ["no foam", "with foam", "more foam"]
+      surcharge: 0
+    - name: "Cappuccino style"
+      applies_to: [Cappuccino]
+      options: ["dry foam (1:2 milk-to-foam)", "wet foam (2:1 milk-to-foam)"]
+      surcharge: 0
+    - name: "Whipped cream"
+      applies_to: [Cappuccino]
+      surcharge: 20
+      material: "whipped cream 20ml"
+    - name: "Soy milk substitution"
+      applies_to: [Latte, Cappuccino]
+      surcharge: 0
+      effect: "Replaces regular milk with soy milk in recipe"
+
+  recipes:
+    base_unit: "1 shot = 20g coffee beans = 30ml espresso"
+    serving_temperature:
+      dine_in: "70°C"
+      take_away: "90°C"
+
+  inventory:
+    materials:
+      - name: "Coffee beans"
+        max_capacity: "100 bags × 1kg = 100,000g"
+        unit: grams
+      - name: Milk
+        max_capacity: "50 bottles × 2L = 100,000ml"
+        unit: ml
+      - name: "Soy milk"
+        max_capacity: "20 bottles × 2L = 40,000ml"
+        unit: ml
+      - name: "Filter paper"
+        max_capacity: "200 packs × 100 sheets = 20,000 sheets"
+        unit: sheets
+    rules:
+      - "Deduct ingredients when Barista starts preparation"
+      - "Low-stock alert at 30% threshold (text or email)"
+      - "Replenishment: Barista requests → Cashier purchases → Barista confirms → 100% restored"
+      - "Replenishment SLA: 3 days"
+
+  order_workflow:
+    steps:
+      - step: 1
+        actor: Waiter
+        action: "Takes order at table (table 1-5, coffee type, size, quantity, customizations)"
+      - step: 2
+        actor: "Counter Staff"
+        action: "Confirms order, system auto-calculates total including surcharges"
+      - step: 3
+        actor: "Counter Staff"
+        action: "Processes cash payment"
+      - step: 4
+        actor: System
+        action: "Submits order to Barista after payment"
+      - step: 5
+        actor: Barista
+        action: "Prepares coffee following exact recipe"
+      - step: 6
+        actor: Waiter
+        action: "Delivers coffee to table"
+      - step: 7
+        actor: Waiter
+        action: "Marks order as complete"
+
+  constraints:
+    - "Cash only — no digital or card payment"
+    - "5 tables, 10 seats total"
+    - "Single physical location"
+    - "Verbal ordering by waiter, no self-service kiosk"
+    - "No online ordering or delivery — dine-in and take-away at counter only"
+    - "Brewing temperature is equipment concern, not software"
+
+  non_functional:
+    - category: Usability
+      requirement: "Staff can place an order within 30 seconds"
+    - category: Reliability
+      requirement: "Zero lost orders"
+    - category: Performance
+      requirement: "Order processing < 2 seconds"

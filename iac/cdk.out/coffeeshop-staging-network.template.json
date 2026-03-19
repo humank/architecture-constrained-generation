@@ -1,0 +1,712 @@
+{
+ "Resources": {
+  "CoffeeshopVpcE924060A": {
+   "Type": "AWS::EC2::VPC",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/16",
+    "EnableDnsHostnames": true,
+    "EnableDnsSupport": true,
+    "InstanceTenancy": "default",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "coffeeshop-staging-vpc"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/Resource"
+   }
+  },
+  "CoffeeshopVpcPublicSubnet1SubnetC2CCAC0F": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "ap-east-2a",
+    "CidrBlock": "10.0.0.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "kubernetes.io/role/elb",
+      "Value": "1"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CoffeeshopVpcE924060A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1/Subnet"
+   }
+  },
+  "CoffeeshopVpcPublicSubnet1RouteTable4FE1BAE1": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "kubernetes.io/role/elb",
+      "Value": "1"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CoffeeshopVpcE924060A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1/RouteTable"
+   }
+  },
+  "CoffeeshopVpcPublicSubnet1RouteTableAssociation2FED8EF9": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "CoffeeshopVpcPublicSubnet1RouteTable4FE1BAE1"
+    },
+    "SubnetId": {
+     "Ref": "CoffeeshopVpcPublicSubnet1SubnetC2CCAC0F"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1/RouteTableAssociation"
+   }
+  },
+  "CoffeeshopVpcPublicSubnet1DefaultRoute6C9617FB": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "CoffeeshopVpcIGWB2FC8AC7"
+    },
+    "RouteTableId": {
+     "Ref": "CoffeeshopVpcPublicSubnet1RouteTable4FE1BAE1"
+    }
+   },
+   "DependsOn": [
+    "CoffeeshopVpcVPCGW510BBDA1"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1/DefaultRoute"
+   }
+  },
+  "CoffeeshopVpcPublicSubnet1EIP19E73EAE": {
+   "Type": "AWS::EC2::EIP",
+   "Properties": {
+    "Domain": "vpc",
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "kubernetes.io/role/elb",
+      "Value": "1"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1/EIP"
+   }
+  },
+  "CoffeeshopVpcPublicSubnet1NATGateway6384B7C4": {
+   "Type": "AWS::EC2::NatGateway",
+   "Properties": {
+    "AllocationId": {
+     "Fn::GetAtt": [
+      "CoffeeshopVpcPublicSubnet1EIP19E73EAE",
+      "AllocationId"
+     ]
+    },
+    "SubnetId": {
+     "Ref": "CoffeeshopVpcPublicSubnet1SubnetC2CCAC0F"
+    },
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "kubernetes.io/role/elb",
+      "Value": "1"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ]
+   },
+   "DependsOn": [
+    "CoffeeshopVpcPublicSubnet1DefaultRoute6C9617FB",
+    "CoffeeshopVpcPublicSubnet1RouteTableAssociation2FED8EF9"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet1/NATGateway"
+   }
+  },
+  "CoffeeshopVpcPublicSubnet2SubnetDEDA7095": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "ap-east-2b",
+    "CidrBlock": "10.0.1.0/24",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "kubernetes.io/role/elb",
+      "Value": "1"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet2"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CoffeeshopVpcE924060A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet2/Subnet"
+   }
+  },
+  "CoffeeshopVpcPublicSubnet2RouteTableA6D139D3": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "kubernetes.io/role/elb",
+      "Value": "1"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet2"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CoffeeshopVpcE924060A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet2/RouteTable"
+   }
+  },
+  "CoffeeshopVpcPublicSubnet2RouteTableAssociation4BEB9080": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "CoffeeshopVpcPublicSubnet2RouteTableA6D139D3"
+    },
+    "SubnetId": {
+     "Ref": "CoffeeshopVpcPublicSubnet2SubnetDEDA7095"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet2/RouteTableAssociation"
+   }
+  },
+  "CoffeeshopVpcPublicSubnet2DefaultRouteD72017FB": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "CoffeeshopVpcIGWB2FC8AC7"
+    },
+    "RouteTableId": {
+     "Ref": "CoffeeshopVpcPublicSubnet2RouteTableA6D139D3"
+    }
+   },
+   "DependsOn": [
+    "CoffeeshopVpcVPCGW510BBDA1"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PublicSubnet2/DefaultRoute"
+   }
+  },
+  "CoffeeshopVpcPrivateSubnet1SubnetFE59E58C": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "ap-east-2a",
+    "CidrBlock": "10.0.2.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "kubernetes.io/role/internal-elb",
+      "Value": "1"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet1"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CoffeeshopVpcE924060A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet1/Subnet"
+   }
+  },
+  "CoffeeshopVpcPrivateSubnet1RouteTable8424FB62": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "kubernetes.io/role/internal-elb",
+      "Value": "1"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet1"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CoffeeshopVpcE924060A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet1/RouteTable"
+   }
+  },
+  "CoffeeshopVpcPrivateSubnet1RouteTableAssociation35D04533": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "CoffeeshopVpcPrivateSubnet1RouteTable8424FB62"
+    },
+    "SubnetId": {
+     "Ref": "CoffeeshopVpcPrivateSubnet1SubnetFE59E58C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet1/RouteTableAssociation"
+   }
+  },
+  "CoffeeshopVpcPrivateSubnet1DefaultRoute1977DD31": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "CoffeeshopVpcPublicSubnet1NATGateway6384B7C4"
+    },
+    "RouteTableId": {
+     "Ref": "CoffeeshopVpcPrivateSubnet1RouteTable8424FB62"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet1/DefaultRoute"
+   }
+  },
+  "CoffeeshopVpcPrivateSubnet2Subnet4F458433": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "ap-east-2b",
+    "CidrBlock": "10.0.3.0/24",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "Private"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Private"
+     },
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "kubernetes.io/role/internal-elb",
+      "Value": "1"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet2"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CoffeeshopVpcE924060A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet2/Subnet"
+   }
+  },
+  "CoffeeshopVpcPrivateSubnet2RouteTableA480F0D8": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "kubernetes.io/role/internal-elb",
+      "Value": "1"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet2"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CoffeeshopVpcE924060A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet2/RouteTable"
+   }
+  },
+  "CoffeeshopVpcPrivateSubnet2RouteTableAssociation51D796AD": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "CoffeeshopVpcPrivateSubnet2RouteTableA480F0D8"
+    },
+    "SubnetId": {
+     "Ref": "CoffeeshopVpcPrivateSubnet2Subnet4F458433"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet2/RouteTableAssociation"
+   }
+  },
+  "CoffeeshopVpcPrivateSubnet2DefaultRoute68155EE0": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "NatGatewayId": {
+     "Ref": "CoffeeshopVpcPublicSubnet1NATGateway6384B7C4"
+    },
+    "RouteTableId": {
+     "Ref": "CoffeeshopVpcPrivateSubnet2RouteTableA480F0D8"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/PrivateSubnet2/DefaultRoute"
+   }
+  },
+  "CoffeeshopVpcIGWB2FC8AC7": {
+   "Type": "AWS::EC2::InternetGateway",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Name",
+      "Value": "coffeeshop-staging-vpc"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/IGW"
+   }
+  },
+  "CoffeeshopVpcVPCGW510BBDA1": {
+   "Type": "AWS::EC2::VPCGatewayAttachment",
+   "Properties": {
+    "InternetGatewayId": {
+     "Ref": "CoffeeshopVpcIGWB2FC8AC7"
+    },
+    "VpcId": {
+     "Ref": "CoffeeshopVpcE924060A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CoffeeshopVpc/VPCGW"
+   }
+  },
+  "DbSecurityGroupE9D701AD": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Allow PostgreSQL access from private subnets only",
+    "GroupName": "coffeeshop-staging-db-sg",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "255.255.255.255/32",
+      "Description": "Disallow all traffic",
+      "FromPort": 252,
+      "IpProtocol": "icmp",
+      "ToPort": 86
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": {
+       "Fn::GetAtt": [
+        "CoffeeshopVpcE924060A",
+        "CidrBlock"
+       ]
+      },
+      "Description": "PostgreSQL from VPC",
+      "FromPort": 5432,
+      "IpProtocol": "tcp",
+      "ToPort": 5432
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "Environment",
+      "Value": "staging"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "CDK"
+     },
+     {
+      "Key": "Project",
+      "Value": "coffeeshop"
+     }
+    ],
+    "VpcId": {
+     "Ref": "CoffeeshopVpcE924060A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/DbSecurityGroup/Resource"
+   }
+  }
+ },
+ "Outputs": {
+  "VpcId": {
+   "Value": {
+    "Ref": "CoffeeshopVpcE924060A"
+   }
+  },
+  "VpcCidr": {
+   "Value": {
+    "Fn::GetAtt": [
+     "CoffeeshopVpcE924060A",
+     "CidrBlock"
+    ]
+   }
+  },
+  "ExportsOutputRefCoffeeshopVpcPrivateSubnet1SubnetFE59E58C7DF1E42E": {
+   "Value": {
+    "Ref": "CoffeeshopVpcPrivateSubnet1SubnetFE59E58C"
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-network:ExportsOutputRefCoffeeshopVpcPrivateSubnet1SubnetFE59E58C7DF1E42E"
+   }
+  },
+  "ExportsOutputRefCoffeeshopVpcPrivateSubnet2Subnet4F45843304EF5934": {
+   "Value": {
+    "Ref": "CoffeeshopVpcPrivateSubnet2Subnet4F458433"
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-network:ExportsOutputRefCoffeeshopVpcPrivateSubnet2Subnet4F45843304EF5934"
+   }
+  },
+  "ExportsOutputFnGetAttDbSecurityGroupE9D701ADGroupId7A7C114A": {
+   "Value": {
+    "Fn::GetAtt": [
+     "DbSecurityGroupE9D701AD",
+     "GroupId"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-network:ExportsOutputFnGetAttDbSecurityGroupE9D701ADGroupId7A7C114A"
+   }
+  },
+  "ExportsOutputRefCoffeeshopVpcE924060AD40F2944": {
+   "Value": {
+    "Ref": "CoffeeshopVpcE924060A"
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-network:ExportsOutputRefCoffeeshopVpcE924060AD40F2944"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

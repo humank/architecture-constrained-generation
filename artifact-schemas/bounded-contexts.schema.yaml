@@ -1,0 +1,18 @@
+schema:
+  version: "1.0"
+  description: "Bounded Context definitions from Strategic Design"
+
+bounded_contexts:
+  type: array
+  items:
+    name: string
+    type: enum [core, supporting, generic]
+    vision_statement: string  # for core domains
+    description: string
+    aggregates: array[string]
+    events_owned: array[string]
+    team: string  # responsible team
+    ubiquitous_language_terms: array[string]  # refs to glossary
+    technical_strategy:
+      type: string
+      description: "How to implement: custom, buy, outsource"

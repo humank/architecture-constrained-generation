@@ -1,0 +1,124 @@
+glossary:
+  version: "0.3"
+  phase: "03-tactical"
+
+  terms:
+    - term: Order
+      definition: "A customer's request for one or more coffee items at a specific table"
+      aliases: []
+      context: "Created by Waiter, confirmed by Counter Staff"
+
+    - term: Order Item
+      definition: "A single line in an order: coffee type + size + quantity + customizations"
+      aliases: ["line item"]
+
+    - term: Table
+      definition: "Physical seating location identified by number 1-5"
+      aliases: []
+
+    - term: Menu
+      definition: "Available coffee products with sizes and prices"
+      aliases: []
+
+    - term: Customization
+      definition: "Optional modification to a coffee item (foam level, cappuccino style, whipped cream, soy milk)"
+      aliases: ["modification"]
+
+    - term: Surcharge
+      definition: "Additional cost for a customization (e.g., +$20 for whipped cream)"
+      aliases: []
+
+    - term: Recipe
+      definition: "Exact ingredient quantities for preparing a specific coffee type/size/customization"
+      aliases: []
+
+    - term: Shot
+      definition: "Base espresso unit: 20g coffee beans → 30ml espresso"
+      aliases: ["espresso shot"]
+
+    - term: Preparation
+      definition: "The act of making a coffee item following its recipe"
+      aliases: ["brewing", "making"]
+
+    - term: Inventory
+      definition: "Current stock levels of raw materials (coffee beans, milk, soy milk, filter paper)"
+      aliases: ["stock"]
+
+    - term: Material
+      definition: "A raw ingredient used in coffee preparation"
+      aliases: ["ingredient", "raw material"]
+
+    - term: Low-Stock Alert
+      definition: "Automatic notification when any material drops below 30% of max capacity"
+      aliases: ["stock alert", "threshold alert"]
+
+    - term: Replenishment
+      definition: "Process of restoring material stock to 100% (request → purchase → confirm delivery)"
+      aliases: ["restock"]
+
+    - term: Replenishment SLA
+      definition: "3-day maximum time from request to delivery confirmation"
+      aliases: []
+
+    - term: Cash Payment
+      definition: "The only accepted payment method — physical cash tendered at counter"
+      aliases: ["payment"]
+
+    - term: Counter Staff
+      definition: "Staff member at the counter who confirms orders, processes payments, handles purchasing"
+      aliases: ["Cashier"]
+
+    - term: Waiter
+      definition: "Staff member who takes orders at tables and delivers prepared coffee"
+      aliases: []
+
+    - term: Barista
+      definition: "Staff member who prepares coffee, manages ingredients, requests replenishment"
+      aliases: []
+
+    - term: Customer
+      definition: "Person who visits the shop, orders coffee, and pays"
+      aliases: ["guest"]
+
+    # Phase 1-3 additions
+    - term: Bounded Context
+      definition: "A logical boundary within the domain with its own ubiquitous language and model"
+      aliases: ["BC"]
+      context: "Ordering, Preparation, Inventory, Reporting"
+
+    - term: Aggregate
+      definition: "A cluster of domain objects treated as a unit for data changes, with a root entity"
+      aliases: []
+
+    - term: Domain Event
+      definition: "A record of something significant that happened in the domain (e.g., OrderPlaced, PreparationStarted)"
+      aliases: ["event"]
+
+    - term: Outbox Pattern
+      definition: "Transactional outbox table ensuring reliable event publishing — writes event to DB in same transaction as state change, poller publishes to SNS"
+      aliases: ["transactional outbox"]
+
+    - term: Dead Letter Queue
+      definition: "SQS queue that receives messages that failed processing after max retries"
+      aliases: ["DLQ"]
+
+    - term: Order Status
+      definition: "Lifecycle state: Placed → Confirmed → Paid → Ready → Delivered → Completed"
+      aliases: []
+
+    - term: Preparation Status
+      definition: "Lifecycle state: Pending → InProgress → Ready"
+      aliases: []
+
+    - term: Recipe Resolution
+      definition: "Domain service that calculates exact ingredient quantities based on coffee type, size, and customizations"
+      aliases: ["StandardRecipeResolution"]
+
+    - term: Ingredient Deduction
+      definition: "Reducing inventory level when Barista starts preparation, based on resolved recipe"
+      aliases: ["stock deduction"]
+
+    - term: Subscription Filter
+      definition: "SNS filter policy on SQS subscription to only receive specific event types"
+      aliases: ["message filter"]
+      context: "CRITICAL: inventory-from-preparation queue must filter for PreparationStarted only"

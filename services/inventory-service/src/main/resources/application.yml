@@ -1,0 +1,40 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: inventory-service
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:coffeeshop}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: inventory
+    open-in-view: false
+  flyway:
+    enabled: true
+    schemas: inventory
+    default-schema: inventory
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+aws:
+  region: ${AWS_REGION:ap-east-2}
+  endpoint: ${AWS_ENDPOINT:}
+  access-key: ${AWS_ACCESS_KEY:localstack}
+  secret-key: ${AWS_SECRET_KEY:localstack}
+  sns:
+    inventory-events-topic-arn: ${AWS_SNS_INVENTORY_EVENTS_TOPIC_ARN:arn:aws:sns:ap-east-2:000000000000:inventory-events}
+  sqs:
+    inventory-from-preparation-queue-url: ${AWS_SQS_INVENTORY_FROM_PREPARATION_QUEUE_URL:http://localhost:4566/000000000000/inventory-from-preparation}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
