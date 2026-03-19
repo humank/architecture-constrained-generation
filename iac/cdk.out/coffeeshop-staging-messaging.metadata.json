@@ -126,6 +126,12 @@
       "data": "reportingfrominventory99F82EBD"
     }
   ],
+  "/coffeeshop-staging-messaging/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
   "/coffeeshop-staging-messaging/Exports/Output{\"Ref\":\"OrderingEventsTopicA3C8AA12\"}": [
     {
       "type": "aws:cdk:logicalId",

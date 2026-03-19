@@ -1,0 +1,17 @@
+{{- range $key, $svc := .Values.services }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $svc.name }}-pdb
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    app: {{ $svc.name }}
+    app.kubernetes.io/name: {{ $svc.name }}
+    app.kubernetes.io/part-of: coffeeshop
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{ $svc.name }}
+{{- end }}

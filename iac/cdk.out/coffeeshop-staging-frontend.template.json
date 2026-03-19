@@ -12,7 +12,6 @@
       }
      ]
     },
-    "BucketName": "coffeeshop-staging-frontend-assets",
     "PublicAccessBlockConfiguration": {
      "BlockPublicAcls": true,
      "BlockPublicPolicy": true,
@@ -197,7 +196,7 @@
    "Type": "AWS::Lambda::Function",
    "Properties": {
     "Code": {
-     "S3Bucket": "cdk-hnb659fds-assets-584518143473-ap-east-2",
+     "S3Bucket": "cdk-hnb659fds-assets-584518143473-us-east-1",
      "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip"
     },
     "Timeout": 900,
@@ -250,6 +249,25 @@
    "Type": "AWS::CloudFront::Distribution",
    "Properties": {
     "DistributionConfig": {
+     "CacheBehaviors": [
+      {
+       "AllowedMethods": [
+        "GET",
+        "HEAD",
+        "OPTIONS",
+        "PUT",
+        "PATCH",
+        "POST",
+        "DELETE"
+       ],
+       "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
+       "Compress": true,
+       "OriginRequestPolicyId": "216adef6-5c7f-47e4-b989-5492eafa07d3",
+       "PathPattern": "/api/*",
+       "TargetOriginId": "coffeeshopstagingfrontendFrontendDistributionOrigin239796310",
+       "ViewerProtocolPolicy": "redirect-to-https"
+      }
+     ],
      "Comment": "coffeeshop-staging Frontend SPA",
      "CustomErrorResponses": [
       {
@@ -293,6 +311,16 @@
        "S3OriginConfig": {
         "OriginAccessIdentity": ""
        }
+      },
+      {
+       "CustomOriginConfig": {
+        "OriginProtocolPolicy": "http-only",
+        "OriginSSLProtocols": [
+         "TLSv1.2"
+        ]
+       },
+       "DomainName": "k8s-staging-coffeesh-b43f39dbd0-2004510954.us-east-1.elb.amazonaws.com",
+       "Id": "coffeeshopstagingfrontendFrontendDistributionOrigin239796310"
       }
      ],
      "PriceClass": "PriceClass_100"
@@ -315,6 +343,15 @@
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-frontend/FrontendDistribution/Resource"
    }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/5VQO0/DMBD+LWR2DEoQA1ua7q3aESGUONfqEseufOcCsvzfceKhZWBgusf3Ol0lq+daPj10n1SqYSo19jIcuVOTSKuPQLUMG68mYNGeTO7eQjHjF5ritbiXLfxEXyGSmdp4tlvQwLDrR1BMRXwXGdpbjer75prnf3hnQbqVYQazWkehtPXDyVnDMmyR2GHvGa0Rx3rn8IymUQqI2kRwVi/pf6zvxTGK1hPb+QBkvVOwEG79L2jv7BUHcJuOQDREwOnCFHBeszxfPEdh7ABypMdrVcuX9P2REEvnDeMM8pDrD329RZ2aAQAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-frontend/CDKMetadata/Default"
+   }
   }
  },
  "Outputs": {
@@ -334,6 +371,33 @@
      "FrontendDistributionE6EAF405",
      "DomainName"
     ]
+   }
+  },
+  "ExportsOutputFnGetAttFrontendBucketEFE2E19CArnCE13AB85": {
+   "Value": {
+    "Fn::GetAtt": [
+     "FrontendBucketEFE2E19C",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-frontend:ExportsOutputFnGetAttFrontendBucketEFE2E19CArnCE13AB85"
+   }
+  },
+  "ExportsOutputRefFrontendDistributionE6EAF4056C7B575E": {
+   "Value": {
+    "Ref": "FrontendDistributionE6EAF405"
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-frontend:ExportsOutputRefFrontendDistributionE6EAF4056C7B575E"
+   }
+  },
+  "ExportsOutputRefFrontendBucketEFE2E19CBD842463": {
+   "Value": {
+    "Ref": "FrontendBucketEFE2E19C"
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-frontend:ExportsOutputRefFrontendBucketEFE2E19CBD842463"
    }
   }
  },

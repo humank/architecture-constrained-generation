@@ -54,6 +54,12 @@
       "data": "CoffeeshopDb588DA245"
     }
   ],
+  "/coffeeshop-staging-data/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
   "/coffeeshop-staging-data/Exports/Output{\"Ref\":\"DbCredentials798065DE\"}": [
     {
       "type": "aws:cdk:logicalId",

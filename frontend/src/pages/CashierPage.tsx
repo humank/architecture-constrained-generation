@@ -13,12 +13,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/StatusBadge";
 import { LoadingState } from "@/components/LoadingState";
 import { ErrorState } from "@/components/ErrorState";
 import { useToast } from "@/hooks/use-toast";
-
-type Tab = "confirmation" | "payment" | "report";
 
 function PendingConfirmationTab() {
   const { toast } = useToast();
@@ -52,9 +51,11 @@ function PendingConfirmationTab() {
 
   if (placedOrders.length === 0) {
     return (
-      <div className="py-12 text-center text-muted-foreground">
-        No pending orders to confirm
-      </div>
+      <Card>
+        <CardContent className="py-12 text-center text-muted-foreground">
+          No pending orders to confirm
+        </CardContent>
+      </Card>
     );
   }
 
@@ -153,9 +154,11 @@ function PendingPaymentTab() {
 
   if (confirmedOrders.length === 0) {
     return (
-      <div className="py-12 text-center text-muted-foreground">
-        No orders awaiting payment
-      </div>
+      <Card>
+        <CardContent className="py-12 text-center text-muted-foreground">
+          No orders awaiting payment
+        </CardContent>
+      </Card>
     );
   }
 
@@ -193,6 +196,7 @@ function PendingPaymentTab() {
                   type="number"
                   placeholder="Cash received"
                   className="w-40"
+                  aria-label={`Cash received for order ${order.orderId.slice(0, 8)}`}
                   value={cashStr}
                   onChange={(e) =>
                     setCashInputs((prev) => ({
@@ -218,7 +222,7 @@ function PendingPaymentTab() {
                 </Button>
               </div>
               {result && (
-                <div className="mt-3 p-3 bg-green-50 rounded-md text-sm">
+                <div className="mt-3 p-3 bg-green-50 rounded-md text-sm border border-green-200">
                   <p>
                     Cash Received: <strong>{result.cashReceived} THB</strong>
                   </p>
@@ -257,7 +261,7 @@ function SalesReportTab() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{report.totalOrders}</div>
+            <div className="text-3xl font-heading font-bold">{report.totalOrders}</div>
           </CardContent>
         </Card>
         <Card>
@@ -267,7 +271,7 @@ function SalesReportTab() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{report.totalRevenue} THB</div>
+            <div className="text-3xl font-heading font-bold">{report.totalRevenue} THB</div>
           </CardContent>
         </Card>
         <Card>
@@ -277,7 +281,7 @@ function SalesReportTab() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">
+            <div className="text-3xl font-heading font-bold">
               {report.averageOrderValue.toFixed(0)} THB
             </div>
           </CardContent>
@@ -294,7 +298,7 @@ function SalesReportTab() {
               No sales data yet
             </p>
           ) : (
-            <div className="flex items-end gap-2 h-48">
+            <div className="flex items-end gap-2 h-48" role="img" aria-label="Bar chart showing orders by hour">
               {report.ordersByHour.map((entry) => {
                 const heightPct = (entry.count / maxCount) * 100;
                 return (
@@ -322,35 +326,26 @@ function SalesReportTab() {
 }
 
 export function CashierPage() {
-  const [activeTab, setActiveTab] = useState<Tab>("confirmation");
-
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Cashier Dashboard</h1>
 
-      <div className="flex gap-1 border-b">
-        {[
-          { id: "confirmation" as Tab, label: "Pending Confirmation" },
-          { id: "payment" as Tab, label: "Pending Payment" },
-          { id: "report" as Tab, label: "Sales Report" },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === tab.id
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {activeTab === "confirmation" && <PendingConfirmationTab />}
-      {activeTab === "payment" && <PendingPaymentTab />}
-      {activeTab === "report" && <SalesReportTab />}
+      <Tabs defaultValue="confirmation">
+        <TabsList>
+          <TabsTrigger value="confirmation">Pending Confirmation</TabsTrigger>
+          <TabsTrigger value="payment">Pending Payment</TabsTrigger>
+          <TabsTrigger value="report">Sales Report</TabsTrigger>
+        </TabsList>
+        <TabsContent value="confirmation">
+          <PendingConfirmationTab />
+        </TabsContent>
+        <TabsContent value="payment">
+          <PendingPaymentTab />
+        </TabsContent>
+        <TabsContent value="report">
+          <SalesReportTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

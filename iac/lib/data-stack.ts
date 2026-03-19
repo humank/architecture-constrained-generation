@@ -3,9 +3,10 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
+import { EnvironmentConfig } from '../config/types';
 
 interface DataStackProps extends cdk.StackProps {
-  config: any;
+  config: EnvironmentConfig;
   vpc: ec2.Vpc;
   dbSecurityGroup: ec2.SecurityGroup;
 }
@@ -36,8 +37,9 @@ export class DataStack extends cdk.Stack {
     this.dbInstance = new rds.DatabaseInstance(this, 'CoffeeshopDb', {
       instanceIdentifier: `coffeeshop-${config.environment}-db`,
       engine: rds.DatabaseInstanceEngine.postgres({
-        version: rds.PostgresEngineVersion.VER_16_4,
+        version: rds.PostgresEngineVersion.VER_16_6,
       }),
+      // config.rds.instanceType is a plain EC2 type (e.g. 't3.medium') — no 'db.' prefix
       instanceType: new ec2.InstanceType(config.rds.instanceType),
       vpc,
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },

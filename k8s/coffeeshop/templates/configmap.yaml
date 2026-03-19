@@ -4,8 +4,8 @@ metadata:
   name: coffeeshop-config
   namespace: {{ .Values.global.namespace }}
 data:
-  SPRING_PROFILES_ACTIVE: {{ .Values.global.spring.profiles | quote }}
-  AWS_REGION: {{ .Values.global.aws.region | quote }}
-  DB_HOST: {{ .Values.global.db.host | quote }}
-  DB_PORT: {{ .Values.global.db.port | quote }}
-  DB_NAME: {{ .Values.global.db.name | quote }}
+  spring.profiles.active: {{ .Values.global.spring.profiles | quote }}
+  aws.region: {{ .Values.global.aws.region | quote }}
+  db.host: {{ .Values.global.db.host | quote }}
+  db.port: {{ .Values.global.db.port | quote }}
+  db.name: {{ .Values.global.db.name | quote }}

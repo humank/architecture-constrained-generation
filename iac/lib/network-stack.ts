@@ -1,9 +1,10 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
+import { EnvironmentConfig } from '../config/types';
 
 interface NetworkStackProps extends cdk.StackProps {
-  config: any;
+  config: EnvironmentConfig;
 }
 
 export class NetworkStack extends cdk.Stack {

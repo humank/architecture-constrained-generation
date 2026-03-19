@@ -13,28 +13,21 @@ spec:
   rules:
     - http:
         paths:
-          - path: /api/waiter
+          - path: /api/orders
             pathType: Prefix
             backend:
               service:
                 name: {{ .Values.services.ordering.name }}
                 port:
                   number: {{ .Values.services.ordering.port }}
-          - path: /api/cashier
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ .Values.services.ordering.name }}
-                port:
-                  number: {{ .Values.services.ordering.port }}
-          - path: /api/barista/preparations
+          - path: /api/preparations
             pathType: Prefix
             backend:
               service:
                 name: {{ .Values.services.preparation.name }}
                 port:
                   number: {{ .Values.services.preparation.port }}
-          - path: /api/barista/inventory
+          - path: /api/inventory
             pathType: Prefix
             backend:
               service:

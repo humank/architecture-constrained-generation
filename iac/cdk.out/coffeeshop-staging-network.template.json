@@ -33,7 +33,7 @@
   "CoffeeshopVpcPublicSubnet1SubnetC2CCAC0F": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "ap-east-2a",
+    "AvailabilityZone": "us-east-1a",
     "CidrBlock": "10.0.0.0/24",
     "MapPublicIpOnLaunch": true,
     "Tags": [
@@ -216,7 +216,7 @@
   "CoffeeshopVpcPublicSubnet2SubnetDEDA7095": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "ap-east-2b",
+    "AvailabilityZone": "us-east-1b",
     "CidrBlock": "10.0.1.0/24",
     "MapPublicIpOnLaunch": true,
     "Tags": [
@@ -325,7 +325,7 @@
   "CoffeeshopVpcPrivateSubnet1SubnetFE59E58C": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "ap-east-2a",
+    "AvailabilityZone": "us-east-1a",
     "CidrBlock": "10.0.2.0/24",
     "MapPublicIpOnLaunch": false,
     "Tags": [
@@ -431,7 +431,7 @@
   "CoffeeshopVpcPrivateSubnet2Subnet4F458433": {
    "Type": "AWS::EC2::Subnet",
    "Properties": {
-    "AvailabilityZone": "ap-east-2b",
+    "AvailabilityZone": "us-east-1b",
     "CidrBlock": "10.0.3.0/24",
     "MapPublicIpOnLaunch": false,
     "Tags": [
@@ -622,6 +622,15 @@
    },
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-network/DbSecurityGroup/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/02QzQrCMBCEn8V7GqWKdxERL1pa6VXSuOJqTUqy21JK393Uv3qa2Y9hd9hYxou5nE1U4yN9vkclFrLLSOm7COgEOpZdXmmxvpg8WYuEixJ1xoUBGtjoUssER1WUMPKRrby3GhWhNb/wYDa7ZJC9oq0iaFQrEod1sOPinSFwwX8D7yafaUWh6vUBhkQGmh1Su3WWq1eHf9CLFLxlp19nD0wVUy+MPYO8+Wkdz+UyfOHmESPHhvABMn3rE4zF22AiAQAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-network/CDKMetadata/Default"
    }
   }
  },

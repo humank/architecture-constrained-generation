@@ -1,11 +1,11 @@
 global:
   namespace: staging
   image:
-    registry: "{account}.dkr.ecr.ap-east-2.amazonaws.com"
+    registry: "584518143473.dkr.ecr.us-east-1.amazonaws.com"
   aws:
-    region: ap-east-2
+    region: us-east-1
   db:
-    host: coffeeshop-staging-db.cluster-xxxx.ap-east-2.rds.amazonaws.com
+    host: coffeeshop-staging-db.cjsrdxz2uhxg.us-east-1.rds.amazonaws.com
     port: 5432
     name: coffeeshop
   spring:
@@ -15,7 +15,7 @@ services:
   ordering:
     name: ordering-service
     image:
-      repository: coffeeshop/ordering-service
+      repository: coffeeshop-staging/ordering-service
       tag: latest
     replicas: 1
     port: 8081
@@ -29,15 +29,15 @@ services:
     serviceAccount: ordering-service
     schema: ordering
     env:
-      SNS_TOPIC_ARN: arn:aws:sns:ap-east-2:{account}:coffeeshop-staging-ordering-events
-      SQS_QUEUE_URL: https://sqs.ap-east-2.amazonaws.com/{account}/coffeeshop-staging-ordering-from-preparation
+      SNS_TOPIC_ARN: arn:aws:sns:us-east-1:584518143473:coffeeshop-staging-ordering-events
+      SQS_QUEUE_URL: https://sqs.us-east-1.amazonaws.com/584518143473/coffeeshop-staging-ordering-from-preparation
     healthCheck:
       path: /actuator/health
 
   preparation:
     name: preparation-service
     image:
-      repository: coffeeshop/preparation-service
+      repository: coffeeshop-staging/preparation-service
       tag: latest
     replicas: 1
     port: 8082
@@ -51,15 +51,15 @@ services:
     serviceAccount: preparation-service
     schema: preparation
     env:
-      SNS_TOPIC_ARN: arn:aws:sns:ap-east-2:{account}:coffeeshop-staging-preparation-events
-      SQS_QUEUE_URL: https://sqs.ap-east-2.amazonaws.com/{account}/coffeeshop-staging-preparation-from-ordering
+      SNS_TOPIC_ARN: arn:aws:sns:us-east-1:584518143473:coffeeshop-staging-preparation-events
+      SQS_QUEUE_URL: https://sqs.us-east-1.amazonaws.com/584518143473/coffeeshop-staging-preparation-from-ordering
     healthCheck:
       path: /actuator/health
 
   inventory:
     name: inventory-service
     image:
-      repository: coffeeshop/inventory-service
+      repository: coffeeshop-staging/inventory-service
       tag: latest
     replicas: 1
     port: 8083
@@ -73,15 +73,15 @@ services:
     serviceAccount: inventory-service
     schema: inventory
     env:
-      SNS_TOPIC_ARN: arn:aws:sns:ap-east-2:{account}:coffeeshop-staging-inventory-events
-      SQS_QUEUE_URL: https://sqs.ap-east-2.amazonaws.com/{account}/coffeeshop-staging-inventory-from-preparation
+      SNS_TOPIC_ARN: arn:aws:sns:us-east-1:584518143473:coffeeshop-staging-inventory-events
+      SQS_QUEUE_URL: https://sqs.us-east-1.amazonaws.com/584518143473/coffeeshop-staging-inventory-from-preparation
     healthCheck:
       path: /actuator/health
 
   reporting:
     name: reporting-service
     image:
-      repository: coffeeshop/reporting-service
+      repository: coffeeshop-staging/reporting-service
       tag: latest
     replicas: 1
     port: 8084
@@ -95,8 +95,8 @@ services:
     serviceAccount: reporting-service
     schema: reporting
     env:
-      SQS_REPORTING_ORDERING_URL: https://sqs.ap-east-2.amazonaws.com/{account}/coffeeshop-staging-reporting-from-ordering
-      SQS_REPORTING_INVENTORY_URL: https://sqs.ap-east-2.amazonaws.com/{account}/coffeeshop-staging-reporting-from-inventory
+      SQS_REPORTING_ORDERING_URL: https://sqs.us-east-1.amazonaws.com/584518143473/coffeeshop-staging-reporting-from-ordering
+      SQS_REPORTING_INVENTORY_URL: https://sqs.us-east-1.amazonaws.com/584518143473/coffeeshop-staging-reporting-from-inventory
     healthCheck:
       path: /actuator/health
 
@@ -106,10 +106,8 @@ ingress:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-    alb.ingress.kubernetes.io/certificate-arn: ""
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
     alb.ingress.kubernetes.io/healthcheck-path: /actuator/health
-    alb.ingress.kubernetes.io/wafv2-acl-arn: ""
 
 hpa:
   ordering:
@@ -117,3 +115,13 @@ hpa:
     minReplicas: 1
     maxReplicas: 4
     targetCPUUtilizationPercentage: 70
+  preparation:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 75
+  inventory:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetCPUUtilizationPercentage: 80

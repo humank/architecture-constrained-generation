@@ -1,6 +1,8 @@
-export const productionConfig = {
+import { EnvironmentConfig } from './types';
+
+export const productionConfig: EnvironmentConfig = {
   environment: 'production',
-  region: 'ap-east-2',
+  region: 'us-east-1',
 
   vpc: {
     maxAzs: 3,
@@ -8,7 +10,7 @@ export const productionConfig = {
   },
 
   rds: {
-    instanceType: 'db.t3.medium',
+    instanceType: 't3.medium', // Do NOT use 'db.' prefix — CDK adds it automatically
     multiAz: true,
     allocatedStorage: 50,
     backupRetention: 14,

@@ -1,0 +1,170 @@
+phase: "3c"
+name: "UX Design Report"
+generated_at: "2026-03-20"
+tool: "ui-ux-pro-max + manual refinement"
+
+design_system:
+  style: "Warm Earth-Tone Hospitality"
+  description: >
+    A warm, inviting palette inspired by coffeeshop interiors — terracotta,
+    sand, cream, and espresso tones. Designed for POS/dashboard use in a
+    busy cafe environment with high readability and clear visual hierarchy.
+
+  color_palette:
+    primary:
+      name: "Terracotta"
+      hsl: "18 40% 55%"
+      hex: "#C67B5C"
+      usage: "Primary buttons, active nav, accent elements"
+    secondary:
+      name: "Warm Clay"
+      hsl: "24 30% 37%"
+      hex: "#8B5E3C"
+      usage: "Secondary buttons, emphasis"
+    background:
+      name: "Soft Cream"
+      hsl: "36 50% 97%"
+      hex: "#FAF7F2"
+      usage: "Page background"
+    card:
+      name: "Warm White"
+      hsl: "36 40% 99%"
+      hex: "#FDFBF8"
+      usage: "Card surfaces"
+    foreground:
+      name: "Espresso"
+      hsl: "24 30% 18%"
+      hex: "#3D2B1F"
+      usage: "Primary text"
+    muted:
+      name: "Sand Beige"
+      hsl: "33 30% 83%"
+      hex: "#D4C4A8"
+      usage: "Muted backgrounds, skeleton loaders"
+    muted_foreground:
+      name: "Warm Gray"
+      hsl: "24 15% 40%"
+      hex: "#6B5B4E"
+      usage: "Secondary text, labels"
+    accent:
+      name: "Light Sand"
+      hsl: "33 30% 90%"
+      hex: "#E8DFD0"
+      usage: "Hover states, subtle backgrounds"
+
+  typography:
+    heading:
+      family: "Playfair Display"
+      weights: [400, 500, 600, 700]
+      usage: "Page titles, card titles, KPI values"
+      rationale: "Serif typeface conveys warmth and hospitality, distinguishes headings"
+    body:
+      family: "Karla"
+      weights: [300, 400, 500, 600, 700]
+      usage: "Body text, labels, buttons, data"
+      rationale: "Clean geometric sans-serif with warm character, excellent screen readability"
+    loading: "Google Fonts CDN via @import in index.css"
+
+  status_color_mapping:
+    description: >
+      Each domain status maps to a unique hue — no two statuses share the
+      same visual color. All combinations meet WCAG AA 4.5:1 contrast ratio.
+    statuses:
+      PLACED:
+        hue: "Slate (220)"
+        bg: "slate-100"
+        text: "slate-700"
+        semantic: "New order, untouched"
+      PENDING:
+        hue: "Amber (30)"
+        bg: "amber-50"
+        text: "amber-800"
+        semantic: "Waiting for action"
+      CONFIRMED:
+        hue: "Blue (210)"
+        bg: "blue-50"
+        text: "blue-800"
+        semantic: "Acknowledged by staff"
+      PAID:
+        hue: "Teal (160)"
+        bg: "teal-50"
+        text: "teal-800"
+        semantic: "Money received"
+      IN_PROGRESS:
+        hue: "Orange (35)"
+        bg: "orange-50"
+        text: "orange-800"
+        semantic: "Actively being prepared"
+      READY:
+        hue: "Green (140)"
+        bg: "green-50"
+        text: "green-800"
+        semantic: "Ready for pickup/delivery"
+      DELIVERED:
+        hue: "Purple (270)"
+        bg: "purple-50"
+        text: "purple-800"
+        semantic: "Handed to customer"
+      COMPLETED:
+        hue: "Emerald (155)"
+        bg: "emerald-50"
+        text: "emerald-800"
+        semantic: "Fully closed"
+      LOW_STOCK:
+        hue: "Red (0)"
+        bg: "red-50"
+        text: "red-800"
+        semantic: "Inventory alert"
+      CANCELLED:
+        hue: "Gray (0 achromatic)"
+        bg: "gray-100"
+        text: "gray-600"
+        semantic: "Voided"
+
+accessibility:
+  wcag_level: "AA"
+  contrast_ratio: "4.5:1 minimum for all text"
+  changes_applied:
+    - component: "LoadingState"
+      fix: "Added role='status' and aria-label='Loading content', sr-only text"
+    - component: "ErrorState"
+      fix: "Added role='alert' and aria-live='assertive', aria-hidden on icon"
+    - component: "Layout (nav)"
+      fix: "Added aria-label='Main navigation', aria-current='page' on active link"
+    - component: "PlaceOrderPage"
+      fix: "Added aria-label on trash icon button, htmlFor/id on all form labels"
+    - component: "BaristaPage (inventory bars)"
+      fix: "Added role='progressbar' with aria-valuenow/min/max/label"
+    - component: "CashierPage (chart)"
+      fix: "Added role='img' with aria-label on bar chart container"
+    - component: "CashierPage (cash input)"
+      fix: "Added aria-label on cash received input"
+
+component_changes:
+  tabs:
+    before: "Hand-rolled <button> elements with manual active state"
+    after: "Radix UI Tabs with proper ARIA tab/tabpanel roles, keyboard navigation"
+    affected_pages: ["CashierPage", "BaristaPage"]
+
+  status_badge:
+    before: "Hardcoded Tailwind classes, PLACED/PENDING identical, READY/IN_PROGRESS near-identical, LOW_STOCK missing"
+    after: "Unified semantic mapping, all 10 statuses unique, normalized input (spaces → underscores)"
+
+  empty_states:
+    before: "Inconsistent — bare <div> in CashierPage/BaristaPage, Card in WaiterOrdersPage"
+    after: "Consistent Card wrapper on all empty states"
+
+  item_status_borders:
+    before: "border-l-gray/yellow/green — 3 colors for 3 states"
+    after: "border-l-amber/orange/green — semantically aligned with status badge colors"
+
+actor_views:
+  barista:
+    style: "Large touch targets, clear item borders, high-contrast status badges"
+    rationale: "Hands may be wet/busy, needs quick scan of queue state"
+  waiter:
+    style: "Warm, inviting card layout for ready/delivered sections"
+    rationale: "Floor staff need quick pickup of ready orders"
+  cashier:
+    style: "Data-dense dashboard with KPI cards, tables, and charts"
+    rationale: "Needs financial overview and quick order processing"

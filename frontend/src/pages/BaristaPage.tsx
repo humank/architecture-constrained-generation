@@ -1,15 +1,13 @@
-import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { preparationApi, inventoryApi } from "@/lib/api";
 import type { Preparation, PreparationItem } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/StatusBadge";
 import { LoadingState } from "@/components/LoadingState";
 import { ErrorState } from "@/components/ErrorState";
 import { useToast } from "@/hooks/use-toast";
-
-type Tab = "queue" | "inventory";
 
 function PreparationQueueTab() {
   const { toast } = useToast();
@@ -60,22 +58,24 @@ function PreparationQueueTab() {
 
   if (preps.length === 0) {
     return (
-      <div className="py-12 text-center text-muted-foreground">
-        No orders in queue
-      </div>
+      <Card>
+        <CardContent className="py-12 text-center text-muted-foreground">
+          No orders in queue
+        </CardContent>
+      </Card>
     );
   }
 
-  const getItemStatusColor = (status: string) => {
+  const getItemBorderColor = (status: string) => {
     switch (status) {
       case "PENDING":
-        return "border-l-gray-400";
+        return "border-l-amber-400";
       case "IN_PROGRESS":
-        return "border-l-yellow-400";
+        return "border-l-orange-400";
       case "READY":
-        return "border-l-green-400";
+        return "border-l-green-500";
       default:
-        return "border-l-gray-400";
+        return "border-l-slate-400";
     }
   };
 
@@ -96,11 +96,11 @@ function PreparationQueueTab() {
               {prep.items.map((item: PreparationItem) => (
                 <div
                   key={item.itemId}
-                  className={`border-l-4 ${getItemStatusColor(item.status)} pl-4 py-2 bg-muted/30 rounded-r-md`}
+                  className={`border-l-4 ${getItemBorderColor(item.status)} pl-4 py-3 bg-accent/40 rounded-r-md`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium">
+                      <div className="font-medium text-base">
                         {item.coffeeType} - {item.size}
                       </div>
                       {item.customizations && (
@@ -185,13 +185,13 @@ function InventoryTab() {
 
   const getBarColor = (percentage: number) => {
     if (percentage > 50) return "bg-green-500";
-    if (percentage >= 30) return "bg-yellow-500";
+    if (percentage >= 30) return "bg-amber-500";
     return "bg-red-500";
   };
 
   const getCardBorder = (percentage: number) => {
     if (percentage > 50) return "";
-    if (percentage >= 30) return "border-yellow-300";
+    if (percentage >= 30) return "border-amber-300";
     return "border-red-300";
   };
 
@@ -203,7 +203,7 @@ function InventoryTab() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">{item.materialName}</CardTitle>
               {item.alertTriggered && (
-                <StatusBadge status="LOW STOCK" />
+                <StatusBadge status="LOW_STOCK" />
               )}
             </div>
           </CardHeader>
@@ -218,7 +218,14 @@ function InventoryTab() {
                   {item.percentage.toFixed(1)}%
                 </span>
               </div>
-              <div className="w-full bg-muted rounded-full h-3">
+              <div
+                className="w-full bg-muted rounded-full h-3"
+                role="progressbar"
+                aria-valuenow={item.percentage}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`${item.materialName} stock level`}
+              >
                 <div
                   className={`${getBarColor(item.percentage)} h-3 rounded-full transition-all`}
                   style={{ width: `${Math.min(item.percentage, 100)}%` }}
@@ -246,33 +253,22 @@ function InventoryTab() {
 }
 
 export function BaristaPage() {
-  const [activeTab, setActiveTab] = useState<Tab>("queue");
-
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Barista Dashboard</h1>
 
-      <div className="flex gap-1 border-b">
-        {[
-          { id: "queue" as Tab, label: "Preparation Queue" },
-          { id: "inventory" as Tab, label: "Inventory" },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === tab.id
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {activeTab === "queue" && <PreparationQueueTab />}
-      {activeTab === "inventory" && <InventoryTab />}
+      <Tabs defaultValue="queue">
+        <TabsList>
+          <TabsTrigger value="queue">Preparation Queue</TabsTrigger>
+          <TabsTrigger value="inventory">Inventory</TabsTrigger>
+        </TabsList>
+        <TabsContent value="queue">
+          <PreparationQueueTab />
+        </TabsContent>
+        <TabsContent value="inventory">
+          <InventoryTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -1,18 +1,33 @@
 {
   "version": "52.0.0",
   "files": {
-    "92c23cd27175b3c6660187b29945fda5963a75cc616aa98691fef1c6cb27c2c9": {
+    "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6": {
+      "displayName": "coffeeshop-staging-cicd/Custom::S3AutoDeleteObjectsCustomResourceProvider Code",
+      "source": {
+        "path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "584518143473-us-east-1-ef46a9b9": {
+          "bucketName": "cdk-hnb659fds-assets-584518143473-us-east-1",
+          "objectKey": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-file-publishing-role-584518143473-us-east-1"
+        }
+      }
+    },
+    "9b6a177c5e39f84cf3c22f8cb92be6abe668b902281638847837eb864d4888de": {
       "displayName": "coffeeshop-staging-cicd Template",
       "source": {
         "path": "coffeeshop-staging-cicd.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "584518143473-ap-east-2-64bd8a8c": {
-          "bucketName": "cdk-hnb659fds-assets-584518143473-ap-east-2",
-          "objectKey": "92c23cd27175b3c6660187b29945fda5963a75cc616aa98691fef1c6cb27c2c9.json",
-          "region": "ap-east-2",
-          "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-file-publishing-role-584518143473-ap-east-2"
+        "584518143473-us-east-1-ada92009": {
+          "bucketName": "cdk-hnb659fds-assets-584518143473-us-east-1",
+          "objectKey": "9b6a177c5e39f84cf3c22f8cb92be6abe668b902281638847837eb864d4888de.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-file-publishing-role-584518143473-us-east-1"
         }
       }
     }

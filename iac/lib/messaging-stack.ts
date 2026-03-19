@@ -3,9 +3,10 @@ import * as sns from 'aws-cdk-lib/aws-sns';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Construct } from 'constructs';
+import { EnvironmentConfig } from '../config/types';
 
 interface MessagingStackProps extends cdk.StackProps {
-  config: any;
+  config: EnvironmentConfig;
 }
 
 export class MessagingStack extends cdk.Stack {

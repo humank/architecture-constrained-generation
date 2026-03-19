@@ -203,16 +203,17 @@ export function PlaceOrderPage() {
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={`Remove item ${index + 1}`}
                       onClick={() => removeItem(item.id)}
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
                     </Button>
                   )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <div>
-                    <label className="text-sm font-medium mb-1 block">
+                    <label htmlFor={`coffee-type-${item.id}`} className="text-sm font-medium mb-1 block">
                       Coffee Type
                     </label>
                     <Select
@@ -221,7 +222,7 @@ export function PlaceOrderPage() {
                         updateItem(item.id, { coffeeType: v })
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger id={`coffee-type-${item.id}`}>
                         <SelectValue placeholder="Select coffee" />
                       </SelectTrigger>
                       <SelectContent>
@@ -235,7 +236,7 @@ export function PlaceOrderPage() {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium mb-1 block">
+                    <label htmlFor={`size-${item.id}`} className="text-sm font-medium mb-1 block">
                       Size
                     </label>
                     <Select
@@ -243,7 +244,7 @@ export function PlaceOrderPage() {
                       onValueChange={(v) => updateItem(item.id, { size: v })}
                       disabled={!item.coffeeType}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger id={`size-${item.id}`}>
                         <SelectValue placeholder="Select size" />
                       </SelectTrigger>
                       <SelectContent>
@@ -257,10 +258,11 @@ export function PlaceOrderPage() {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium mb-1 block">
+                    <label htmlFor={`quantity-${item.id}`} className="text-sm font-medium mb-1 block">
                       Quantity
                     </label>
                     <Input
+                      id={`quantity-${item.id}`}
                       type="number"
                       min={1}
                       max={10}

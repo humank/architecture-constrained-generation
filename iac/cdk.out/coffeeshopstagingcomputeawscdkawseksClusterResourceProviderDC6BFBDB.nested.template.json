@@ -4,7 +4,7 @@
    "Type": "AWS::Lambda::LayerVersion",
    "Properties": {
     "Content": {
-     "S3Bucket": "cdk-hnb659fds-assets-584518143473-ap-east-2",
+     "S3Bucket": "cdk-hnb659fds-assets-584518143473-us-east-1",
      "S3Key": "24fbe344d97d22a2818e978b5ecf7bd9ba705ec2706f6a018aeda5b534d2ced3.zip"
     },
     "Description": "/opt/nodejs/node_modules/proxy-agent"
@@ -68,7 +68,7 @@
    "Type": "AWS::Lambda::Function",
    "Properties": {
     "Code": {
-     "S3Bucket": "cdk-hnb659fds-assets-584518143473-ap-east-2",
+     "S3Bucket": "cdk-hnb659fds-assets-584518143473-us-east-1",
      "S3Key": "96a09fb8334bfe16e99fe7ed414e9c219142e37a41b3b45952358518aa85632a.zip"
     },
     "Description": "onEvent handler for EKS cluster resource provider",
@@ -168,7 +168,7 @@
    "Type": "AWS::Lambda::Function",
    "Properties": {
     "Code": {
-     "S3Bucket": "cdk-hnb659fds-assets-584518143473-ap-east-2",
+     "S3Bucket": "cdk-hnb659fds-assets-584518143473-us-east-1",
      "S3Key": "96a09fb8334bfe16e99fe7ed414e9c219142e37a41b3b45952358518aa85632a.zip"
     },
     "Description": "isComplete handler for EKS cluster resource provider",
@@ -366,7 +366,7 @@
    "Type": "AWS::Lambda::Function",
    "Properties": {
     "Code": {
-     "S3Bucket": "cdk-hnb659fds-assets-584518143473-ap-east-2",
+     "S3Bucket": "cdk-hnb659fds-assets-584518143473-us-east-1",
      "S3Key": "07a90cc3efdfc34da22208dcd9d211f06f5b0e01b21e778edc7c3966b1f61d57.zip"
     },
     "Description": "AWS CDK resource provider framework - onEvent (coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider)",
@@ -571,7 +571,7 @@
    "Type": "AWS::Lambda::Function",
    "Properties": {
     "Code": {
-     "S3Bucket": "cdk-hnb659fds-assets-584518143473-ap-east-2",
+     "S3Bucket": "cdk-hnb659fds-assets-584518143473-us-east-1",
      "S3Key": "07a90cc3efdfc34da22208dcd9d211f06f5b0e01b21e778edc7c3966b1f61d57.zip"
     },
     "Description": "AWS CDK resource provider framework - isComplete (coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider)",
@@ -773,7 +773,7 @@
    "Type": "AWS::Lambda::Function",
    "Properties": {
     "Code": {
-     "S3Bucket": "cdk-hnb659fds-assets-584518143473-ap-east-2",
+     "S3Bucket": "cdk-hnb659fds-assets-584518143473-us-east-1",
      "S3Key": "07a90cc3efdfc34da22208dcd9d211f06f5b0e01b21e778edc7c3966b1f61d57.zip"
     },
     "Description": "AWS CDK resource provider framework - onTimeout (coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider)",
@@ -989,6 +989,15 @@
    ],
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/Provider/waiter-state-machine/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1VQTU/DMAz9LdxTg1rEfUPiBNM0JDhGXuoVr20yxcmgivrfSbrtsNP7cJ71nBrq5waeHvBXKtP21cB7SBuSQO1nQNOrAcd9i3rAiby2riV98u5v0tiRDbDJxrboVZHv5ZHKq3SSRqMIBYFVASUNrKPpKaxR6LoU0uvBLpkv8sLOqrdoTSgkD258VowjpJ0bqNgLbt3AZirywmaVC58O14RAHuT2gT7Q/LClWS0lstWx7ZSJEtyoPYmL3pBAyiecuc3dv5ED+bvsrMrVcJTHc93AS/6rozBXPtrAI8Hugv92vdlBSAEAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-compute/@aws-cdk--aws-eks.ClusterResourceProvider/CDKMetadata/Default"
    }
   }
  },

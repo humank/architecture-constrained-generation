@@ -24,10 +24,10 @@
       "data": "AlarmTopicArn"
     }
   ],
-  "/coffeeshop-staging-observability/DashboardUrl": [
+  "/coffeeshop-staging-observability/DashboardName": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "DashboardUrl"
+      "data": "DashboardName"
     }
   ],
   "/coffeeshop-staging-observability/BootstrapVersion": [
@@ -112,6 +112,12 @@
     {
       "type": "aws:cdk:logicalId",
       "data": "ServiceHealthDashboard0DCECFF0"
+    }
+  ],
+  "/coffeeshop-staging-observability/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
     }
   ]
 }

@@ -18,6 +18,12 @@
       ]
     }
   ],
+  "/coffeeshop-staging-cicd/Custom::S3AutoDeleteObjectsCustomResourceProvider": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
+      "data": true
+    }
+  ],
   "/coffeeshop-staging-cicd/EcrUri-ordering-service": [
     {
       "type": "aws:cdk:logicalId",
@@ -40,6 +46,12 @@
     {
       "type": "aws:cdk:logicalId",
       "data": "EcrUrireportingservice"
+    }
+  ],
+  "/coffeeshop-staging-cicd/ArtifactBucket": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ArtifactBucket"
     }
   ],
   "/coffeeshop-staging-cicd/BootstrapVersion": [
@@ -78,40 +90,922 @@
       "data": "EcrreportingserviceF8A9E7CB"
     }
   ],
-  "/coffeeshop-staging-cicd/ServiceBuild/Resource": [
+  "/coffeeshop-staging-cicd/PipelineArtifacts/Resource": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "ServiceBuildAA6134C7"
+      "data": "PipelineArtifacts4A9B2621"
+    },
+    {
+      "type": "aws:cdk:analytics:mixin",
+      "data": {
+        "mixin": "aws-cdk-lib.aws_s3.mixins.BucketAutoDeleteObjects"
+      }
     }
   ],
-  "/coffeeshop-staging-cicd/FrontendBuild/Resource": [
+  "/coffeeshop-staging-cicd/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "FrontendBuildD4632151"
+      "data": "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
     }
   ],
-  "/coffeeshop-staging-cicd/ServiceBuild/Role/Resource": [
+  "/coffeeshop-staging-cicd/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "ServiceBuildRoleE2429B6A"
+      "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
     }
   ],
-  "/coffeeshop-staging-cicd/FrontendBuild/Role/Resource": [
+  "/coffeeshop-staging-cicd/Commit-ordering/Resource": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "FrontendBuildRole0F0B131E"
+      "data": "Commitordering92B0E85C"
     }
   ],
-  "/coffeeshop-staging-cicd/ServiceBuild/Role/DefaultPolicy/Resource": [
+  "/coffeeshop-staging-cicd/IntegrationTest-ordering/Resource": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "ServiceBuildRoleDefaultPolicyDAC27EBF"
+      "data": "IntegrationTestorderingB32F7D60"
     }
   ],
-  "/coffeeshop-staging-cicd/FrontendBuild/Role/DefaultPolicy/Resource": [
+  "/coffeeshop-staging-cicd/AcceptanceTest-ordering/Resource": [
     {
       "type": "aws:cdk:logicalId",
-      "data": "FrontendBuildRoleDefaultPolicyDA9694DB"
+      "data": "AcceptanceTestordering1C6BAE14"
+    }
+  ],
+  "/coffeeshop-staging-cicd/ContractTest-ordering/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ContractTestordering3B758966"
+    }
+  ],
+  "/coffeeshop-staging-cicd/PerformanceTest-ordering/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PerformanceTestordering1FC8A2E1"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Deploy-ordering/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeployorderingAFBEDF94"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingF7CACD3C"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Commit-preparation/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CommitpreparationA50E3858"
+    }
+  ],
+  "/coffeeshop-staging-cicd/IntegrationTest-preparation/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IntegrationTestpreparationB04479CC"
+    }
+  ],
+  "/coffeeshop-staging-cicd/AcceptanceTest-preparation/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AcceptanceTestpreparationC9650190"
+    }
+  ],
+  "/coffeeshop-staging-cicd/ContractTest-preparation/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ContractTestpreparationAC1BAC8B"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Deploy-preparation/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Deploypreparation11F65D02"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Pipelinepreparation17E1A938"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Commit-inventory/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CommitinventoryA60FFF1F"
+    }
+  ],
+  "/coffeeshop-staging-cicd/IntegrationTest-inventory/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IntegrationTestinventory212FF7F8"
+    }
+  ],
+  "/coffeeshop-staging-cicd/AcceptanceTest-inventory/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AcceptanceTestinventoryB6D5D0EA"
+    }
+  ],
+  "/coffeeshop-staging-cicd/ContractTest-inventory/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ContractTestinventoryBC02CD6D"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Deploy-inventory/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Deployinventory59F5303C"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventoryE958646E"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Commit-reporting/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CommitreportingA4770B66"
+    }
+  ],
+  "/coffeeshop-staging-cicd/IntegrationTest-reporting/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IntegrationTestreporting8A5709BC"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Deploy-reporting/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeployreportingC2EF8CC8"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-reporting/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Pipelinereporting5F1BA693"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FE-Commit/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FECommitC9939645"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FE-IntegrationTest/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FEIntegrationTestE507E0C5"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FE-E2ETest/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FEE2ETestDC9CFC96"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FE-Deploy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FEDeploy402CC7BD"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-frontend/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinefrontendEF3D4B58"
+    }
+  ],
+  "/coffeeshop-staging-cicd/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/coffeeshop-staging-cicd/PipelineArtifacts/Policy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineArtifactsPolicy87787A0D"
+    },
+    {
+      "type": "aws:cdk:analytics:mixin",
+      "data": {
+        "mixin": "aws-cdk-lib.aws_s3.mixins.BucketPolicyStatements"
+      }
+    }
+  ],
+  "/coffeeshop-staging-cicd/PipelineArtifacts/AutoDeleteObjectsCustomResource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineArtifactsAutoDeleteObjectsCustomResourceFEF48A36"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Commit-ordering/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CommitorderingRoleC6B32988"
+    }
+  ],
+  "/coffeeshop-staging-cicd/IntegrationTest-ordering/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IntegrationTestorderingRole4C32C899"
+    }
+  ],
+  "/coffeeshop-staging-cicd/AcceptanceTest-ordering/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AcceptanceTestorderingRole00C8E872"
+    }
+  ],
+  "/coffeeshop-staging-cicd/ContractTest-ordering/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ContractTestorderingRoleE289882C"
+    }
+  ],
+  "/coffeeshop-staging-cicd/PerformanceTest-ordering/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PerformanceTestorderingRole0201400A"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Deploy-ordering/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeployorderingRole113D1C50"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingRole38C55A7F"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Commit-preparation/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CommitpreparationRole150AB119"
+    }
+  ],
+  "/coffeeshop-staging-cicd/IntegrationTest-preparation/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IntegrationTestpreparationRole38DA9292"
+    }
+  ],
+  "/coffeeshop-staging-cicd/AcceptanceTest-preparation/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AcceptanceTestpreparationRole0B053728"
+    }
+  ],
+  "/coffeeshop-staging-cicd/ContractTest-preparation/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ContractTestpreparationRole61D34274"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Deploy-preparation/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeploypreparationRoleC35007C9"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationRole193B34D0"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Commit-inventory/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CommitinventoryRole86FE349B"
+    }
+  ],
+  "/coffeeshop-staging-cicd/IntegrationTest-inventory/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IntegrationTestinventoryRole3CCF548C"
+    }
+  ],
+  "/coffeeshop-staging-cicd/AcceptanceTest-inventory/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AcceptanceTestinventoryRole03AD4D01"
+    }
+  ],
+  "/coffeeshop-staging-cicd/ContractTest-inventory/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ContractTestinventoryRole6B86F638"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Deploy-inventory/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeployinventoryRole3D3D23EB"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventoryRoleFBB72748"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Commit-reporting/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CommitreportingRole49382855"
+    }
+  ],
+  "/coffeeshop-staging-cicd/IntegrationTest-reporting/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IntegrationTestreportingRole80C3448C"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Deploy-reporting/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeployreportingRole3140D8E1"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-reporting/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinereportingRole714156DE"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FE-Commit/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FECommitRoleCE0FA256"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FE-IntegrationTest/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FEIntegrationTestRole4B3D8A13"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FE-E2ETest/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FEE2ETestRoleB5A84047"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FE-Deploy/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FEDeployRoleBE91FB97"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-frontend/Role/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinefrontendRole66F13191"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Commit-ordering/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CommitorderingRoleDefaultPolicyF266F0C5"
+    }
+  ],
+  "/coffeeshop-staging-cicd/IntegrationTest-ordering/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IntegrationTestorderingRoleDefaultPolicy1308D168"
+    }
+  ],
+  "/coffeeshop-staging-cicd/AcceptanceTest-ordering/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AcceptanceTestorderingRoleDefaultPolicyBB92966E"
+    }
+  ],
+  "/coffeeshop-staging-cicd/ContractTest-ordering/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ContractTestorderingRoleDefaultPolicyBE237D56"
+    }
+  ],
+  "/coffeeshop-staging-cicd/PerformanceTest-ordering/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PerformanceTestorderingRoleDefaultPolicy0468B26E"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Deploy-ordering/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeployorderingRoleDefaultPolicyE1D4CA0F"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingRoleDefaultPolicy5DB14D84"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Commit-preparation/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CommitpreparationRoleDefaultPolicy20CD8996"
+    }
+  ],
+  "/coffeeshop-staging-cicd/IntegrationTest-preparation/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IntegrationTestpreparationRoleDefaultPolicy65B99286"
+    }
+  ],
+  "/coffeeshop-staging-cicd/AcceptanceTest-preparation/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AcceptanceTestpreparationRoleDefaultPolicyC40AC588"
+    }
+  ],
+  "/coffeeshop-staging-cicd/ContractTest-preparation/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ContractTestpreparationRoleDefaultPolicyBACFEF22"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Deploy-preparation/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeploypreparationRoleDefaultPolicy6068C404"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationRoleDefaultPolicy38965790"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Commit-inventory/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CommitinventoryRoleDefaultPolicy1DAF91EF"
+    }
+  ],
+  "/coffeeshop-staging-cicd/IntegrationTest-inventory/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IntegrationTestinventoryRoleDefaultPolicy5C919083"
+    }
+  ],
+  "/coffeeshop-staging-cicd/AcceptanceTest-inventory/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AcceptanceTestinventoryRoleDefaultPolicy62E1B95F"
+    }
+  ],
+  "/coffeeshop-staging-cicd/ContractTest-inventory/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ContractTestinventoryRoleDefaultPolicy26903AFB"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Deploy-inventory/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeployinventoryRoleDefaultPolicy66A9F63F"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventoryRoleDefaultPolicy6EE5C3CA"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Commit-reporting/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CommitreportingRoleDefaultPolicy56F6C072"
+    }
+  ],
+  "/coffeeshop-staging-cicd/IntegrationTest-reporting/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IntegrationTestreportingRoleDefaultPolicy85F5232D"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Deploy-reporting/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeployreportingRoleDefaultPolicy8955909A"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-reporting/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinereportingRoleDefaultPolicyE58A8065"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FE-Commit/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FECommitRoleDefaultPolicy0208437B"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FE-IntegrationTest/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FEIntegrationTestRoleDefaultPolicyAB4A4158"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FE-E2ETest/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FEE2ETestRoleDefaultPolicyD64341CA"
+    }
+  ],
+  "/coffeeshop-staging-cicd/FE-Deploy/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FEDeployRoleDefaultPolicy87397D7F"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-frontend/Role/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinefrontendRoleDefaultPolicy66684D2B"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/Source/GitHub_Source/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingSourceGitHubSourceCodePipelineActionRoleC0F223EF"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/Commit/Commit_Build_Test/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingCommitCommitBuildTestCodePipelineActionRoleD68D3AD4"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/IntegrationTest/Integration_Tests/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingIntegrationTestIntegrationTestsCodePipelineActionRoleAE8D21F2"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/AcceptanceTest/BDD_Acceptance_Tests/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingAcceptanceTestBDDAcceptanceTestsCodePipelineActionRole3A1317E5"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/ContractTest/Pact_Contract_Tests/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingContractTestPactContractTestsCodePipelineActionRoleFEE3BE60"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/PerformanceTest/K6_Performance_Tests/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingPerformanceTestK6PerformanceTestsCodePipelineActionRoleBBC8B9EE"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/Approval/Production_Approval/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingApprovalProductionApprovalCodePipelineActionRole332886BF"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/ProductionDeploy/Deploy_To_EKS/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingProductionDeployDeployToEKSCodePipelineActionRole3639209A"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/Source/GitHub_Source/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationSourceGitHubSourceCodePipelineActionRoleC0AC10AB"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/Commit/Commit_Build_Test/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationCommitCommitBuildTestCodePipelineActionRole3DCC874F"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/IntegrationTest/Integration_Tests/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationIntegrationTestIntegrationTestsCodePipelineActionRoleD1FA8855"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/AcceptanceTest/BDD_Acceptance_Tests/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationAcceptanceTestBDDAcceptanceTestsCodePipelineActionRole34BB4336"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/ContractTest/Pact_Contract_Tests/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationContractTestPactContractTestsCodePipelineActionRole65903B1D"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/Approval/Production_Approval/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationApprovalProductionApprovalCodePipelineActionRoleB6EF290B"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/ProductionDeploy/Deploy_To_EKS/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationProductionDeployDeployToEKSCodePipelineActionRoleC7BD27D0"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/Source/GitHub_Source/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventorySourceGitHubSourceCodePipelineActionRoleDEE257DE"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/Commit/Commit_Build_Test/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventoryCommitCommitBuildTestCodePipelineActionRoleA01DC91E"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/IntegrationTest/Integration_Tests/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventoryIntegrationTestIntegrationTestsCodePipelineActionRole38736A1C"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/AcceptanceTest/BDD_Acceptance_Tests/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventoryAcceptanceTestBDDAcceptanceTestsCodePipelineActionRoleFE151265"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/ContractTest/Pact_Contract_Tests/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventoryContractTestPactContractTestsCodePipelineActionRoleE8BE85E4"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/Approval/Production_Approval/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventoryApprovalProductionApprovalCodePipelineActionRole8302B334"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/ProductionDeploy/Deploy_To_EKS/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventoryProductionDeployDeployToEKSCodePipelineActionRole77AB5DD9"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-reporting/Source/GitHub_Source/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinereportingSourceGitHubSourceCodePipelineActionRole021E3680"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-reporting/Commit/Commit_Build_Test/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinereportingCommitCommitBuildTestCodePipelineActionRoleF420CD3A"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-reporting/IntegrationTest/Integration_Tests/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinereportingIntegrationTestIntegrationTestsCodePipelineActionRole56DD2869"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-reporting/Approval/Production_Approval/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinereportingApprovalProductionApprovalCodePipelineActionRole6C54D714"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-reporting/ProductionDeploy/Deploy_To_EKS/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinereportingProductionDeployDeployToEKSCodePipelineActionRole0AA305B5"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-frontend/Source/GitHub_Source/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinefrontendSourceGitHubSourceCodePipelineActionRole080AEE62"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-frontend/Commit/FE_Commit_Build_Test/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinefrontendCommitFECommitBuildTestCodePipelineActionRole7D6A8204"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-frontend/IntegrationTest/FE_Component_Tests/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinefrontendIntegrationTestFEComponentTestsCodePipelineActionRole80D63369"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-frontend/E2ETest/Playwright_Lighthouse/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinefrontendE2ETestPlaywrightLighthouseCodePipelineActionRoleE31EEE61"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-frontend/Approval/Production_Approval/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinefrontendApprovalProductionApprovalCodePipelineActionRoleF4746371"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-frontend/Deploy/S3_CloudFront_Deploy/CodePipelineActionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinefrontendDeployS3CloudFrontDeployCodePipelineActionRole2BE0DBD2"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/Source/GitHub_Source/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingSourceGitHubSourceCodePipelineActionRoleDefaultPolicyD201B271"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/Commit/Commit_Build_Test/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingCommitCommitBuildTestCodePipelineActionRoleDefaultPolicy9E85631D"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/IntegrationTest/Integration_Tests/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingIntegrationTestIntegrationTestsCodePipelineActionRoleDefaultPolicy514ABAC3"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/AcceptanceTest/BDD_Acceptance_Tests/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingAcceptanceTestBDDAcceptanceTestsCodePipelineActionRoleDefaultPolicy40F20777"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/ContractTest/Pact_Contract_Tests/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingContractTestPactContractTestsCodePipelineActionRoleDefaultPolicyF698AF3F"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/PerformanceTest/K6_Performance_Tests/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingPerformanceTestK6PerformanceTestsCodePipelineActionRoleDefaultPolicy1603E561"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-ordering/ProductionDeploy/Deploy_To_EKS/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineorderingProductionDeployDeployToEKSCodePipelineActionRoleDefaultPolicyF5A36C35"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/Source/GitHub_Source/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationSourceGitHubSourceCodePipelineActionRoleDefaultPolicy92818509"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/Commit/Commit_Build_Test/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationCommitCommitBuildTestCodePipelineActionRoleDefaultPolicy76F462C1"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/IntegrationTest/Integration_Tests/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationIntegrationTestIntegrationTestsCodePipelineActionRoleDefaultPolicy1D854418"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/AcceptanceTest/BDD_Acceptance_Tests/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationAcceptanceTestBDDAcceptanceTestsCodePipelineActionRoleDefaultPolicyDE4636B1"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/ContractTest/Pact_Contract_Tests/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationContractTestPactContractTestsCodePipelineActionRoleDefaultPolicyC5D10515"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-preparation/ProductionDeploy/Deploy_To_EKS/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinepreparationProductionDeployDeployToEKSCodePipelineActionRoleDefaultPolicy7174DBFB"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/Source/GitHub_Source/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventorySourceGitHubSourceCodePipelineActionRoleDefaultPolicy2D437F3C"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/Commit/Commit_Build_Test/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventoryCommitCommitBuildTestCodePipelineActionRoleDefaultPolicyD605D833"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/IntegrationTest/Integration_Tests/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventoryIntegrationTestIntegrationTestsCodePipelineActionRoleDefaultPolicyFDDA0B04"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/AcceptanceTest/BDD_Acceptance_Tests/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventoryAcceptanceTestBDDAcceptanceTestsCodePipelineActionRoleDefaultPolicy48BDDEF2"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/ContractTest/Pact_Contract_Tests/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventoryContractTestPactContractTestsCodePipelineActionRoleDefaultPolicy7A27111E"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-inventory/ProductionDeploy/Deploy_To_EKS/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineinventoryProductionDeployDeployToEKSCodePipelineActionRoleDefaultPolicyCC423A26"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-reporting/Source/GitHub_Source/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinereportingSourceGitHubSourceCodePipelineActionRoleDefaultPolicyA5709821"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-reporting/Commit/Commit_Build_Test/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinereportingCommitCommitBuildTestCodePipelineActionRoleDefaultPolicy5F77741A"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-reporting/IntegrationTest/Integration_Tests/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinereportingIntegrationTestIntegrationTestsCodePipelineActionRoleDefaultPolicyFD057650"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-reporting/ProductionDeploy/Deploy_To_EKS/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinereportingProductionDeployDeployToEKSCodePipelineActionRoleDefaultPolicy52D01414"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-frontend/Source/GitHub_Source/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinefrontendSourceGitHubSourceCodePipelineActionRoleDefaultPolicy30874D1C"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-frontend/Commit/FE_Commit_Build_Test/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinefrontendCommitFECommitBuildTestCodePipelineActionRoleDefaultPolicy5DABFF11"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-frontend/IntegrationTest/FE_Component_Tests/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinefrontendIntegrationTestFEComponentTestsCodePipelineActionRoleDefaultPolicy409ECB41"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-frontend/E2ETest/Playwright_Lighthouse/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinefrontendE2ETestPlaywrightLighthouseCodePipelineActionRoleDefaultPolicy3B5EAAF7"
+    }
+  ],
+  "/coffeeshop-staging-cicd/Pipeline-frontend/Deploy/S3_CloudFront_Deploy/CodePipelineActionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelinefrontendDeployS3CloudFrontDeployCodePipelineActionRoleDefaultPolicyD72E59F9"
     }
   ]
 }

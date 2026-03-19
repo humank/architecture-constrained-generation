@@ -554,11 +554,19 @@
        "\",{\"stat\":\"Maximum\"}]],\"yAxis\":{}}}]}"
       ]
      ]
-    },
-    "DashboardName": "coffeeshop-staging-service-health"
+    }
    },
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-observability/ServiceHealthDashboard/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/z2NwQ7CIBBEv8U7rIYa70bvJurdbKGmtBQadrEHwr9bbOJp3rw5jAJ1bOCww4WkNqN0toX8YNSjWNUrkyfIzzBbLS5v/4MitAvJLMi6h3x2GKe6bXBF6tuA0VT1L6XUeks8Jy7CB9PBQPuPauC0fg9krYzJs506uG/5Ba0Tz2+YAAAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-observability/CDKMetadata/Default"
    }
   }
  },
@@ -568,8 +576,10 @@
     "Ref": "AlarmNotificationsA4AFC78C"
    }
   },
-  "DashboardUrl": {
-   "Value": "https://ap-east-2.console.aws.amazon.com/cloudwatch/home?region=ap-east-2#dashboards:name=coffeeshop-staging-service-health"
+  "DashboardName": {
+   "Value": {
+    "Ref": "ServiceHealthDashboard0DCECFF0"
+   }
   }
  },
  "Parameters": {

@@ -5,9 +5,10 @@ import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as eks from 'aws-cdk-lib/aws-eks';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
+import { EnvironmentConfig } from '../config/types';
 
 interface ObservabilityStackProps extends cdk.StackProps {
-  config: any;
+  config: EnvironmentConfig;
   cluster: eks.Cluster;
   queues: Record<string, sqs.Queue>;
   dlqs: Record<string, sqs.Queue>;
@@ -42,12 +43,13 @@ export class ObservabilityStack extends cdk.Stack {
       resources: ['*'],
     }));
 
-    // Create ADOT namespace
-    cluster.addManifest('OtelNamespace', {
+    // Create ADOT namespace — must exist before service account and Helm chart
+    const otelNamespace = cluster.addManifest('OtelNamespace', {
       apiVersion: 'v1',
       kind: 'Namespace',
       metadata: { name: 'opentelemetry' },
     });
+    adotSa.node.addDependency(otelNamespace);
 
     // Install ADOT via Helm
     cluster.addHelmChart('AdotCollector', {
@@ -103,9 +105,8 @@ export class ObservabilityStack extends cdk.Stack {
     });
 
     // === CloudWatch Dashboard ===
-    const dashboard = new cloudwatch.Dashboard(this, 'ServiceHealthDashboard', {
-      dashboardName: `${prefix}-service-health`,
-    });
+    // Let CDK auto-generate the dashboard name to avoid cross-account/region collisions
+    const dashboard = new cloudwatch.Dashboard(this, 'ServiceHealthDashboard');
 
     // SQS metrics row
     const queueWidgets = Object.entries(queues).map(([name, queue]) =>
@@ -134,8 +135,8 @@ export class ObservabilityStack extends cdk.Stack {
 
     // Outputs
     new cdk.CfnOutput(this, 'AlarmTopicArn', { value: alarmTopic.topicArn });
-    new cdk.CfnOutput(this, 'DashboardUrl', {
-      value: `https://${config.region}.console.aws.amazon.com/cloudwatch/home?region=${config.region}#dashboards:name=${prefix}-service-health`,
+    new cdk.CfnOutput(this, 'DashboardName', {
+      value: dashboard.dashboardName,
     });
   }
 }

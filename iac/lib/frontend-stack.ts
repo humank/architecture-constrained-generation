@@ -4,9 +4,12 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as wafv2 from 'aws-cdk-lib/aws-wafv2';
 import { Construct } from 'constructs';
+import { EnvironmentConfig } from '../config/types';
 
 interface FrontendStackProps extends cdk.StackProps {
-  config: any;
+  config: EnvironmentConfig;
+  /** ALB DNS name from EKS Ingress. If provided, CloudFront proxies /api/* to ALB. */
+  albDnsName?: string;
 }
 
 export class FrontendStack extends cdk.Stack {
@@ -16,12 +19,12 @@ export class FrontendStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: FrontendStackProps) {
     super(scope, id, props);
 
-    const { config } = props;
+    const { config, albDnsName } = props;
     const prefix = `coffeeshop-${config.environment}`;
 
     // S3 Bucket for static frontend assets
+    // Let CDK auto-generate the bucket name to avoid cross-account/region collisions
     this.bucket = new s3.Bucket(this, 'FrontendBucket', {
-      bucketName: `${prefix}-frontend-assets`,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       encryption: s3.BucketEncryption.S3_MANAGED,
       versioned: true,
@@ -82,6 +85,20 @@ export class FrontendStack extends cdk.Stack {
     }
 
     // CloudFront Distribution with OAC
+    // Dual-origin: S3 for static assets (default), ALB for /api/* (if available)
+    const additionalBehaviors: Record<string, cloudfront.BehaviorOptions> = {};
+    if (albDnsName) {
+      additionalBehaviors['/api/*'] = {
+        origin: new origins.HttpOrigin(albDnsName, {
+          protocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
+        }),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+        originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+      };
+    }
+
     this.distribution = new cloudfront.Distribution(this, 'FrontendDistribution', {
       comment: `${prefix} Frontend SPA`,
       defaultBehavior: {
@@ -90,8 +107,9 @@ export class FrontendStack extends cdk.Stack {
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
         compress: true,
       },
+      additionalBehaviors,
       defaultRootObject: 'index.html',
-      // SPA routing — return index.html for 404s
+      // SPA routing — return index.html for 404s (only affects default S3 behavior, not /api/*)
       errorResponses: [
         {
           httpStatus: 404,

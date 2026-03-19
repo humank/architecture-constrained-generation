@@ -13,4 +13,5 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=builder /app/services/reporting-service/build/libs/*.jar app.jar
 EXPOSE 8084
+HEALTHCHECK --interval=30s --timeout=3s CMD wget -q --spider http://localhost:8084/actuator/health || exit 1
 ENTRYPOINT ["java", "-jar", "app.jar"]

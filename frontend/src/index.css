@@ -1,29 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Karla:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Coffeeshop warm earth-tone palette */
+    --background: 36 50% 97%;        /* #FAF7F2 Soft Cream */
+    --foreground: 24 30% 18%;         /* #3D2B1F Espresso */
+    --card: 36 40% 99%;               /* #FDFBF8 Warm White */
+    --card-foreground: 24 30% 18%;
+    --popover: 36 40% 99%;
+    --popover-foreground: 24 30% 18%;
+    --primary: 18 40% 55%;            /* #C67B5C Terracotta */
+    --primary-foreground: 36 50% 97%;
+    --secondary: 24 30% 37%;          /* #8B5E3C Warm Clay */
+    --secondary-foreground: 36 50% 97%;
+    --muted: 33 30% 83%;              /* #D4C4A8 Sand Beige */
+    --muted-foreground: 24 15% 40%;   /* #6B5B4E Warm Gray */
+    --accent: 33 30% 90%;             /* #E8DFD0 Light Sand */
+    --accent-foreground: 24 30% 18%;
+    --destructive: 0 72% 51%;         /* #DC2626 Red */
+    --destructive-foreground: 0 0% 100%;
+    --border: 33 25% 85%;             /* #DDD2C0 Sand Border */
+    --input: 33 25% 85%;
+    --ring: 18 40% 55%;               /* Terracotta ring */
     --radius: 0.5rem;
+
+    /* Semantic status colors — each visually distinct */
+    --status-placed: 220 14% 60%;     /* Slate — new, untouched */
+    --status-pending: 30 60% 55%;     /* Amber — waiting */
+    --status-confirmed: 210 70% 50%;  /* Blue — acknowledged */
+    --status-paid: 160 60% 40%;       /* Teal — money received */
+    --status-in-progress: 35 90% 52%; /* Orange — actively working */
+    --status-ready: 140 65% 40%;      /* Green — done, pick up */
+    --status-delivered: 270 45% 55%;  /* Purple — handed off */
+    --status-completed: 155 55% 35%;  /* Dark green — fully closed */
+    --status-low-stock: 0 72% 51%;    /* Red — alert */
+    --status-cancelled: 0 0% 55%;     /* Gray — voided */
   }
 
   * {
@@ -31,6 +46,10 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
   }
 }

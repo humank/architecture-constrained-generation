@@ -1,4 +1,15 @@
 {
+ "Resources": {
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/zPSMzIx1jNQTCwv1k1OydbNyUzSCy5JTM7WyctPSdXLKtYvMzLWMwOqyCrOzNQtKs0rycxN1QuC0ABid+YsPgAAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-iam/CDKMetadata/Default"
+   }
+  }
+ },
  "Parameters": {
   "BootstrapVersion": {
    "Type": "AWS::SSM::Parameter::Value<String>",

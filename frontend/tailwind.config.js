@@ -11,6 +11,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        heading: ['"Playfair Display"', "Georgia", "serif"],
+        body: ["Karla", "system-ui", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -44,6 +48,18 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        status: {
+          placed: "hsl(var(--status-placed))",
+          pending: "hsl(var(--status-pending))",
+          confirmed: "hsl(var(--status-confirmed))",
+          paid: "hsl(var(--status-paid))",
+          "in-progress": "hsl(var(--status-in-progress))",
+          ready: "hsl(var(--status-ready))",
+          delivered: "hsl(var(--status-delivered))",
+          completed: "hsl(var(--status-completed))",
+          "low-stock": "hsl(var(--status-low-stock))",
+          cancelled: "hsl(var(--status-cancelled))",
         },
       },
       borderRadius: {

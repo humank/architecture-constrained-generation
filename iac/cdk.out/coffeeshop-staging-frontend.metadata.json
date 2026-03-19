@@ -84,6 +84,30 @@
       "data": "FrontendDistributionE6EAF405"
     }
   ],
+  "/coffeeshop-staging-frontend/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/coffeeshop-staging-frontend/Exports/Output{\"Fn::GetAtt\":[\"FrontendBucketEFE2E19C\",\"Arn\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttFrontendBucketEFE2E19CArnCE13AB85"
+    }
+  ],
+  "/coffeeshop-staging-frontend/Exports/Output{\"Ref\":\"FrontendDistributionE6EAF405\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefFrontendDistributionE6EAF4056C7B575E"
+    }
+  ],
+  "/coffeeshop-staging-frontend/Exports/Output{\"Ref\":\"FrontendBucketEFE2E19C\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefFrontendBucketEFE2E19CBD842463"
+    }
+  ],
   "/coffeeshop-staging-frontend/FrontendBucket/Policy/Resource": [
     {
       "type": "aws:cdk:logicalId",

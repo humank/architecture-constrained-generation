@@ -11,7 +11,7 @@
     },
     "coffeeshop-staging-network": {
       "type": "aws:cloudformation:stack",
-      "environment": "aws://584518143473/ap-east-2",
+      "environment": "aws://584518143473/us-east-1",
       "properties": {
         "templateFile": "coffeeshop-staging-network.template.json",
         "terminationProtection": false,
@@ -21,16 +21,16 @@
           "Project": "coffeeshop"
         },
         "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-ap-east-2",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-ap-east-2",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-ap-east-2/4d819a597dd3aeb2a12255cac46e9e5e3bc2c6fefece79c988fae5aabaebda3f.json",
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-us-east-1/29e2832d69f171a36314e64f27dcef478c8d3a640ff82cb6ea5ccaa6dac2cb44.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
           "coffeeshop-staging-network.assets"
         ],
         "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-ap-east-2",
+          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-us-east-1",
           "requiresBootstrapStackVersion": 8,
           "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
         }
@@ -51,7 +51,7 @@
     },
     "coffeeshop-staging-data": {
       "type": "aws:cloudformation:stack",
-      "environment": "aws://584518143473/ap-east-2",
+      "environment": "aws://584518143473/us-east-1",
       "properties": {
         "templateFile": "coffeeshop-staging-data.template.json",
         "terminationProtection": false,
@@ -61,16 +61,16 @@
           "Project": "coffeeshop"
         },
         "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-ap-east-2",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-ap-east-2",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-ap-east-2/5c3a1385dd8e09e5a863f5aec1e9d7b180e9d445a7668343c10617d30269bbcf.json",
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-us-east-1/4c6cb9246785b8e4a477f576a5229691c905d63da6641d25a35eaad5cb55b3a9.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
           "coffeeshop-staging-data.assets"
         ],
         "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-ap-east-2",
+          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-us-east-1",
           "requiresBootstrapStackVersion": 8,
           "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
         }
@@ -92,7 +92,7 @@
     },
     "coffeeshop-staging-messaging": {
       "type": "aws:cloudformation:stack",
-      "environment": "aws://584518143473/ap-east-2",
+      "environment": "aws://584518143473/us-east-1",
       "properties": {
         "templateFile": "coffeeshop-staging-messaging.template.json",
         "terminationProtection": false,
@@ -102,16 +102,16 @@
           "Project": "coffeeshop"
         },
         "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-ap-east-2",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-ap-east-2",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-ap-east-2/a82db4ddbfff6cb9d840ec8479736768d600da1e81f7a221bf9c5bfccefa40a5.json",
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-us-east-1/37b1e2ca004658c7761088ebc4531999ddd1130b286ad0a8880c88f3a158ba68.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
           "coffeeshop-staging-messaging.assets"
         ],
         "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-ap-east-2",
+          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-us-east-1",
           "requiresBootstrapStackVersion": 8,
           "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
         }
@@ -132,7 +132,7 @@
     },
     "coffeeshop-staging-compute": {
       "type": "aws:cloudformation:stack",
-      "environment": "aws://584518143473/ap-east-2",
+      "environment": "aws://584518143473/us-east-1",
       "properties": {
         "templateFile": "coffeeshop-staging-compute.template.json",
         "terminationProtection": false,
@@ -142,16 +142,16 @@
           "Project": "coffeeshop"
         },
         "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-ap-east-2",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-ap-east-2",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-ap-east-2/24ce5820d25c20a77264e47c84e134fee28da01520ce551b222f06473371e282.json",
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-us-east-1/a197430f76d1d7455e9397f772f91b6598f08a1c7b48ed4d368853e2883d0cf0.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
           "coffeeshop-staging-compute.assets"
         ],
         "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-ap-east-2",
+          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-us-east-1",
           "requiresBootstrapStackVersion": 8,
           "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
         }
@@ -175,7 +175,7 @@
     },
     "coffeeshop-staging-iam": {
       "type": "aws:cloudformation:stack",
-      "environment": "aws://584518143473/ap-east-2",
+      "environment": "aws://584518143473/us-east-1",
       "properties": {
         "templateFile": "coffeeshop-staging-iam.template.json",
         "terminationProtection": false,
@@ -185,16 +185,16 @@
           "Project": "coffeeshop"
         },
         "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-ap-east-2",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-ap-east-2",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-ap-east-2/21fbb51d7b23f6a6c262b46a9caee79d744a3ac019fd45422d988b96d44b2a22.json",
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-us-east-1/c168c7e1882d81e18e7da5ddac7188ca35488ecd2a9c2af91d40947c09a66830.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
           "coffeeshop-staging-iam.assets"
         ],
         "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-ap-east-2",
+          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-us-east-1",
           "requiresBootstrapStackVersion": 8,
           "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
         }
@@ -215,7 +215,7 @@
     },
     "coffeeshop-staging-frontend": {
       "type": "aws:cloudformation:stack",
-      "environment": "aws://584518143473/ap-east-2",
+      "environment": "aws://584518143473/us-east-1",
       "properties": {
         "templateFile": "coffeeshop-staging-frontend.template.json",
         "terminationProtection": false,
@@ -225,16 +225,16 @@
           "Project": "coffeeshop"
         },
         "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-ap-east-2",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-ap-east-2",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-ap-east-2/38923dd6436c62a7ef9c83cc63bb181f0c54825929305c7a1b7cd1bffdb8e129.json",
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-us-east-1/df6594ed11276c500f33cb3eaef228070451185150a4a7cd9a0e2b35d7beb59a.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
           "coffeeshop-staging-frontend.assets"
         ],
         "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-ap-east-2",
+          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-us-east-1",
           "requiresBootstrapStackVersion": 8,
           "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
         }
@@ -255,7 +255,7 @@
     },
     "coffeeshop-staging-observability": {
       "type": "aws:cloudformation:stack",
-      "environment": "aws://584518143473/ap-east-2",
+      "environment": "aws://584518143473/us-east-1",
       "properties": {
         "templateFile": "coffeeshop-staging-observability.template.json",
         "terminationProtection": false,
@@ -265,16 +265,16 @@
           "Project": "coffeeshop"
         },
         "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-ap-east-2",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-ap-east-2",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-ap-east-2/2988648d5f3a82439c4379fcac4fda9203c5173c80c5838ac6881a8ad13768d8.json",
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-us-east-1/dba80331f2073bf4931f2fc7b2b791963b8e19bf52f4d797977c5c3b79fd70a1.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
           "coffeeshop-staging-observability.assets"
         ],
         "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-ap-east-2",
+          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-us-east-1",
           "requiresBootstrapStackVersion": 8,
           "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
         }
@@ -296,7 +296,7 @@
     },
     "coffeeshop-staging-cicd": {
       "type": "aws:cloudformation:stack",
-      "environment": "aws://584518143473/ap-east-2",
+      "environment": "aws://584518143473/us-east-1",
       "properties": {
         "templateFile": "coffeeshop-staging-cicd.template.json",
         "terminationProtection": false,
@@ -306,21 +306,23 @@
           "Project": "coffeeshop"
         },
         "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-ap-east-2",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-ap-east-2",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-ap-east-2/92c23cd27175b3c6660187b29945fda5963a75cc616aa98691fef1c6cb27c2c9.json",
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-deploy-role-584518143473-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-cfn-exec-role-584518143473-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-584518143473-us-east-1/9b6a177c5e39f84cf3c22f8cb92be6abe668b902281638847837eb864d4888de.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
           "coffeeshop-staging-cicd.assets"
         ],
         "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-ap-east-2",
+          "arn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-lookup-role-584518143473-us-east-1",
           "requiresBootstrapStackVersion": 8,
           "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
         }
       },
       "dependencies": [
+        "coffeeshop-staging-compute",
+        "coffeeshop-staging-frontend",
         "coffeeshop-staging-cicd.assets"
       ],
       "additionalMetadataFile": "coffeeshop-staging-cicd.metadata.json",

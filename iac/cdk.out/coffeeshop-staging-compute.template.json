@@ -4,7 +4,7 @@
    "Type": "AWS::Lambda::LayerVersion",
    "Properties": {
     "Content": {
-     "S3Bucket": "cdk-hnb659fds-assets-584518143473-ap-east-2",
+     "S3Bucket": "cdk-hnb659fds-assets-584518143473-us-east-1",
      "S3Key": "77675805670406a68c1baf43392c7e699bee435fe9b667ef4f9f1134b8c41d0e.zip"
     },
     "Description": "/opt/kubectl/kubectl 1.31.9; /opt/helm/helm 3.17.3",
@@ -329,7 +329,7 @@
            {
             "Ref": "AWS::Partition"
            },
-           ":eks:ap-east-2:584518143473:cluster/coffeeshop-staging-cluster"
+           ":eks:us-east-1:584518143473:cluster/coffeeshop-staging-cluster"
           ]
          ]
         },
@@ -341,7 +341,7 @@
            {
             "Ref": "AWS::Partition"
            },
-           ":eks:ap-east-2:584518143473:cluster/coffeeshop-staging-cluster/*"
+           ":eks:us-east-1:584518143473:cluster/coffeeshop-staging-cluster/*"
           ]
          ]
         }
@@ -361,7 +361,7 @@
           {
            "Ref": "AWS::Partition"
           },
-          ":eks:ap-east-2:584518143473:fargateprofile/coffeeshop-staging-cluster/*"
+          ":eks:us-east-1:584518143473:fargateprofile/coffeeshop-staging-cluster/*"
          ]
         ]
        }
@@ -867,7 +867,7 @@
        {
         "Ref": "CoffeeshopCluster0BADC19F"
        },
-       "\",\"serviceAccount\":{\"create\":false,\"name\":\"aws-load-balancer-controller\"},\"region\":\"ap-east-2\",\"vpcId\":\"",
+       "\",\"serviceAccount\":{\"create\":false,\"name\":\"aws-load-balancer-controller\"},\"region\":\"us-east-1\",\"vpcId\":\"",
        {
         "Fn::ImportValue": "coffeeshop-staging-network:ExportsOutputRefCoffeeshopVpcE924060AD40F2944"
        },
@@ -1070,7 +1070,7 @@
        {
         "Ref": "CoffeeshopCluster0BADC19F"
        },
-       "\"},\"awsRegion\":\"ap-east-2\",\"rbac\":{\"serviceAccount\":{\"create\":false,\"name\":\"cluster-autoscaler\"}}}"
+       "\"},\"awsRegion\":\"us-east-1\",\"rbac\":{\"serviceAccount\":{\"create\":false,\"name\":\"cluster-autoscaler\"}}}"
       ]
      ]
     },
@@ -1163,6 +1163,9 @@
      ]
     }
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
+   ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
    "Metadata": {
@@ -1223,6 +1226,9 @@
      }
     ]
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
+   ],
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-compute/CoffeeshopCluster/OrderingServiceAccount/Role/Resource"
    }
@@ -1280,6 +1286,9 @@
      }
     ]
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
+   ],
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-compute/CoffeeshopCluster/OrderingServiceAccount/Role/DefaultPolicy/Resource"
    }
@@ -1320,7 +1329,8 @@
     "PruneLabel": "aws.cdk.eks/prune-c8dccb8d1bbefdc39143319070c3901ef6424897ae"
    },
    "DependsOn": [
-    "CoffeeshopClusterKubectlReadyBarrier867A2F20"
+    "CoffeeshopClusterKubectlReadyBarrier867A2F20",
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
@@ -1374,6 +1384,9 @@
      ]
     }
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
+   ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
    "Metadata": {
@@ -1434,6 +1447,9 @@
      }
     ]
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
+   ],
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-compute/CoffeeshopCluster/PreparationServiceAccount/Role/Resource"
    }
@@ -1491,6 +1507,9 @@
      }
     ]
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
+   ],
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-compute/CoffeeshopCluster/PreparationServiceAccount/Role/DefaultPolicy/Resource"
    }
@@ -1531,7 +1550,8 @@
     "PruneLabel": "aws.cdk.eks/prune-c84749e89929f6288108189ba0d0c96023fdeb2248"
    },
    "DependsOn": [
-    "CoffeeshopClusterKubectlReadyBarrier867A2F20"
+    "CoffeeshopClusterKubectlReadyBarrier867A2F20",
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
@@ -1585,6 +1605,9 @@
      ]
     }
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
+   ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
    "Metadata": {
@@ -1645,6 +1668,9 @@
      }
     ]
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
+   ],
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-compute/CoffeeshopCluster/InventoryServiceAccount/Role/Resource"
    }
@@ -1702,6 +1728,9 @@
      }
     ]
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
+   ],
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-compute/CoffeeshopCluster/InventoryServiceAccount/Role/DefaultPolicy/Resource"
    }
@@ -1742,7 +1771,8 @@
     "PruneLabel": "aws.cdk.eks/prune-c8aead3e0d535c3b8ae6dd481a4fd0292734fa37b3"
    },
    "DependsOn": [
-    "CoffeeshopClusterKubectlReadyBarrier867A2F20"
+    "CoffeeshopClusterKubectlReadyBarrier867A2F20",
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
@@ -1796,6 +1826,9 @@
      ]
     }
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
+   ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
    "Metadata": {
@@ -1856,6 +1889,9 @@
      }
     ]
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
+   ],
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-compute/CoffeeshopCluster/ReportingServiceAccount/Role/Resource"
    }
@@ -1919,6 +1955,9 @@
      }
     ]
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
+   ],
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-compute/CoffeeshopCluster/ReportingServiceAccount/Role/DefaultPolicy/Resource"
    }
@@ -1959,7 +1998,8 @@
     "PruneLabel": "aws.cdk.eks/prune-c84bc6f1649355830675b77c9b9fa1e6964d29b1cc"
    },
    "DependsOn": [
-    "CoffeeshopClusterKubectlReadyBarrier867A2F20"
+    "CoffeeshopClusterKubectlReadyBarrier867A2F20",
+    "CoffeeshopClustermanifestAppNamespaceA845A374"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
@@ -2013,6 +2053,9 @@
      ]
     }
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestOtelNamespace1DD0DCAE"
+   ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
    "Metadata": {
@@ -2073,6 +2116,9 @@
      }
     ]
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestOtelNamespace1DD0DCAE"
+   ],
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-compute/CoffeeshopCluster/AdotCollector/Role/Resource"
    }
@@ -2105,6 +2151,9 @@
      }
     ]
    },
+   "DependsOn": [
+    "CoffeeshopClustermanifestOtelNamespace1DD0DCAE"
+   ],
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-compute/CoffeeshopCluster/AdotCollector/Role/DefaultPolicy/Resource"
    }
@@ -2145,7 +2194,8 @@
     "PruneLabel": "aws.cdk.eks/prune-c8f873bbb233b78dbdb548921c696160f1a2ca2ad3"
    },
    "DependsOn": [
-    "CoffeeshopClusterKubectlReadyBarrier867A2F20"
+    "CoffeeshopClusterKubectlReadyBarrier867A2F20",
+    "CoffeeshopClustermanifestOtelNamespace1DD0DCAE"
    ],
    "UpdateReplacePolicy": "Delete",
    "DeletionPolicy": "Delete",
@@ -2203,7 +2253,7 @@
     },
     "Release": "ingcomputecoffeeshopclusterchartadotcollector6bbff272",
     "Chart": "adot-exporter-for-eks-on-ec2",
-    "Values": "{\"serviceAccount\":{\"create\":false,\"name\":\"adot-collector\"},\"awsRegion\":\"ap-east-2\"}",
+    "Values": "{\"serviceAccount\":{\"create\":false,\"name\":\"adot-collector\"},\"awsRegion\":\"us-east-1\"}",
     "Namespace": "opentelemetry",
     "Repository": "https://aws-observability.github.io/aws-otel-helm-charts",
     "CreateNamespace": true
@@ -2238,11 +2288,11 @@
      "Fn::Join": [
       "",
       [
-       "https://s3.ap-east-2.",
+       "https://s3.us-east-1.",
        {
         "Ref": "AWS::URLSuffix"
        },
-       "/cdk-hnb659fds-assets-584518143473-ap-east-2/03f545faa058cb093d66885a6cd26f65c2891163e403510b9de82f890c09ab64.json"
+       "/cdk-hnb659fds-assets-584518143473-us-east-1/e62ca83b80955c6038b5723edc2a3499ca5548945aec114469dd9ed7d48decc4.json"
       ]
      ]
     }
@@ -2293,11 +2343,11 @@
      "Fn::Join": [
       "",
       [
-       "https://s3.ap-east-2.",
+       "https://s3.us-east-1.",
        {
         "Ref": "AWS::URLSuffix"
        },
-       "/cdk-hnb659fds-assets-584518143473-ap-east-2/319f38b239836a4b8ffec1c62d00e6e3aff20524544106e66a273b3f0b3eda57.json"
+       "/cdk-hnb659fds-assets-584518143473-us-east-1/551879d8004b55f8f46c30233140f5303232b99eb548c9cb6d33008de2983619.json"
       ]
      ]
     }
@@ -2364,7 +2414,7 @@
    "Type": "AWS::Lambda::Function",
    "Properties": {
     "Code": {
-     "S3Bucket": "cdk-hnb659fds-assets-584518143473-ap-east-2",
+     "S3Bucket": "cdk-hnb659fds-assets-584518143473-us-east-1",
      "S3Key": "d75c48c9f82cde63e9bf414df335e84e8ac24f11eb34889be255b702aec71e50.zip"
     },
     "Timeout": 900,
@@ -2416,7 +2466,7 @@
    "Type": "AWS::Lambda::Function",
    "Properties": {
     "Code": {
-     "S3Bucket": "cdk-hnb659fds-assets-584518143473-ap-east-2",
+     "S3Bucket": "cdk-hnb659fds-assets-584518143473-us-east-1",
      "S3Key": "c398d076c966a47ee4ef862fbaf5ea530bf035b867a0195292c99f77b323ed80.zip"
     },
     "Timeout": 900,
@@ -2437,6 +2487,15 @@
     "aws:cdk:path": "coffeeshop-staging-compute/AWSCDKCfnUtilsProviderCustomResourceProvider/Handler",
     "aws:asset:path": "asset.c398d076c966a47ee4ef862fbaf5ea530bf035b867a0195292c99f77b323ed80",
     "aws:asset:property": "Code"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WQzW7CMBCEn6V3x5Sk6rkhh/7QFgQSV2ScBUwcG3nXQSjKu3eTFLWcZndljWe+VLbpUyYfH9QFE11WiTU72a5J6UrwadtitlWIQCjzXgRmchZ1BTRTCMKqelcqWezdp7pC2EBA452ACmVb2IgEQXz7Eg7Bx7PgZ39LfsE80lHM4w6CAwL8Us7sAUmsITRGQ661j47E4gzuvSy8c6BpGXxjSrZ9A1sXRxWoE0bVsl15C/0Pgy69Nfrar+PUCdAp9wIdg6Hr6y3O3aHrxNCR2x+MO4iC8/t6Behj0KP3bf5/5GClob42Lx846kjw3uEWfSDHbxaRzpHjTxn/yy//yUg0sT3OpGI2mmzSZFM5H+dNNh1Qd8IxSnnCSZNm8pktTmhMEhiYqUGuRv0BStmg598BAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-compute/CDKMetadata/Default"
    }
   }
  },
@@ -2470,6 +2529,25 @@
      "CoffeeshopCluster0BADC19F",
      "Arn"
     ]
+   }
+  },
+  "ExportsOutputRefCoffeeshopCluster0BADC19FA4573C3A": {
+   "Value": {
+    "Ref": "CoffeeshopCluster0BADC19F"
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-compute:ExportsOutputRefCoffeeshopCluster0BADC19FA4573C3A"
+   }
+  },
+  "ExportsOutputFnGetAttCoffeeshopCluster0BADC19FArn7698F3A9": {
+   "Value": {
+    "Fn::GetAtt": [
+     "CoffeeshopCluster0BADC19F",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "coffeeshop-staging-compute:ExportsOutputFnGetAttCoffeeshopCluster0BADC19FArn7698F3A9"
    }
   }
  },

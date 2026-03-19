@@ -711,6 +711,15 @@
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-messaging/reporting-from-inventory/coffeeshopstagingmessagingInventoryEventsTopic5BA1D9BB/Resource"
    }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/02OXQ7CIBCEz+I7rIYaL+AB/KnvpqWYbFsBu6zGEO4uSGJ8mZ35NpOMArVtYLPqXiT1MMkZe4ht6PQkMrpGsgTx4jxqsb/ZalruSS/oAzpb6H9Ogh65cWLDpvyq+erRzajfP1hjSgUcOHgOSVg3GBhp/VQN7PKqkRDlwjbg3cC53g8kwhGYsgAAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-messaging/CDKMetadata/Default"
+   }
   }
  },
  "Outputs": {

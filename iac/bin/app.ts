@@ -11,11 +11,12 @@ import { IamStack } from '../lib/iam-stack';
 import { CiCdStack } from '../lib/cicd-stack';
 import { stagingConfig } from '../config/staging';
 import { productionConfig } from '../config/production';
+import { EnvironmentConfig } from '../config/types';
 
 const app = new cdk.App();
 
 const environment = app.node.tryGetContext('environment') || 'staging';
-const config = environment === 'production' ? productionConfig : stagingConfig;
+const config: EnvironmentConfig = environment === 'production' ? productionConfig : stagingConfig;
 
 const env: cdk.Environment = {
   region: config.region,
@@ -56,15 +57,19 @@ const iamStack = new IamStack(app, `${prefix}-iam`, {
   env,
   config,
   cluster: computeStack.cluster,
+  appNamespace: computeStack.appNamespace,
   topics: messagingStack.topics,
   queues: messagingStack.queues,
   dbSecret: dataStack.dbSecret,
 });
 
-// Frontend — S3, CloudFront, WAF
+// Frontend — S3, CloudFront (+ ALB API proxy when available), WAF
+// After K8s Ingress creates ALB: cdk deploy -c albDnsName=k8s-xxx.elb.amazonaws.com
+const albDnsName = app.node.tryGetContext('albDnsName') as string | undefined;
 const frontendStack = new FrontendStack(app, `${prefix}-frontend`, {
   env,
   config,
+  albDnsName,
 });
 
 // Observability — ADOT, CloudWatch dashboards, X-Ray, alarms
@@ -81,6 +86,8 @@ const cicdStack = new CiCdStack(app, `${prefix}-cicd`, {
   env,
   config,
   cluster: computeStack.cluster,
+  frontendBucket: frontendStack.bucket,
+  distribution: frontendStack.distribution,
 });
 
 // Tag all resources

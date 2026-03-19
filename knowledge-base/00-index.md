@@ -123,3 +123,7 @@
 
 - [01-six-pillars.md](aws-well-architected/01-six-pillars.md) — Operational Excellence, Security, Reliability, Performance, Cost, Sustainability
 - [02-review-process-and-lenses.md](aws-well-architected/02-review-process-and-lenses.md) — Review Process, 16+ Lenses, R&W mapping
+
+## AWS CDK
+
+- [01-cdk-best-practices.md](aws-cdk/01-cdk-best-practices.md) — Resource naming, RDS instance types, engine versions, region availability, quotas, global resources, circular refs, typed config, idempotent deploys

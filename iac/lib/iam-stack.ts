@@ -5,10 +5,12 @@ import * as sns from 'aws-cdk-lib/aws-sns';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
+import { EnvironmentConfig } from '../config/types';
 
 interface IamStackProps extends cdk.StackProps {
-  config: any;
+  config: EnvironmentConfig;
   cluster: eks.Cluster;
+  appNamespace: eks.KubernetesManifest;
   topics: Record<string, sns.Topic>;
   queues: Record<string, sqs.Queue>;
   dbSecret: secretsmanager.ISecret;
@@ -20,7 +22,7 @@ export class IamStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: IamStackProps) {
     super(scope, id, props);
 
-    const { config, cluster, topics, queues, dbSecret } = props;
+    const { config, cluster, appNamespace, topics, queues, dbSecret } = props;
     const ns = config.environment;
 
     this.serviceAccounts = {};
@@ -32,6 +34,8 @@ export class IamStack extends cdk.Stack {
       name: 'ordering-service',
       namespace: ns,
     });
+    // Ensure namespace exists before creating service account
+    orderingSa.node.addDependency(appNamespace);
     topics['ordering-events'].grantPublish(orderingSa);
     queues['ordering-from-preparation'].grantConsumeMessages(orderingSa);
     dbSecret.grantRead(orderingSa);
@@ -51,6 +55,7 @@ export class IamStack extends cdk.Stack {
       name: 'preparation-service',
       namespace: ns,
     });
+    preparationSa.node.addDependency(appNamespace);
     topics['preparation-events'].grantPublish(preparationSa);
     queues['preparation-from-ordering'].grantConsumeMessages(preparationSa);
     dbSecret.grantRead(preparationSa);
@@ -70,6 +75,7 @@ export class IamStack extends cdk.Stack {
       name: 'inventory-service',
       namespace: ns,
     });
+    inventorySa.node.addDependency(appNamespace);
     topics['inventory-events'].grantPublish(inventorySa);
     queues['inventory-from-preparation'].grantConsumeMessages(inventorySa);
     dbSecret.grantRead(inventorySa);
@@ -89,6 +95,7 @@ export class IamStack extends cdk.Stack {
       name: 'reporting-service',
       namespace: ns,
     });
+    reportingSa.node.addDependency(appNamespace);
     queues['reporting-from-ordering'].grantConsumeMessages(reportingSa);
     queues['reporting-from-inventory'].grantConsumeMessages(reportingSa);
     dbSecret.grantRead(reportingSa);

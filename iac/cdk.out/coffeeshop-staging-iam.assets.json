@@ -1,18 +1,18 @@
 {
   "version": "52.0.0",
   "files": {
-    "21fbb51d7b23f6a6c262b46a9caee79d744a3ac019fd45422d988b96d44b2a22": {
+    "c168c7e1882d81e18e7da5ddac7188ca35488ecd2a9c2af91d40947c09a66830": {
       "displayName": "coffeeshop-staging-iam Template",
       "source": {
         "path": "coffeeshop-staging-iam.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "584518143473-ap-east-2-d7e5cb3d": {
-          "bucketName": "cdk-hnb659fds-assets-584518143473-ap-east-2",
-          "objectKey": "21fbb51d7b23f6a6c262b46a9caee79d744a3ac019fd45422d988b96d44b2a22.json",
-          "region": "ap-east-2",
-          "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-file-publishing-role-584518143473-ap-east-2"
+        "584518143473-us-east-1-34d8b04f": {
+          "bucketName": "cdk-hnb659fds-assets-584518143473-us-east-1",
+          "objectKey": "c168c7e1882d81e18e7da5ddac7188ca35488ecd2a9c2af91d40947c09a66830.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::584518143473:role/cdk-hnb659fds-file-publishing-role-584518143473-us-east-1"
         }
       }
     }

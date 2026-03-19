@@ -66,6 +66,12 @@
       "data": "DbSecurityGroupE9D701AD"
     }
   ],
+  "/coffeeshop-staging-network/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
   "/coffeeshop-staging-network/Exports/Output{\"Ref\":\"CoffeeshopVpcPrivateSubnet1SubnetFE59E58C\"}": [
     {
       "type": "aws:cdk:logicalId",

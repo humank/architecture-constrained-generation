@@ -61,14 +61,14 @@ spec:
             httpGet:
               path: {{ $svc.healthCheck.path }}
               port: {{ $svc.port }}
-            initialDelaySeconds: 30
+            initialDelaySeconds: 90
             periodSeconds: 10
             failureThreshold: 3
           readinessProbe:
             httpGet:
               path: {{ $svc.healthCheck.path }}
               port: {{ $svc.port }}
-            initialDelaySeconds: 15
+            initialDelaySeconds: 60
             periodSeconds: 5
             failureThreshold: 3
           resources:

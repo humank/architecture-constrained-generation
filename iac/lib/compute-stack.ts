@@ -4,14 +4,16 @@ import * as eks from 'aws-cdk-lib/aws-eks';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { KubectlV31Layer } from '@aws-cdk/lambda-layer-kubectl-v31';
 import { Construct } from 'constructs';
+import { EnvironmentConfig } from '../config/types';
 
 interface ComputeStackProps extends cdk.StackProps {
-  config: any;
+  config: EnvironmentConfig;
   vpc: ec2.Vpc;
 }
 
 export class ComputeStack extends cdk.Stack {
   public readonly cluster: eks.Cluster;
+  public readonly appNamespace: eks.KubernetesManifest;
 
   constructor(scope: Construct, id: string, props: ComputeStackProps) {
     super(scope, id, props);
@@ -105,8 +107,8 @@ export class ComputeStack extends cdk.Stack {
       },
     });
 
-    // Create namespaces
-    const appNamespace = this.cluster.addManifest('AppNamespace', {
+    // Create namespaces — exported so dependent stacks can add dependency
+    this.appNamespace = this.cluster.addManifest('AppNamespace', {
       apiVersion: 'v1',
       kind: 'Namespace',
       metadata: { name: config.environment },

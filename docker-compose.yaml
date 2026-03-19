@@ -23,7 +23,7 @@ services:
     image: localstack/localstack:3.8
     environment:
       SERVICES: sns,sqs
-      DEFAULT_REGION: ap-east-2
+      DEFAULT_REGION: us-east-1
     ports:
       - "4566:4566"
     volumes:
@@ -42,10 +42,10 @@ services:
       SPRING_DATASOURCE_PASSWORD: coffeeshop_dev_password
       SPRING_FLYWAY_SCHEMAS: ordering
       AWS_ENDPOINT_URL: http://localstack:4566
-      AWS_REGION: ap-east-2
+      AWS_REGION: us-east-1
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
-      SNS_TOPIC_ARN: arn:aws:sns:ap-east-2:000000000000:ordering-events
+      SNS_TOPIC_ARN: arn:aws:sns:us-east-1:000000000000:ordering-events
       SQS_QUEUE_URL: http://localstack:4566/000000000000/ordering-from-preparation
     depends_on:
       postgres:
@@ -65,10 +65,10 @@ services:
       SPRING_DATASOURCE_PASSWORD: coffeeshop_dev_password
       SPRING_FLYWAY_SCHEMAS: preparation
       AWS_ENDPOINT_URL: http://localstack:4566
-      AWS_REGION: ap-east-2
+      AWS_REGION: us-east-1
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
-      SNS_TOPIC_ARN: arn:aws:sns:ap-east-2:000000000000:preparation-events
+      SNS_TOPIC_ARN: arn:aws:sns:us-east-1:000000000000:preparation-events
       SQS_QUEUE_URL: http://localstack:4566/000000000000/preparation-from-ordering
     depends_on:
       postgres:
@@ -88,10 +88,10 @@ services:
       SPRING_DATASOURCE_PASSWORD: coffeeshop_dev_password
       SPRING_FLYWAY_SCHEMAS: inventory
       AWS_ENDPOINT_URL: http://localstack:4566
-      AWS_REGION: ap-east-2
+      AWS_REGION: us-east-1
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
-      SNS_TOPIC_ARN: arn:aws:sns:ap-east-2:000000000000:inventory-events
+      SNS_TOPIC_ARN: arn:aws:sns:us-east-1:000000000000:inventory-events
       SQS_QUEUE_URL: http://localstack:4566/000000000000/inventory-from-preparation
     depends_on:
       postgres:
@@ -111,7 +111,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: coffeeshop_dev_password
       SPRING_FLYWAY_SCHEMAS: reporting
       AWS_ENDPOINT_URL: http://localstack:4566
-      AWS_REGION: ap-east-2
+      AWS_REGION: us-east-1
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       SQS_REPORTING_ORDERING_URL: http://localstack:4566/000000000000/reporting-from-ordering

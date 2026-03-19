@@ -1,6 +1,8 @@
-export const stagingConfig = {
+import { EnvironmentConfig } from './types';
+
+export const stagingConfig: EnvironmentConfig = {
   environment: 'staging',
-  region: 'ap-east-2',
+  region: 'us-east-1',
 
   vpc: {
     maxAzs: 2,
@@ -8,7 +10,7 @@ export const stagingConfig = {
   },
 
   rds: {
-    instanceType: 'db.t3.medium',
+    instanceType: 't3.medium', // Do NOT use 'db.' prefix — CDK adds it automatically
     multiAz: false,
     allocatedStorage: 20,
     backupRetention: 7,

@@ -131,7 +131,7 @@
     "AllocatedStorage": "20",
     "BackupRetentionPeriod": 7,
     "CopyTagsToSnapshot": true,
-    "DBInstanceClass": "db.db.t3.medium",
+    "DBInstanceClass": "db.t3.medium",
     "DBInstanceIdentifier": "coffeeshop-staging-db",
     "DBName": "coffeeshop",
     "DBSubnetGroupName": {
@@ -140,7 +140,7 @@
     "DeletionProtection": false,
     "EnablePerformanceInsights": true,
     "Engine": "postgres",
-    "EngineVersion": "16.4",
+    "EngineVersion": "16.6",
     "MasterUserPassword": {
      "Fn::Join": [
       "",
@@ -202,6 +202,15 @@
    "DeletionPolicy": "Delete",
    "Metadata": {
     "aws:cdk:path": "coffeeshop-staging-data/CoffeeshopDb/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/2VPyw6CMBD8Fu+lGjDeVRLjyQS8m6WsWKCFtFs9NP13i2hi9DSz88hkU56uM75awMMmou6SXlbclwSiY1G6eIvCIFkFGho00XrdbH/VbzbDGUyDtKVYvCnUX4FfJzBTW+5zIKjA4lFbAi2Qla7SSAczuHEq57s/4RMNTILivhh6nIwJQ5jYydHo4oAeauStXd7TjG/ib62VMjFOk1TIixmf1cukSfgAAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "coffeeshop-staging-data/CDKMetadata/Default"
    }
   }
  },
