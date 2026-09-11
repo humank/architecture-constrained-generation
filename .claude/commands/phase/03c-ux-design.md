@@ -1,5 +1,14 @@
 ---
 description: "Phase 3c: UX Design — Visual design system generation using ui-ux-pro-max, constrained by DDD actor views and tech stack"
+id: 03c-ux-design
+ordinal: 6
+step: all
+gate: human
+consumes:
+  - .arch/03-tactical/frontend-architecture.yaml
+produces:
+  - .arch/03c-ux-design/ux-design-report.yaml
+sensors: [files-exist]
 ---
 
 # Phase 3c: UX Design

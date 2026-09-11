@@ -27,9 +27,12 @@ test-strategy:
         - Recipe resolution tests must cover all 5 coffee types x 3 sizes = 15 combinations
         - Pricing tests must verify customization surcharges are additive
         - Use deterministic test data; avoid randomness
+      # Tooling comes from the locked assessment-8 answers, never from a template.
+      # backend_language: java-21 → JUnit 5. test_stack: vitest-testing-library-playwright.
       tools:
-        - framework: Jest (TypeScript) or pytest (Python)
-        - mocking: Built-in mocks / test doubles
+        - framework: JUnit 5 (backend domain), Vitest (frontend logic)
+        - component: Testing Library (React components)
+        - mocking: Mockito (backend), MSW (frontend HTTP)
 
     - level: Integration Tests
       coverage-target: "25%"

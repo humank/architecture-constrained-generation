@@ -1,0 +1,31 @@
+quality_report:
+  phase: 05-delivery
+  timestamp: 2026-09-11T15:32:47.473Z
+  status: fail
+  checks:
+    - name: files-exist
+      category: consistency
+      status: pass
+      message: 3 declared input(s) present for 05-delivery
+      recommendation: proceed
+    - name: decision-not-restated
+      category: consistency
+      status: fail
+      message: region mismatch — the lock and the infrastructure disagree
+        (.arch/assessment-2.yaml (region)=ap-east-2;
+        .arch/05-delivery/deployment-strategy.yaml=ap-east-2;
+        iac/config/staging.ts=us-east-1; iac/config/production.ts=us-east-1;
+        scripts/deploy.sh=<derived from lock>)
+      recommendation: block-fix-required
+    - name: e2e-story-coverage
+      category: consistency
+      status: pass
+      message: 3 to-be story/-ies have a journey feature and a pipeline smoke entry
+      recommendation: proceed
+    - name: messaging-matches-context-map
+      category: consistency
+      status: pass
+      message: 5 async context map edge(s) match the topics, queues and subscription
+        filters in iac/lib/messaging-stack.ts
+      recommendation: proceed
+  next_action: block-fix-required

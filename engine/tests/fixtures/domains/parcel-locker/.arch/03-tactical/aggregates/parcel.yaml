@@ -1,0 +1,24 @@
+aggregate:
+  name: Parcel
+  bounded_context: Custody
+  root_entity:
+    name: Parcel
+    identity: { field: parcelId, type: UUID }
+    fields:
+      - { name: lockerId, type: UUID }
+      - { name: state, type: ParcelState }
+  entities:
+    - name: CollectionCode
+      identity: { field: codeId, type: UUID }
+      fields:
+        - { name: value, type: string }
+        - { name: usedAt, type: DateTime, nullable: true }
+  value_objects:
+    - name: ParcelState
+      type: enum
+      values: [Deposited, Collected, Returned]
+  commands:
+    - name: DepositParcel
+    - name: CollectParcel
+  invariants:
+    - "A collection code opens exactly one locker, exactly once"

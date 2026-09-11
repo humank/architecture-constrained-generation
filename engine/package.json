@@ -1,0 +1,19 @@
+{
+  "name": "acg-engine",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "bun test tests/text.test.ts tests/state.test.ts tests/fixture-domains.test.ts tests/intent.test.ts tests/init.test.ts tests/workflow-loop.test.ts",
+    "test:sample": "bun test tests/sample-coffeeshop.test.ts tests/orchestrate.test.ts tests/cli.test.ts tests/assess.test.ts tests/applicability.test.ts tests/profile.test.ts",
+    "test:all": "bun test",
+    "acg": "bun src/acg.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "yaml": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
+  }
+}

@@ -1,0 +1,5 @@
+parsed_requirements:
+  actors: [對帳人員, 系統]
+  functional:
+    - "每日匯入交易檔並與帳務系統對帳"
+    - "差異必須逐筆列出，不得只給總額"

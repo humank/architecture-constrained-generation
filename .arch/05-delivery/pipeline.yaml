@@ -95,9 +95,10 @@ pipeline:
             - "  curl https://{cloudfront-domain}/api/orders?status=active → verify JSON array"
             - "  curl https://{cloudfront-domain}/api/orders?status=Placed → verify JSON array"
             - "  Verify CloudFront /api/* returns JSON (not index.html)"
-            - "Full lifecycle smoke test:"
-            - "  place_order → confirm → pay → prepare_all_items → deliver → complete"
-            - "  Executed via API calls against deployed URL"
+            - "Replay MVP domain story DS-01 (Order to Serve) against the deployed URL:"
+            - "  the @smoke scenario of features/journeys/DS-01-order-to-serve.feature"
+            - "  DS-01.5 place → DS-01.7 confirm → DS-01.9 pay → DS-01.10 handoff →"
+            - "  DS-01.12 start → DS-01.14 complete item → DS-01.15 ready → DS-01.17 deliver → DS-01.18 complete"
           rollback_on_failure: true
 
     - name: preparation-service
@@ -155,6 +156,7 @@ pipeline:
             - "curl -sf https://{cloudfront-domain}/api/preparations?status=Pending,InProgress"
             - "Expect: HTTP 200, Content-Type: application/json"
             - "Verify response is JSON array (not HTML)"
+            - "Participates in the DS-01 story replay: DS-01.11 queue, DS-01.12 start, DS-01.14 complete, DS-01.15 ready"
           rollback_on_failure: true
 
     - name: inventory-service
@@ -207,6 +209,8 @@ pipeline:
             - "curl -sf https://{cloudfront-domain}/api/inventory"
             - "Expect: HTTP 200, Content-Type: application/json, 4 material items"
             - "Verify alertTriggered field exists (not isAlertTriggered)"
+            - "Participates in the DS-01 story replay: DS-01.13 deduction"
+            - "Owns the DS-02 story replay: DS-02.2 alert through DS-02.8 confirmation"
           rollback_on_failure: true
 
     - name: reporting-service
@@ -255,6 +259,7 @@ pipeline:
             - "Expect: HTTP 200, Content-Type: application/json"
             - "Verify response is JSON object with totalOrders, totalRevenue fields"
             - "Verify response is NOT a raw order array"
+            - "Owns the DS-03 story replay: DS-03.1 sales report read"
           rollback_on_failure: true
 
     - name: frontend
@@ -321,7 +326,7 @@ pipeline:
             - "curl -sf https://{cloudfront-domain}/api/orders?status=active → verify JSON (not HTML)"
             - "Verify CloudFront dual-origin: S3 for static, ALB for /api/*"
             - "Verify SPA error responses: 404 → index.html (only for S3 default behavior)"
-            - "Full lifecycle smoke test via Playwright against deployed URL"
+            - "Replay DS-01, DS-02 and DS-03 @smoke journeys via Playwright against the deployed URL"
             - "Error resilience: scale one backend pod to 0, verify frontend shows error state"
           rollback_on_failure: true
 
@@ -347,13 +352,49 @@ pipeline:
         - "Verify response shape matches frontend types.ts"
         - "Verify semantic filter params work (e.g., ?status=active)"
     smoke_test:
-      type: "full-lifecycle"
-      steps: ["place_order", "confirm", "pay", "prepare_all_items", "deliver", "complete"]
-      timeout: 60s
+      type: "domain-story-replay"
+      description: >
+        Stage 8 replays MVP domain stories, not an invented step list. Each entry is a
+        story ID whose @smoke journey scenario lives in
+        .arch/04-specification/features/journeys/. `acg.ts gate --phase 05-delivery`
+        refuses the phase when a to-be story has no entry here.
+      stories:
+        - id: DS-01
+          name: "Order to Serve"
+          journey: .arch/04-specification/features/journeys/DS-01-order-to-serve.feature
+          actors: [Waiter, Counter Staff, Barista]
+          timeout: 90s
+        - id: DS-02
+          name: "Inventory Alert and Replenishment"
+          journey: .arch/04-specification/features/journeys/DS-02-replenishment.feature
+          actors: [Barista, Counter Staff]
+          timeout: 60s
+        - id: DS-03
+          name: "Daily Reporting Review"
+          journey: .arch/04-specification/features/journeys/DS-03-daily-reporting.feature
+          actors: [Counter Staff]
+          timeout: 30s
+      timeout: 180s
     error_resilience:
-      description: "Verify frontend shows error state when backend services unavailable"
+      description: >
+        Scale to 0 the services a story depends on, then check the error_state of that
+        story's DST actor view. A blank page or a plausible-looking empty list is a failure.
+      per_story:
+        - story: DS-01
+          scale_to_zero: [preparation-service]
+          actor: Waiter
+          expect_error_state: "Unable to load orders. Tap to retry."
+        - story: DS-02
+          scale_to_zero: [inventory-service]
+          actor: Barista
+          expect_error_state: "Unable to load inventory. Tap to retry."
+        - story: DS-03
+          scale_to_zero: [reporting-service]
+          actor: Counter Staff
+          expect_error_state: "Unable to load report. Tap to retry."
       steps:
-        - "Scale one backend pod to 0"
-        - "Verify frontend shows error message (not blank page)"
-        - "Scale back up"
+        - "Scale the story's dependency to 0 replicas"
+        - "Open that DST actor's view and assert the declared error_state text"
+        - "Assert the view does not render an empty success state"
+        - "Scale back up and re-run the story's @smoke scenario"
     rollback_on_failure: true

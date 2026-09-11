@@ -12,6 +12,60 @@ Phase to check: $ARGUMENTS (number 0-7, or "all")
 
 ## Procedure
 
+**Deterministic sensors first.** From the repo root:
+
+```bash
+bun engine/src/acg.ts gate --phase <id>      # run this phase's sensors
+bun engine/src/acg.ts sensors                # what is registered
+bun engine/src/acg.ts doctor                 # graph / frontmatter / input / lock drift
+bun engine/src/acg.ts lessons                # which sensor keeps rejecting which phase
+```
+
+`<id>` is an engine phase id (`01a-dst`, `04-specification`, `05-delivery`, …).
+The engine writes `.arch/quality-reports/<id>.yaml`. Blocking sensor failures
+are authoritative — **do not override them in prose, and do not re-argue them.**
+Findings marked `(advisory)` are reported but never gate completion. Findings marked
+`(not applicable)` mean the sensor could not evaluate this project — the message names
+the locked answer or missing profile entry that excluded it. Never read `na` as `pass`,
+and never argue a red sensor into `na` by editing the phase graph: applicability comes
+from a locked, fingerprinted answer or not at all.
+
+### What is already deterministic
+
+Do not re-check these by reading files; the sensor already did, and its verdict wins.
+
+| Sensor | Blocking | What it refuses |
+|---|---|---|
+| `files-exist` | yes | A phase consuming an artifact that is not on disk |
+| `schema-dst` | yes | Prose domain stories; a step missing `class` or `system_visible` |
+| `story-map-coverage` | yes | An MVP `US-*` no `DS-*` story covers; a one-way `covered_by` claim; a story with an invented backbone |
+| `dst-storm-correspondence` | yes | A visible state-change/handoff with no event; an actor-command with no DST sentence |
+| `hotspot-classified` | yes | An unclassified hot spot; an open `work-unknown` (send it back to 01a-dst) |
+| `swimlane-is-story` | yes | Swimlanes cut by bounded context instead of story; a DST read step with no read model |
+| `handoff-equals-context-map` | yes | A cross-context DST handoff missing from the context map |
+| `actor-view-sourced-from-dst` | yes | A page with no `sourced_from`, or one sourced from a step the system cannot see |
+| `cl-contract-declared` | yes | A missing CL-1..CL-8 declaration; an unclassified query parameter (Phase 3) |
+| `cl-contract-specified` | yes | A check with no Phase 4 scenario that does not say it is inapplicable |
+| `ephemeral-not-persisted` | yes | A spoken-only work object becoming an entity or a table |
+| `test-stack-matrix` | yes | A test strategy naming a runner the locked stack cannot run |
+| `gherkin-actor-matches-dst` | yes | A scenario giving a command to the wrong actor |
+| `e2e-story-coverage` | yes | A to-be story with no journey feature or no pipeline smoke entry |
+| `decision-not-restated` | yes | Infrastructure restating a locked decision as a literal that disagrees with it |
+| `docs-events-match-storm` | yes | A diagram inventing an event name |
+| `framework-version-matrix` | yes | A questionnaire framework version the build file cannot honour, in any ecosystem |
+| `source-fingerprint` | yes | An event with no type, a route no actor view declares, a story whose E2E file has no test in it |
+| `commands-implemented` | yes | A declared command that appears nowhere in the source |
+| `glossary-origin` | yes | A term with no origin; infrastructure vocabulary posing as domain language |
+| `quality-report-written` | no | A gate that ran outside the engine |
+| `god-aggregate` | no | An aggregate over its command/entity budget, or with no invariants |
+
+### What is still yours
+
+The anti-pattern table below covers what no sensor can decide: whether the model
+*means* anything. Anemic Domain Model, Smart UI, Big Ball of Mud and the semantic half
+of God Aggregate are read by you, and on phases marked `reviewer: true` by the
+independent `acg-reviewer` subagent as well.
+
 ### Step 1: Load artifacts for the specified phase
 
 Read from `.arch/` the artifacts produced by the target phase. Also always read `.arch/glossary.yaml`.

@@ -1,0 +1,22 @@
+quality_report:
+  phase: 01b-storm
+  timestamp: 2026-09-11T15:32:47.414Z
+  status: pass
+  checks:
+    - name: files-exist
+      category: consistency
+      status: pass
+      message: 1 declared input(s) present for 01b-storm
+      recommendation: proceed
+    - name: dst-storm-correspondence
+      category: consistency
+      status: pass
+      message: 16 visible state-change/handoff step(s) are sourced by an event, and 10
+        actor-command(s) trace back to a DST sentence
+      recommendation: proceed
+    - name: hotspot-classified
+      category: consistency
+      status: pass
+      message: 5 hot spot(s) classified; 1 open, all fact-unknown
+      recommendation: proceed
+  next_action: proceed

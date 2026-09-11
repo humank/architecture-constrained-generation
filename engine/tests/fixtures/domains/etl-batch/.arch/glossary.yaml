@@ -1,0 +1,12 @@
+glossary:
+  version: "0.1"
+  terms:
+    - term: 交易批次
+      origin: dst
+      definition: "一個營業日、一個來源的交易檔匯入後形成的批次"
+    - term: 差異清單
+      origin: dst
+      definition: "交易批次與帳務系統逐筆比對後不相符的項目"
+    - term: 交易檔
+      origin: dst
+      definition: "銀行寄達的當日交易明細，紙本或郵件"

@@ -57,6 +57,49 @@ For each question, assess:
 
 ### Step 4: Generate Assessment File
 
+Architecture and stack assessments are **engine locks**, not a Markdown status line.
+
+- Write structured answers to `.arch/assessment-2.yaml` / `.arch/assessment-8.yaml`
+  (schemas: `artifact-schemas/assessment-2.schema.json`,
+  `artifact-schemas/assessment-8.schema.json`).
+- The human fills answers (`status: draft` or `awaiting`).
+- Lock with `bun engine/src/acg.ts assess-lock --id assessment-2`.
+  Only the engine may set `status: locked`, `locked_at` and `fingerprint`.
+- Do not treat `**Status**: COMPLETED` in the Markdown questionnaire as source of truth.
+  The Markdown stays as the human-readable rendering; the engine reads only the YAML.
+- The lock refuses to close while a required answer is empty. `assessment-2` requires
+  `architecture_style, region, deployment_target, communication, database`;
+  `assessment-8` requires
+  `backend_language, backend_framework_requested, orm, frontend_framework, test_stack, iac`.
+
+**Record what was asked, not what is buildable.** If the human picks a framework
+version that the build cannot use, keep their answer in
+`backend_framework_requested` and leave `backend_framework_resolved` empty. The
+`framework-version-matrix` sensor then reports the conflict instead of the questionnaire
+quietly agreeing with the build file. Filling `_resolved` is a human decision.
+
+**The fingerprint is the tamper check.** `acg.ts next` and `acg.ts doctor` recompute
+the fingerprint from the answers. Editing a locked answer by hand makes every phase
+that consumes the lock `blocked` with "answers changed after lock". The fix is:
+
+```bash
+bun engine/src/acg.ts redo --phase 02-strategic   # or the first phase consuming it
+bun engine/src/acg.ts assess-lock --id assessment-2
+```
+
+`redo` cascades to every later phase, because a decision that moved invalidates
+everything downstream of it. `redo --only` limits it to the one phase, for the rare
+case where nothing downstream depended on the change.
+
+**Never restate a locked answer as a literal in infrastructure.** Read it:
+
+```bash
+bun engine/src/acg.ts locked-answer --id assessment-2 --key region
+```
+
+`locked-answer` refuses to answer while the assessment is unlocked or tampered with,
+which is exactly what `scripts/deploy.sh` relies on.
+
 ## Output
 
 Write to `.arch/assessment-{phase}.md`:

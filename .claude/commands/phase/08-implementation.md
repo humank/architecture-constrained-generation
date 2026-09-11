@@ -1,5 +1,21 @@
 ---
 description: "Phase 8: Implementation — Architecture-constrained code generation with tech-specific guidance"
+id: 08-implementation
+ordinal: 11
+step: all
+gate: human
+reviewer: true
+requires_lock: assessment-8
+consumes:
+  - .arch/03-tactical/aggregates/
+  - .arch/04-specification/features/
+  - .arch/01-discovery/domain-stories/
+  - .arch/assessment-8.yaml
+produces:
+  - services/
+  - frontend/
+  - shared-kernel/
+sensors: [files-exist, framework-version-matrix, test-stack-matrix, source-fingerprint, commands-implemented, cl-contract-specified]
 ---
 
 # Phase 8: Implementation
@@ -19,6 +35,7 @@ Read these files:
 ## Input — MUST Read ALL Before Writing Any Code
 
 Read EVERY artifact in `.arch/`:
+- `01-discovery/domain-stories/*.yaml` — Journey IDs (`DS-*`); class names and E2E tests MUST use these actors and stories
 - `00-requirements/parsed-requirements.yaml` — Business rules, constraints, pricing tables
 - `01-discovery/event-storm.yaml` — Events, commands, aggregates, policies
 - `01-discovery/event-model.yaml` — Command GWT specs, read models, automations, vertical slices

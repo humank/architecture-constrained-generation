@@ -1,0 +1,178 @@
+quality_report:
+  phase: 08-implementation
+  timestamp: 2026-09-11T15:32:47.980Z
+  status: fail
+  checks:
+    - name: files-exist
+      category: consistency
+      status: pass
+      message: 4 declared input(s) present for 08-implementation
+      recommendation: proceed
+    - name: framework-version-matrix
+      category: consistency
+      status: fail
+      message: build.gradle.kts has spring-boot 3.4.4, but the questionnaire asked for
+        spring-boot-4.x — set backend_framework_resolved to record which one
+        wins
+      recommendation: block-fix-required
+    - name: test-stack-matrix
+      category: consistency
+      status: pass
+      message: Test tooling matches the locked stack (junit, playwright, spock,
+        testng, vitest)
+      recommendation: proceed
+    - name: source-fingerprint
+      category: consistency
+      status: fail
+      message: Event Storm event OrderDelivered has no matching type in backend sources
+      recommendation: block-fix-required
+    - name: source-fingerprint
+      category: consistency
+      status: fail
+      message: Event Storm event PurchaseOrderCreated has no matching type in backend
+        sources
+      recommendation: block-fix-required
+    - name: source-fingerprint
+      category: consistency
+      status: fail
+      message: frontend/src/router.tsx routes "cashier", which no Actor View declares
+      recommendation: block-fix-required
+    - name: source-fingerprint
+      category: consistency
+      status: fail
+      message: frontend/src/router.tsx routes "barista", which no Actor View declares
+      recommendation: block-fix-required
+    - name: source-fingerprint
+      category: consistency
+      status: fail
+      message: Actor View declares the page "/waiter/orders/ready", which
+        frontend/src/router.tsx does not route
+      recommendation: block-fix-required
+    - name: source-fingerprint
+      category: consistency
+      status: fail
+      message: Actor View declares the page "/cashier/orders/pending", which
+        frontend/src/router.tsx does not route
+      recommendation: block-fix-required
+    - name: source-fingerprint
+      category: consistency
+      status: fail
+      message: Actor View declares the page "/cashier/orders/confirmed", which
+        frontend/src/router.tsx does not route
+      recommendation: block-fix-required
+    - name: source-fingerprint
+      category: consistency
+      status: fail
+      message: Actor View declares the page "/cashier/reports/sales", which
+        frontend/src/router.tsx does not route
+      recommendation: block-fix-required
+    - name: source-fingerprint
+      category: consistency
+      status: fail
+      message: Actor View declares the page "/barista/queue", which
+        frontend/src/router.tsx does not route
+      recommendation: block-fix-required
+    - name: source-fingerprint
+      category: consistency
+      status: fail
+      message: Actor View declares the page "/barista/inventory", which
+        frontend/src/router.tsx does not route
+      recommendation: block-fix-required
+    - name: source-fingerprint
+      category: consistency
+      status: fail
+      message: Actor View declares the page "/barista/inventory/replenish", which
+        frontend/src/router.tsx does not route
+      recommendation: block-fix-required
+    - name: source-fingerprint
+      category: consistency
+      status: fail
+      message: No end-to-end test file is named after DS-01 (searched 21 test file(s))
+      recommendation: block-fix-required
+    - name: source-fingerprint
+      category: consistency
+      status: fail
+      message: No end-to-end test file is named after DS-03 (searched 21 test file(s))
+      recommendation: block-fix-required
+    - name: source-fingerprint
+      category: consistency
+      status: fail
+      message: No end-to-end test file is named after DS-02 (searched 21 test file(s))
+      recommendation: block-fix-required
+    - name: commands-implemented
+      category: consistency
+      status: fail
+      message: Order declares the command PlaceOrder, which appears nowhere in the
+        source
+      recommendation: block-fix-required
+    - name: commands-implemented
+      category: consistency
+      status: fail
+      message: Order declares the command ConfirmOrder, which appears nowhere in the
+        source
+      recommendation: block-fix-required
+    - name: commands-implemented
+      category: consistency
+      status: fail
+      message: Order declares the command ProcessPayment, which appears nowhere in the
+        source
+      recommendation: block-fix-required
+    - name: commands-implemented
+      category: consistency
+      status: fail
+      message: Order declares the command MarkReady, which appears nowhere in the source
+      recommendation: block-fix-required
+    - name: commands-implemented
+      category: consistency
+      status: fail
+      message: Order declares the command DeliverOrder, which appears nowhere in the
+        source
+      recommendation: block-fix-required
+    - name: commands-implemented
+      category: consistency
+      status: fail
+      message: Order declares the command CompleteOrder, which appears nowhere in the
+        source
+      recommendation: block-fix-required
+    - name: commands-implemented
+      category: consistency
+      status: fail
+      message: Preparation declares the command StartPreparation, which appears
+        nowhere in the source
+      recommendation: block-fix-required
+    - name: commands-implemented
+      category: consistency
+      status: fail
+      message: Preparation declares the command CompleteCoffeePreparation, which
+        appears nowhere in the source
+      recommendation: block-fix-required
+    - name: commands-implemented
+      category: consistency
+      status: fail
+      message: InventoryItem declares the command DeductIngredient, which appears
+        nowhere in the source
+      recommendation: block-fix-required
+    - name: commands-implemented
+      category: consistency
+      status: fail
+      message: InventoryItem declares the command RequestReplenishment, which appears
+        nowhere in the source
+      recommendation: block-fix-required
+    - name: commands-implemented
+      category: consistency
+      status: fail
+      message: InventoryItem declares the command CreatePurchaseOrder, which appears
+        nowhere in the source
+      recommendation: block-fix-required
+    - name: commands-implemented
+      category: consistency
+      status: fail
+      message: InventoryItem declares the command ConfirmReplenishment, which appears
+        nowhere in the source
+      recommendation: block-fix-required
+    - name: cl-contract-specified
+      category: consistency
+      status: pass
+      message: 8 cross-layer check(s) specified in Phase 4 or declared not applicable
+      recommendation: proceed
+  next_action: block-fix-required

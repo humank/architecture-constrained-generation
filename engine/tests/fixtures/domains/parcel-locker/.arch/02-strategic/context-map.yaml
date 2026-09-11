@@ -1,0 +1,10 @@
+context_map:
+  style: modulith
+  communication: in_process_events
+  relationships:
+    - upstream: Storage
+      downstream: Custody
+      pattern: "Published Language"
+      integration:
+        mechanism: in-process event bus
+        events: [LockerReserved]

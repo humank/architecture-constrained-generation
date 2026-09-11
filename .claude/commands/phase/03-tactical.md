@@ -1,5 +1,19 @@
 ---
 description: "Phase 3: Tactical Design — Aggregates, Domain Model, Clean Architecture, Frontend Architecture"
+id: 03-tactical
+ordinal: 5
+step: all
+gate: human
+consumes:
+  - .arch/02-strategic/bounded-contexts.yaml
+  - .arch/01-discovery/event-storm.yaml
+  - .arch/01-discovery/domain-stories/
+produces:
+  - .arch/03-tactical/aggregates/
+  - .arch/03-tactical/domain-model/
+  - .arch/03-tactical/frontend-architecture.yaml
+sensors: [files-exist, actor-view-sourced-from-dst, cl-contract-declared, ephemeral-not-persisted]
+advisory_sensors: [god-aggregate]
 ---
 
 # Phase 3: Tactical Design

@@ -1,5 +1,15 @@
 ---
 description: "Phase 7: Documentation — C4 Model, Domain Diagrams, Living Documentation (all in Mermaid + Markdown)"
+id: 07-documentation
+ordinal: 10
+step: all
+gate: human
+consumes:
+  - .arch/06-review/adrs/
+  - .arch/01-discovery/event-storm.yaml
+produces:
+  - .arch/07-documentation/
+sensors: [files-exist, docs-events-match-storm]
 ---
 
 # Phase 7: Documentation

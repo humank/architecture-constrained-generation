@@ -1,0 +1,292 @@
+# The engine's control plane. Compiled once per workflow; the data plane only reads it.
+# Kept in sync with the `phase/*.md` frontmatter — `acg.ts doctor` fails on drift.
+#
+# sensors:            blocking. A failure refuses `[x]`.
+# advisory_sensors:   reported in the quality report, never gate completion.
+# reviewer:           an independent reviewer verdict is required before approval.
+#
+# A sensor may only ask for artifacts that exist by the phase it is mounted at. The
+# router is 08's output, so 03 checks a page's provenance and 08 checks its route;
+# `cl-contract` is split the same way. Getting this wrong made every greenfield UI
+# project unpassable at Phase 3, and `workflow-loop.test.ts` now asserts it structurally.
+#
+# `when:` makes a sensor, a produced path, a consumed path, or a whole phase conditional
+# on a LOCKED questionnaire answer — never on hand-editing this file, because a graph
+# users may edit is a graph where every red sensor gets deleted. An unlocked or
+# unanswered condition leaves the check ON: nothing is silently disabled. A condition
+# that excludes a sensor makes it report `na`, so "this does not apply here" stays an
+# auditable claim. Operators: equals | not | in | not_in | present.
+version: 3
+scope: system
+phases:
+  - id: 00-requirements
+    ordinal: 0
+    title: Requirements
+    skill: .claude/commands/phase/00-requirements.md
+    step: all
+    gate: human
+    consumes: []
+    produces:
+      - .arch/00-requirements/impact-map.yaml
+      - .arch/00-requirements/story-map.yaml
+      - .arch/00-requirements/parsed-requirements.yaml
+    sensors: []
+    advisory_sensors:
+      - quality-report-written
+
+  - id: 01a-dst
+    ordinal: 1
+    title: Domain Storytelling
+    skill: .claude/commands/phase/01-discovery.md
+    step: dst
+    gate: human
+    consumes:
+      - .arch/00-requirements/story-map.yaml
+      - .arch/00-requirements/parsed-requirements.yaml
+    # Owned by Phase 0, updated here: 01a is what replaces `covered_by: pending_story`
+    # with the DS id. Contribution, not ownership — see `also_writes` in types.ts.
+    also_writes:
+      - .arch/00-requirements/story-map.yaml
+    produces:
+      - .arch/01-discovery/domain-stories/
+      # The Ubiquitous Language starts here. Later phases add to it; `glossary-origin`
+      # blocks Phase 6 on it, so some phase has to be told to create it.
+      - .arch/glossary.yaml
+    sensors:
+      - files-exist
+      - schema-dst
+      - story-map-coverage
+    advisory_sensors:
+      - glossary-origin
+
+  - id: 01b-storm
+    ordinal: 2
+    title: Event Storming
+    skill: .claude/commands/phase/01-discovery.md
+    step: storm
+    gate: human
+    consumes:
+      - .arch/01-discovery/domain-stories/
+    produces:
+      - .arch/01-discovery/event-storm.yaml
+    sensors:
+      - files-exist
+      - dst-storm-correspondence
+      - hotspot-classified
+
+  - id: 01c-model
+    ordinal: 3
+    title: Event Modeling
+    skill: .claude/commands/phase/01-discovery.md
+    step: model
+    gate: human
+    consumes:
+      - .arch/01-discovery/event-storm.yaml
+      - .arch/01-discovery/domain-stories/
+    produces:
+      - .arch/01-discovery/event-model.yaml
+    sensors:
+      - files-exist
+      - swimlane-is-story
+
+  - id: 02-strategic
+    ordinal: 4
+    title: Strategic Design
+    skill: .claude/commands/phase/02-strategic.md
+    step: all
+    gate: human
+    requires_lock: assessment-2
+    consumes:
+      - .arch/01-discovery/event-storm.yaml
+      - .arch/01-discovery/domain-stories/
+      - .arch/assessment-2.yaml
+    produces:
+      - .arch/02-strategic/bounded-contexts.yaml
+      - .arch/02-strategic/context-map.yaml
+    sensors:
+      - files-exist
+      - handoff-equals-context-map
+
+  - id: 03-tactical
+    ordinal: 5
+    title: Tactical Design
+    skill: .claude/commands/phase/03-tactical.md
+    step: all
+    gate: human
+    consumes:
+      - .arch/02-strategic/bounded-contexts.yaml
+      - .arch/01-discovery/event-storm.yaml
+      - .arch/01-discovery/domain-stories/
+    produces:
+      - .arch/03-tactical/aggregates/
+      - .arch/03-tactical/domain-model/
+      - path: .arch/03-tactical/frontend-architecture.yaml
+        when: { assessment: assessment-2, key: ui_kind, not_in: [none, api-only, cli] }
+    sensors:
+      - files-exist
+      - id: actor-view-sourced-from-dst
+        when: { assessment: assessment-2, key: ui_kind, not_in: [none, api-only, cli] }
+      - id: cl-contract-declared
+        when: { assessment: assessment-2, key: ui_kind, not_in: [none, api-only, cli] }
+      - ephemeral-not-persisted
+    advisory_sensors:
+      - god-aggregate
+
+  # No interface, no design system. The whole phase is absent for an API-only or CLI
+  # system, and the engine records that as [S] with the reason.
+  - id: 03c-ux-design
+    ordinal: 6
+    title: UX Design
+    skill: .claude/commands/phase/03c-ux-design.md
+    step: all
+    gate: human
+    when: { assessment: assessment-2, key: ui_kind, not_in: [none, api-only, cli] }
+    consumes:
+      - .arch/03-tactical/frontend-architecture.yaml
+    produces:
+      - .arch/03c-ux-design/ux-design-report.yaml
+    sensors:
+      - files-exist
+
+  - id: 04-specification
+    ordinal: 7
+    title: Specification
+    skill: .claude/commands/phase/04-specification.md
+    step: all
+    gate: human
+    consumes:
+      - .arch/03-tactical/aggregates/
+      - path: .arch/03-tactical/frontend-architecture.yaml
+        when: { assessment: assessment-2, key: ui_kind, not_in: [none, api-only, cli] }
+      - .arch/01-discovery/domain-stories/
+    produces:
+      - .arch/04-specification/features/
+      - .arch/04-specification/contracts/
+      - .arch/04-specification/test-strategy.yaml
+      - .arch/04-specification/threat-model.yaml
+    sensors:
+      - files-exist
+      - gherkin-actor-matches-dst
+      - e2e-story-coverage
+      - id: cl-contract-specified
+        when: { assessment: assessment-2, key: ui_kind, not_in: [none, api-only, cli] }
+      - test-stack-matrix
+
+  - id: 05-delivery
+    ordinal: 8
+    title: Delivery
+    skill: .claude/commands/phase/05-delivery.md
+    step: all
+    gate: human
+    requires_lock: assessment-2
+    consumes:
+      - .arch/02-strategic/bounded-contexts.yaml
+      - .arch/04-specification/features/
+      - .arch/assessment-2.yaml
+    produces:
+      - .arch/05-delivery/pipeline.yaml
+      - .arch/05-delivery/deployment-strategy.yaml
+      - .arch/05-delivery/observability/
+      - .arch/05-delivery/runbooks/
+      - path: iac/
+        when: { assessment: assessment-2, key: deployment_target, not_in: [none, on-prem] }
+      - path: k8s/
+        when: { assessment: assessment-2, key: deployment_target, in: [eks, gke, aks, k8s] }
+    sensors:
+      - files-exist
+      - id: decision-not-restated
+        when: { assessment: assessment-2, key: deployment_target, not_in: [none, on-prem] }
+      - e2e-story-coverage
+      - id: messaging-matches-context-map
+        when: { assessment: assessment-2, key: communication, not_in: [sync_http, in_process_events, none] }
+
+  - id: 06-review
+    ordinal: 9
+    title: Architecture Review
+    skill: .claude/commands/phase/06-review.md
+    step: all
+    gate: human
+    reviewer: true
+    consumes:
+      - .arch/05-delivery/pipeline.yaml
+      - .arch/03-tactical/aggregates/
+      - .arch/01-discovery/domain-stories/
+    produces:
+      - .arch/06-review/viewpoints/
+      - .arch/06-review/adrs/
+      - .arch/06-review/perspectives.md
+    sensors:
+      - files-exist
+      - docs-events-match-storm
+      - glossary-origin
+
+  - id: 07-documentation
+    ordinal: 10
+    title: Documentation
+    skill: .claude/commands/phase/07-documentation.md
+    step: all
+    gate: human
+    consumes:
+      - .arch/06-review/adrs/
+      - .arch/01-discovery/event-storm.yaml
+    produces:
+      - .arch/07-documentation/
+    sensors:
+      - files-exist
+      - docs-events-match-storm
+
+  - id: 08-implementation
+    ordinal: 11
+    title: Implementation
+    skill: .claude/commands/phase/08-implementation.md
+    step: all
+    gate: human
+    reviewer: true
+    requires_lock: assessment-8
+    consumes:
+      - .arch/03-tactical/aggregates/
+      - .arch/04-specification/features/
+      - .arch/01-discovery/domain-stories/
+      - .arch/assessment-8.yaml
+    produces:
+      - services/
+      - path: frontend/
+        when: { assessment: assessment-2, key: ui_kind, not_in: [none, api-only, cli] }
+      - shared-kernel/
+    sensors:
+      - files-exist
+      # Not `equals: jvm`. The sensor reads the build file the profile declares for
+      # whatever ecosystem is locked, and reports n/a itself when the profile knows
+      # none. Pinning the condition to jvm made it silently skip every Node, Python and
+      # Go project — with a reason that sounded legitimate.
+      - id: framework-version-matrix
+        when: { assessment: assessment-8, key: backend_ecosystem, not: none }
+      # Also runs at 04, where an undecided stack reports n/a. Here assessment-8 is a
+      # required lock, so the n/a branch cannot be reached and the check always bites.
+      - test-stack-matrix
+      - source-fingerprint
+      # Names lining up is what a generator produces when it produces nothing else.
+      - commands-implemented
+      - id: cl-contract-specified
+        when: { assessment: assessment-2, key: ui_kind, not_in: [none, api-only, cli] }
+
+  - id: 09-deploy
+    ordinal: 12
+    title: Deploy and Verify
+    skill: .claude/commands/phase/09-deploy.md
+    step: all
+    gate: human
+    requires_lock: assessment-2
+    consumes:
+      - services/
+      - path: iac/
+        when: { assessment: assessment-2, key: deployment_target, not_in: [none, on-prem] }
+      - .arch/05-delivery/pipeline.yaml
+      - .arch/01-discovery/domain-stories/
+    produces:
+      - .arch/08-implementation/implementation-report.md
+    sensors:
+      - files-exist
+      - id: decision-not-restated
+        when: { assessment: assessment-2, key: deployment_target, not_in: [none, on-prem] }
+      - e2e-story-coverage

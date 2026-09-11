@@ -12,7 +12,7 @@ Feature: Query Endpoints with Semantic Filters and Enum Literals
       | order-4  | 4           | Ready     | 200         |
       | order-5  | 5           | Completed | 340         |
 
-  # === Semantic Filter: ?status=active ===
+  # === CL-1: Semantic Filter vs enum literal: ?status=active ===
   # 'active' is NOT an OrderStatus enum value — it means "all non-COMPLETED orders"
 
   Scenario: Query active orders returns all non-completed orders (semantic filter)
@@ -35,7 +35,7 @@ Feature: Query Endpoints with Semantic Filters and Enum Literals
     And the response should be an empty JSON array "[]"
     And the response should NOT be null
 
-  # === Enum Literal: ?status=Placed ===
+  # === CL-1: Enum Literal: ?status=Placed ===
   # 'Placed' IS an OrderStatus enum value — backend uses Enum.valueOf()
 
   Scenario: Query orders by exact enum status Placed (enum literal)

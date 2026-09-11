@@ -1,0 +1,11 @@
+id: assessment-8
+status: draft
+answers:
+  backend_language: typescript-5
+  backend_ecosystem: node
+  backend_framework_requested: nestjs
+  backend_framework_resolved: ""
+  orm: prisma
+  frontend_framework: react
+  test_stack: vitest-testing-library-playwright
+  iac: cdk-typescript

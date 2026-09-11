@@ -1,0 +1,58 @@
+quality_report:
+  phase: 06-review
+  timestamp: 2026-09-11T15:32:47.482Z
+  status: fail
+  checks:
+    - name: files-exist
+      category: consistency
+      status: pass
+      message: 3 declared input(s) present for 06-review
+      recommendation: proceed
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/06-review/viewpoints/information-viewpoint.md: event-like name
+        "InventoryDeducted" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/06-review/viewpoints/information-viewpoint.md: event-like name
+        "PreparationCompleted" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/06-review/viewpoints/functional-viewpoint.md: event-like name
+        "InventoryDeducted" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/06-review/viewpoints/deployment-viewpoint.md: event-like name
+        "PreparationCompleted" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/06-review/viewpoints/deployment-viewpoint.md: event-like name
+        "InventoryDeducted" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/06-review/viewpoints/concurrency-viewpoint.md: event-like name
+        "PreparationCompleted" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/06-review/adrs/adr-002-sns-sqs.md: event-like name
+        "PreparationCompleted" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: glossary-origin
+      category: consistency
+      status: pass
+      message: 34 glossary term(s) declare an origin
+      recommendation: proceed
+  next_action: block-fix-required

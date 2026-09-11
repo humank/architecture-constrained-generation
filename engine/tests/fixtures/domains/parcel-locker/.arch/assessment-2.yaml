@@ -1,0 +1,16 @@
+id: assessment-2
+# This fixture's job is the UI + cloud path, so it answers the questions that switch
+# those sensors ON. etl-batch is the fixture that exercises the `na` paths.
+status: draft
+answers:
+  architecture_style: modulith
+  team_topology: single_team
+  communication: in_process_events
+  database: single_schema
+  deployment_target: ecs
+  region: eu-west-1
+  account_strategy: single
+  vpc_design: public_private
+  iac: cdk-typescript
+  profile: aws-cdk-ts
+  ui_kind: spa

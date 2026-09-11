@@ -4,121 +4,178 @@ glossary:
 
   terms:
     - term: Order
+      origin: dst
       definition: "A customer's request for one or more coffee items at a specific table"
       aliases: []
       context: "Created by Waiter, confirmed by Counter Staff"
 
     - term: Order Item
+      origin: dst
       definition: "A single line in an order: coffee type + size + quantity + customizations"
       aliases: ["line item"]
 
     - term: Table
+      origin: dst
       definition: "Physical seating location identified by number 1-5"
       aliases: []
 
     - term: Menu
+      origin: dst
       definition: "Available coffee products with sizes and prices"
       aliases: []
 
     - term: Customization
+      origin: dst
       definition: "Optional modification to a coffee item (foam level, cappuccino style, whipped cream, soy milk)"
       aliases: ["modification"]
 
     - term: Surcharge
+      origin: dst
       definition: "Additional cost for a customization (e.g., +$20 for whipped cream)"
       aliases: []
 
     - term: Recipe
+      origin: dst
       definition: "Exact ingredient quantities for preparing a specific coffee type/size/customization"
       aliases: []
 
     - term: Shot
+      origin: dst
       definition: "Base espresso unit: 20g coffee beans → 30ml espresso"
       aliases: ["espresso shot"]
 
     - term: Preparation
+      origin: dst
       definition: "The act of making a coffee item following its recipe"
       aliases: ["brewing", "making"]
 
     - term: Inventory
+      origin: dst
       definition: "Current stock levels of raw materials (coffee beans, milk, soy milk, filter paper)"
       aliases: ["stock"]
 
     - term: Material
+      origin: dst
       definition: "A raw ingredient used in coffee preparation"
       aliases: ["ingredient", "raw material"]
 
     - term: Low-Stock Alert
+      origin: dst
       definition: "Automatic notification when any material drops below 30% of max capacity"
       aliases: ["stock alert", "threshold alert"]
 
     - term: Replenishment
+      origin: dst
       definition: "Process of restoring material stock to 100% (request → purchase → confirm delivery)"
       aliases: ["restock"]
 
     - term: Replenishment SLA
+      origin: dst
       definition: "3-day maximum time from request to delivery confirmation"
       aliases: []
 
     - term: Cash Payment
+      origin: dst
       definition: "The only accepted payment method — physical cash tendered at counter"
       aliases: ["payment"]
 
     - term: Counter Staff
+      origin: dst
       definition: "Staff member at the counter who confirms orders, processes payments, handles purchasing"
       aliases: ["Cashier"]
 
     - term: Waiter
+      origin: dst
       definition: "Staff member who takes orders at tables and delivers prepared coffee"
       aliases: []
 
     - term: Barista
+      origin: dst
       definition: "Staff member who prepares coffee, manages ingredients, requests replenishment"
       aliases: []
 
     - term: Customer
+      origin: dst
       definition: "Person who visits the shop, orders coffee, and pays"
       aliases: ["guest"]
 
     # Phase 1-3 additions
     - term: Bounded Context
+      origin: strategic
       definition: "A logical boundary within the domain with its own ubiquitous language and model"
       aliases: ["BC"]
       context: "Ordering, Preparation, Inventory, Reporting"
 
     - term: Aggregate
+      origin: tactical
       definition: "A cluster of domain objects treated as a unit for data changes, with a root entity"
       aliases: []
 
     - term: Domain Event
+      origin: storm
       definition: "A record of something significant that happened in the domain (e.g., OrderPlaced, PreparationStarted)"
       aliases: ["event"]
 
     - term: Outbox Pattern
+      origin: technical
       definition: "Transactional outbox table ensuring reliable event publishing — writes event to DB in same transaction as state change, poller publishes to SNS"
       aliases: ["transactional outbox"]
 
     - term: Dead Letter Queue
+      origin: technical
       definition: "SQS queue that receives messages that failed processing after max retries"
       aliases: ["DLQ"]
 
     - term: Order Status
+      origin: tactical
       definition: "Lifecycle state: Placed → Confirmed → Paid → Ready → Delivered → Completed"
       aliases: []
 
     - term: Preparation Status
+      origin: tactical
       definition: "Lifecycle state: Pending → InProgress → Ready"
       aliases: []
 
     - term: Recipe Resolution
+      origin: tactical
       definition: "Domain service that calculates exact ingredient quantities based on coffee type, size, and customizations"
       aliases: ["StandardRecipeResolution"]
 
     - term: Ingredient Deduction
+      origin: storm
       definition: "Reducing inventory level when Barista starts preparation, based on resolved recipe"
       aliases: ["stock deduction"]
 
     - term: Subscription Filter
+      origin: technical
       definition: "SNS filter policy on SQS subscription to only receive specific event types"
       aliases: ["message filter"]
       context: "CRITICAL: inventory-from-preparation queue must filter for PreparationStarted only"
+
+    # Discovered in Domain Storytelling (DS-01..DS-03); added when glossary-origin
+    # reported them missing from the Ubiquitous Language.
+    - term: DrinkChoice
+      origin: dst
+      definition: "What the Customer says out loud at the table — spoken, ephemeral, never persisted. DS-01.2."
+      aliases: ["drink choice"]
+      context: "Must NOT become an entity or a table: it exists only until the Waiter enters the Order"
+
+    - term: BaristaQueue
+      origin: dst
+      definition: "Read model of paid orders awaiting preparation, with resolved recipes. DS-01.11."
+      aliases: ["barista queue"]
+
+    - term: ReadyOrders
+      origin: dst
+      definition: "Read model of orders whose every item is prepared, grouped by table. DS-01.16."
+      aliases: ["ready orders"]
+
+    - term: Purchase Order
+      origin: dst
+      definition: "Counter Staff's record of what was ordered from the Supplier to restock a material. DS-02.6."
+      aliases: ["PO"]
+
+    - term: Sales Report
+      origin: dst
+      definition: "Read model of completed-order totals by day, week and month, plus orders by hour. DS-03.1."
+      aliases: ["SalesReport"]

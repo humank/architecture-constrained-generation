@@ -1,0 +1,23 @@
+id: assessment-8
+status: locked
+generated_at: 2026-03-19
+locked_at: 2026-09-07T13:55:14.164Z
+fingerprint: 6aceaf90b0023e27025480cdc6ce6d16775c72b22bfe6936f5d4ec144b81a13d
+source_markdown: .arch/assessment-8.md
+answers:
+  backend_language: java-21
+  backend_ecosystem: jvm
+  backend_framework_requested: spring-boot-4.x
+  backend_framework_resolved: ""
+  orm: spring-data-jpa
+  migration_tool: flyway
+  frontend_framework: react-typescript
+  frontend_build: vite
+  css: tailwind
+  component_library: shadcn-ui
+  state_management: tanstack-query
+  api_client: axios
+  test_stack: vitest-testing-library-playwright
+  routing: react-router-v7
+  monorepo: turborepo
+  iac: cdk-typescript

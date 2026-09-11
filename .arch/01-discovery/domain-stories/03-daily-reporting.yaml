@@ -1,0 +1,42 @@
+story:
+  id: DS-03
+  name: Daily Reporting Review
+  purity: to-be-only
+  purity_reason: >
+    Requirements name the reports the shop wants (sales by day/week/month, live
+    inventory) but no as-is reporting habit was observed — today the owner counts
+    the till. Purity is explicit so the gap stays visible.
+  backbone: Reporting
+  covers: [US-19, US-20]
+  actors: [Counter Staff, System]
+  steps:
+    - id: DS-03.1
+      sequence: 1
+      actor: Counter Staff
+      activity: reviews
+      work_object: SalesReport
+      medium: digital
+      class: read
+      system_visible: true
+      notes: Daily, weekly and monthly totals, revenue, orders by hour.
+
+    - id: DS-03.2
+      sequence: 2
+      actor: Counter Staff
+      activity: reviews
+      work_object: Inventory
+      medium: digital
+      class: read
+      system_visible: true
+      notes: >
+        US-20. Same read model the Barista uses in DS-02.1, seen by a different
+        actor for a different reason: purchasing, not brewing.
+
+  annotations:
+    - "Reads only. No step in this story changes domain state, so it produces no command and no event."
+    - "Reporting is a downstream read model — the report is never the record. Numbers come from OrderCompleted and IngredientDeducted."
+    - "DESIGN GAP: DS-03.2 has no Actor View page — frontend-architecture gives the inventory dashboard to Barista only. Either Counter Staff gets the page, or US-20 is not MVP."
+    - "Choosing a reporting period (day/week/month) is a UI filter, not a domain step."
+  discovered_terms:
+    - SalesReport
+    - Inventory

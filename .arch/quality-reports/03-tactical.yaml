@@ -1,0 +1,32 @@
+quality_report:
+  phase: 03-tactical
+  timestamp: 2026-09-11T15:32:47.447Z
+  status: pass
+  checks:
+    - name: files-exist
+      category: consistency
+      status: pass
+      message: 3 declared input(s) present for 03-tactical
+      recommendation: proceed
+    - name: actor-view-sourced-from-dst
+      category: consistency
+      status: pass
+      message: 9 page(s) across 3 actor view(s) cite a system-visible DST step
+      recommendation: proceed
+    - name: cl-contract-declared
+      category: consistency
+      status: pass
+      message: 8 cross-layer check(s) declared with a rule; query params classified
+      recommendation: proceed
+    - name: ephemeral-not-persisted
+      category: consistency
+      status: pass
+      message: 1 spoken work object(s) (drinkchoice) stay out of the 33 persisted
+        name(s)
+      recommendation: proceed
+    - name: god-aggregate
+      category: advisory
+      status: pass
+      message: 4 aggregate(s) within command and entity budgets
+      recommendation: proceed
+  next_action: proceed

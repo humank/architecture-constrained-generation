@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://acg.local/schemas/assessment-2.json",
+  "title": "Architecture Decision Assessment",
+  "type": "object",
+  "required": [
+    "id",
+    "status",
+    "answers"
+  ],
+  "properties": {
+    "id": {
+      "const": "assessment-2"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "awaiting",
+        "locked"
+      ]
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "locked_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "fingerprint": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_markdown": {
+      "type": "string"
+    },
+    "answers": {
+      "type": "object",
+      "required": [
+        "architecture_style",
+        "team_topology",
+        "communication",
+        "database",
+        "deployment_target",
+        "region",
+        "account_strategy",
+        "vpc_design",
+        "ui_kind"
+      ],
+      "properties": {
+        "architecture_style": {
+          "enum": [
+            "modular_monolith",
+            "microservices",
+            "serverless"
+          ]
+        },
+        "team_topology": {
+          "enum": [
+            "single",
+            "small",
+            "multiple"
+          ]
+        },
+        "communication": {
+          "enum": [
+            "in_process",
+            "async_sns_sqs",
+            "sync_http",
+            "hybrid"
+          ]
+        },
+        "database": {
+          "enum": [
+            "schema_per_bc",
+            "database_per_service",
+            "single_schema"
+          ]
+        },
+        "deployment_target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Where it runs: eks | ecs | lambda | gke | vm | on-prem | none. `on-prem` and `none` switch the cloud-region sensors to n/a."
+        },
+        "region": {
+          "type": "string",
+          "minLength": 1
+        },
+        "account_strategy": {
+          "enum": [
+            "single",
+            "multi"
+          ]
+        },
+        "vpc_design": {
+          "enum": [
+            "public_private",
+            "private_only",
+            "default"
+          ]
+        },
+        "iac": {
+          "type": "string"
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ui_kind": {
+          "enum": [
+            "spa",
+            "mpa",
+            "mobile",
+            "cli",
+            "api-only",
+            "none"
+          ],
+          "description": "What kind of interface people use. Decided before Phase 3, because it determines whether actor views and the cross-layer type contract apply at all. `api-only`, `cli` and `none` switch the frontend sensors to n/a."
+        },
+        "profile": {
+          "type": "string",
+          "description": "Tech profile id (engine/data/profiles/*.yaml): where the ecosystem-bound sensors should look for values \u2014 aws-cdk-ts, terraform-aws, gcp-terraform, none, generic. Omit and the engine infers it from `iac` and `deployment_target`."
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

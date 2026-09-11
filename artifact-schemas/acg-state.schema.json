@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://acg.local/schemas/acg-state.json",
+  "title": "ACG Engine State",
+  "description": "The engine's own record of where a workflow stands. Written only by `bun engine/src/acg.ts`; a PreToolUse hook refuses every other writer. Nothing here may be hand-edited \u2014 use report, review, jump, redo, scope or import.",
+  "type": "object",
+  "required": [
+    "version",
+    "scope",
+    "phases",
+    "cursor"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "project": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "string",
+      "description": "A scope name from engine/data/scopes.yaml. Determines which phases are on the board."
+    },
+    "imported_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "updated_at": {
+      "type": "string"
+    },
+    "cursor": {
+      "type": "object",
+      "description": "The first phase that is neither completed nor skipped. Derived on every save, never set by hand.",
+      "required": [
+        "phase",
+        "state"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "phase": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state": {
+          "enum": [
+            "pending",
+            "in_progress",
+            "awaiting_approval",
+            "revising",
+            "completed",
+            "skipped",
+            "done"
+          ]
+        }
+      }
+    },
+    "phases": {
+      "type": "object",
+      "description": "One record per phase in scope, keyed by phase id.",
+      "additionalProperties": {
+        "$ref": "#/$defs/phaseRecord"
+      }
+    },
+    "locks": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/lock"
+      }
+    }
+  },
+  "$defs": {
+    "phaseState": {
+      "description": "[ ] pending \u2192 [-] in_progress \u2192 [?] awaiting_approval \u2192 [x] completed; [R] revising on rejection; [S] skipped by jump. Illegal transitions throw.",
+      "enum": [
+        "pending",
+        "in_progress",
+        "awaiting_approval",
+        "revising",
+        "completed",
+        "skipped"
+      ]
+    },
+    "phaseRecord": {
+      "type": "object",
+      "required": [
+        "state"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "state": {
+          "$ref": "#/$defs/phaseState"
+        },
+        "completed_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "blockers": {
+          "type": "array",
+          "description": "Blocking sensor failures, or a human/reviewer rejection. Non-empty means the phase cannot be approved.",
+          "items": {
+            "$ref": "#/$defs/finding"
+          }
+        },
+        "advisories": {
+          "type": "array",
+          "description": "Non-blocking findings from the last gate. Reported, never gating.",
+          "items": {
+            "$ref": "#/$defs/finding"
+          }
+        },
+        "skip_reason": {
+          "type": "string",
+          "description": "Why `jump` skipped this phase. Present only on skipped phases."
+        },
+        "review": {
+          "description": "Independent reviewer verdict. Required before approval on phases marked reviewer: true. Null means not yet reviewed.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "required": [
+                "verdict",
+                "at"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "verdict": {
+                  "enum": [
+                    "approved",
+                    "rejected"
+                  ]
+                },
+                "note": {
+                  "type": "string"
+                },
+                "at": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        },
+        "approved_with_lock": {
+          "description": "The decision lock this phase was approved under. `lockIntegrity` catches answers edited without re-locking; this catches the other direction \u2014 a legitimate re-lock after approval, which would otherwise leave the phase `[x]` under answers it never saw. `next` and `doctor` refuse to advance until a redo.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "required": [
+                "id",
+                "fingerprint"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "fingerprint": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "required": [
+        "sensor",
+        "status",
+        "blocking",
+        "message"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "sensor": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "warn",
+            "fail",
+            "na"
+          ],
+          "description": "`na` means the sensor could not evaluate this project (no frontend, an unlocked assessment, an unreadable Gherkin dialect). Always non-blocking, always reported."
+        },
+        "blocking": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "lock": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "draft",
+            "awaiting",
+            "locked"
+          ]
+        },
+        "fingerprint": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "sha256 of the canonical answers. Recomputed on every `next` and `doctor`: a mismatch means the answers were edited after locking."
+        },
+        "locked_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

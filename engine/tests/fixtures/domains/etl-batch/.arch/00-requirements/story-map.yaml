@@ -1,0 +1,16 @@
+story_map:
+  backbone:
+    - activity: "每日對帳"
+      steps:
+        - step: "匯入交易檔"
+          stories:
+            - id: US-01
+              story: "身為對帳人員，我要匯入當日交易檔"
+              priority: MVP
+              covered_by: DS-01
+        - step: "產生差異報告"
+          stories:
+            - id: US-02
+              story: "身為對帳人員，我要看到與帳務系統的差異清單"
+              priority: MVP
+              covered_by: DS-01

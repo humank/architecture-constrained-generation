@@ -1,0 +1,83 @@
+quality_report:
+  phase: 04-specification
+  timestamp: 2026-09-11T15:32:47.465Z
+  status: fail
+  checks:
+    - name: files-exist
+      category: consistency
+      status: pass
+      message: 3 declared input(s) present for 04-specification
+      recommendation: proceed
+    - name: gherkin-actor-matches-dst
+      category: consistency
+      status: fail
+      message: '.arch/04-specification/features/inventory.feature: "When the manager
+        requests replenishment for coffee_beans" treats RequestReplenishment as
+        manager, but Event Storm / DST actor is Barista'
+      recommendation: block-fix-required
+    - name: gherkin-actor-matches-dst
+      category: consistency
+      status: fail
+      message: '.arch/04-specification/features/inventory.feature: "When the manager
+        confirms the replenishment for coffee_beans" treats ConfirmReplenishment
+        as manager, but Event Storm / DST actor is Barista'
+      recommendation: block-fix-required
+    - name: gherkin-actor-matches-dst
+      category: consistency
+      status: fail
+      message: '.arch/04-specification/features/ordering.feature: "When the cashier
+        places an order for Table 3 with the following items:" treats PlaceOrder
+        as Counter Staff, but Event Storm / DST actor is Waiter'
+      recommendation: block-fix-required
+    - name: gherkin-actor-matches-dst
+      category: consistency
+      status: fail
+      message: '.arch/04-specification/features/ordering.feature: "When the cashier
+        places an order for Table 0 with the following items:" treats PlaceOrder
+        as Counter Staff, but Event Storm / DST actor is Waiter'
+      recommendation: block-fix-required
+    - name: gherkin-actor-matches-dst
+      category: consistency
+      status: fail
+      message: '.arch/04-specification/features/ordering.feature: "When the cashier
+        places an order for Table 6 with the following items:" treats PlaceOrder
+        as Counter Staff, but Event Storm / DST actor is Waiter'
+      recommendation: block-fix-required
+    - name: gherkin-actor-matches-dst
+      category: consistency
+      status: fail
+      message: '.arch/04-specification/features/ordering.feature: "When the cashier
+        places an order for Table 1 with the following items:" treats PlaceOrder
+        as Counter Staff, but Event Storm / DST actor is Waiter'
+      recommendation: block-fix-required
+    - name: gherkin-actor-matches-dst
+      category: consistency
+      status: fail
+      message: '.arch/04-specification/features/ordering.feature: "When the server
+        delivers the order to Table 4" treats DeliverOrder as server, but Event
+        Storm / DST actor is Waiter'
+      recommendation: block-fix-required
+    - name: gherkin-actor-matches-dst
+      category: consistency
+      status: fail
+      message: '.arch/04-specification/features/ordering.feature: "When the cashier
+        places an order for Table 1 with the following items:" treats PlaceOrder
+        as Counter Staff, but Event Storm / DST actor is Waiter'
+      recommendation: block-fix-required
+    - name: e2e-story-coverage
+      category: consistency
+      status: pass
+      message: 3 to-be story/-ies have a journey feature and a pipeline smoke entry
+      recommendation: proceed
+    - name: cl-contract-specified
+      category: consistency
+      status: pass
+      message: 8 cross-layer check(s) specified in Phase 4 or declared not applicable
+      recommendation: proceed
+    - name: test-stack-matrix
+      category: consistency
+      status: pass
+      message: Test tooling matches the locked stack (junit, playwright, spock,
+        testng, vitest)
+      recommendation: proceed
+  next_action: block-fix-required

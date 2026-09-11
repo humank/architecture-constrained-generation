@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://acg.local/schemas/assessment-8.json",
+  "title": "Assessment 8 \u2014 Technology Stack Lock",
+  "description": "Structured answers for the Phase 8 technology questionnaire. `status: locked`, `locked_at` and `fingerprint` are written by the engine only.",
+  "type": "object",
+  "required": [
+    "id",
+    "status",
+    "answers"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "const": "assessment-8"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "awaiting",
+        "locked"
+      ]
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "locked_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "fingerprint": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_markdown": {
+      "type": "string"
+    },
+    "answers": {
+      "type": "object",
+      "required": [
+        "backend_language",
+        "backend_framework_requested",
+        "orm",
+        "frontend_framework",
+        "test_stack",
+        "iac"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "backend_language": {
+          "type": "string",
+          "minLength": 1
+        },
+        "backend_framework_requested": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Exactly what the human chose, even when it is not buildable. The compatibility matrix compares it with the build file."
+        },
+        "backend_framework_resolved": {
+          "type": "string",
+          "description": "The version actually used when the request cannot be honoured. Empty until a human resolves the conflict."
+        },
+        "orm": {
+          "type": "string",
+          "minLength": 1
+        },
+        "migration_tool": {
+          "type": "string"
+        },
+        "frontend_framework": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The frontend framework, or `none` for a system with no UI. `none` switches the frontend sensors to n/a."
+        },
+        "frontend_build": {
+          "type": "string"
+        },
+        "css": {
+          "type": "string"
+        },
+        "component_library": {
+          "type": "string"
+        },
+        "state_management": {
+          "type": "string"
+        },
+        "api_client": {
+          "type": "string"
+        },
+        "test_stack": {
+          "type": "string",
+          "minLength": 1
+        },
+        "routing": {
+          "type": "string"
+        },
+        "monorepo": {
+          "type": "string"
+        },
+        "iac": {
+          "type": "string",
+          "minLength": 1
+        },
+        "backend_ecosystem": {
+          "enum": [
+            "jvm",
+            "node",
+            "python",
+            "go",
+            "dotnet",
+            "ruby",
+            "other",
+            "none"
+          ],
+          "description": "Which build-file family the framework version matrix should read (gradle/maven, package.json, pyproject, go.mod, \u2026). Derived from backend_language but stated explicitly so the sensor never guesses."
+        }
+      }
+    }
+  }
+}

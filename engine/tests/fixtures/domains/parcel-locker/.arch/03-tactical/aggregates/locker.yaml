@@ -1,0 +1,20 @@
+aggregate:
+  name: Locker
+  bounded_context: Storage
+  root_entity:
+    name: Locker
+    identity: { field: lockerId, type: UUID }
+    fields:
+      - { name: size, type: LockerSize }
+      - { name: state, type: LockerState }
+  value_objects:
+    - name: LockerSize
+      type: enum
+      values: [Small, Medium, Large]
+    - name: LockerState
+      type: enum
+      values: [Free, Reserved, Occupied]
+  commands:
+    - name: ReserveLocker
+  invariants:
+    - "A locker in state Reserved or Occupied cannot be reserved again"

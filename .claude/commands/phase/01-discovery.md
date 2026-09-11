@@ -1,5 +1,35 @@
 ---
 description: "Phase 1: Discovery — Domain Storytelling, Event Storming, Event Modeling"
+engine_stages: [01a-dst, 01b-storm, 01c-model]
+gate: human
+consumes:
+  - .arch/00-requirements/story-map.yaml
+  - .arch/00-requirements/parsed-requirements.yaml
+produces:
+  - .arch/01-discovery/domain-stories/
+  - .arch/glossary.yaml
+  - .arch/01-discovery/event-storm.yaml
+  - .arch/01-discovery/event-model.yaml
+# Owned by Phase 0, updated in 01a: this is where `covered_by: pending_story` becomes
+# a DS id.
+also_writes:
+  - .arch/00-requirements/story-map.yaml
+stages:
+  - id: 01a-dst
+    step: dst
+    produces: [.arch/01-discovery/domain-stories/, .arch/glossary.yaml]
+    also_writes: [.arch/00-requirements/story-map.yaml]
+    sensors: [files-exist, schema-dst, story-map-coverage]
+    advisory_sensors: [glossary-origin]
+  - id: 01b-storm
+    step: storm
+    produces: [.arch/01-discovery/event-storm.yaml]
+    sensors: [files-exist, dst-storm-correspondence, hotspot-classified]
+  - id: 01c-model
+    step: model
+    produces: [.arch/01-discovery/event-model.yaml]
+    sensors: [files-exist, swimlane-is-story]
+sensors: [schema-dst, story-map-coverage, dst-storm-correspondence, hotspot-classified, swimlane-is-story]
 ---
 
 # Phase 1: Discovery
@@ -17,6 +47,7 @@ Read these files for methodology reference:
 - knowledge-base/event-modeling/01-event-modeling-complete.md
 
 Read artifact schemas:
+- artifact-schemas/domain-story.schema.json
 - artifact-schemas/event-storm.schema.yaml
 - artifact-schemas/glossary.schema.yaml
 
@@ -30,7 +61,10 @@ Read these artifacts from previous phases:
 
 ## Process
 
-### Step 1: Domain Storytelling
+### Step 1: Domain Storytelling  <!-- engine step: `dst` -->
+
+> Engine stage `01a-dst`. Run this section alone, then
+> `report --phase 01a-dst --result awaiting-approval`.
 
 For each major activity in the story map backbone:
 
@@ -44,30 +78,60 @@ For each major activity in the story map backbone:
 5. Note **annotations**: variations, questions, assumptions
 
 Write domain stories as YAML files in `.arch/01-discovery/domain-stories/`.
+Each file MUST validate against `artifact-schemas/domain-story.schema.json`.
+Narrative-only `domain_story.narrative` files are invalid.
 
-Each story:
+Engine stage **01a-dst** owns this step. Do not start Event Storming until
+`bun engine/src/acg.ts report --phase 01a-dst --result approved` succeeds.
+
+Each story uses sentence form. Classify every step:
+
+| class | system_visible | Later phases may turn it into |
+|-------|----------------|-------------------------------|
+| collaboration | false | nothing (no command, no API, no screen control) |
+| medium-change | when the system catches it | one work object, two media |
+| state-change | true | Event Storm command/event (`sourced_from: DS-xx.y`) |
+| handoff | true | Context Map edge + policy/event |
+| read | true | read model / Actor View GET |
+
 ```yaml
 story:
-  name: "Guest Self Check-In"
-  type: "to-be"
-  actors: [Guest, System, DoorLock]
+  id: DS-01
+  name: "Order to Serve"
+  purity: to-be-only          # or as-is / to-be; to-be-only requires purity_reason
+  purity_reason: "Requirements already describe intended floor process"
+  backbone: "Order Taking"
+  covers: [US-03, US-04]
+  actors: [Customer, Waiter, Counter Staff, Barista, System]
   steps:
-    - sequence: 1
-      actor: Guest
-      activity: "opens"
-      work_object: "Check-In App"
-    - sequence: 2
-      actor: System
-      activity: "verifies"
-      work_object: "Guest Identity"
-    ...
+    - id: DS-01.2
+      sequence: 2
+      actor: Customer
+      activity: tells
+      work_object: DrinkChoice
+      medium: spoken
+      class: collaboration
+      system_visible: false
+    - id: DS-01.5
+      sequence: 5
+      actor: Waiter
+      activity: enters
+      work_object: Order
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Order
   annotations:
-    - "What if identity verification fails?"
-    - "Assumes guest has smartphone"
-  discovered_terms: [Check-In App, Guest Identity, Digital Key]
+    - "Customer must not become a kiosk user"
+  discovered_terms: [Order, DrinkChoice]
 ```
 
-### Step 2: Event Storming (Big Picture -> Process -> Design Level)
+Engine stage **01b-storm**. Every actor-triggered event MUST include `sourced_from: [DS-xx.y]` pointing at a system-visible DST step. Do not invent events for `class: collaboration` steps.
+
+### Step 2: Event Storming (Big Picture -> Process -> Design Level)  <!-- engine step: `storm` -->
+
+> Engine stage `01b-storm`. Requires `01a-dst` approved: the storm erupts from
+> `system_visible` story steps, not from re-reading the requirements document.
 
 **Big Picture (Chaotic Exploration -> Timeline -> Boundaries):**
 
@@ -104,7 +168,9 @@ story:
 - Specify aggregate roots, entities, value objects
 - Confirm policies and read models
 
-### Step 3: Event Modeling
+### Step 3: Event Modeling  <!-- engine step: `model` -->
+
+> Engine stage `01c-model`. Requires `01b-storm` approved.
 
 Transform Event Storming output into an Event Model blueprint:
 
@@ -140,7 +206,9 @@ Transform Event Storming output into an Event Model blueprint:
 6. **Vertical Slices**: Cut the model into independently implementable slices
 7. **Information Completeness**: Verify every data field has origin and destination
 
-### Step 4: Update Glossary
+### Step 4: Update Glossary  <!-- engine step: `dst`, `storm`, `model` -->
+
+> Every stage contributes. `.arch/glossary.yaml` is writable from any phase.
 
 Add all new terms discovered during discovery to `.arch/glossary.yaml`.
 Every event name, command name, aggregate name, read model name should be in the glossary.
@@ -156,19 +224,16 @@ One file per domain story.
 Follow the event-storm schema. Include: domain_events, commands, aggregates, policies, read_models, external_systems, hot_spots, bounded_context_candidates.
 
 ### `.arch/01-discovery/event-model.yaml`
-Include: command specs (GWT), read model specs (GT), automations, translations, vertical slices.
+Include: command specs (GWT), read model specs (GT), automations, translations.
 
-### `.arch/01-discovery/vertical-slices.yaml`
-```yaml
-vertical_slices:
-  - name: "Slice 1: Guest Identity Verification -> Room Assignment"
-    commands: [VerifyIdentity, AssignRoom]
-    events: [IdentityVerified, RoomAssigned]
-    read_models: [GuestCheckInStatus]
-    priority: 1
-    in_mvp: true
-  ...
-```
+Every swimlane declares `story: DS-xx`. Lanes are cut by domain story (or story × BC),
+never by bounded context first — cutting by BC and then proving the BC from your own
+cut is circular. `swimlane-is-story` refuses a lane with no story, and refuses a DST
+`class: read` step that no read model serves.
+
+**There is no `vertical-slices.yaml`.** A slice is a story × a command; both already
+exist, so a third file would only be a place for them to disagree. If you need to talk
+about a slice, name it `DS-01 / ProcessPayment`.
 
 ### `.arch/glossary.yaml`
 Updated with all new terms.

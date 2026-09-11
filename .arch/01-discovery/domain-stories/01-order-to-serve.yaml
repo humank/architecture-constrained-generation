@@ -1,46 +1,209 @@
-domain_story:
-  name: "Order to Serve"
-  actors: [Customer, Waiter, Counter Staff, Barista]
-  narrative: >
-    Customer sits at Table 3 and tells Waiter they want a Tall Latte with soy milk
-    and a Grande Cappuccino dry foam with whipped cream.
-    Waiter goes to counter and enters the order into the system with Table 3.
-    System calculates total: Tall Latte $120 + Grande Cappuccino $140 + whipped cream $20 = $280.
-    Counter Staff reviews and confirms the order.
-    Customer pays $300 cash at counter. Counter Staff processes payment, $20 change.
-    System submits the paid order to Barista queue.
-    Barista sees Order #42 in queue: Tall Latte (soy milk) + Grande Cappuccino (dry foam, whipped cream).
-    Barista starts preparing Tall Latte — system deducts: 20g coffee beans, 200ml soy milk, 1 filter paper.
-    Barista completes Tall Latte.
-    Barista starts preparing Grande Cappuccino — system deducts: 30g coffee beans, 150ml milk, 50ml foam, 20ml whipped cream.
-    Barista completes Grande Cappuccino.
-    Barista marks entire order as ready.
-    Waiter sees Order #42 is ready for Table 3.
-    Waiter delivers to Table 3. Marks order as complete.
+story:
+  id: DS-01
+  name: Order to Serve
+  purity: to-be-only
+  purity_reason: >
+    Source requirements already describe the intended shop floor process
+    (verbal table ordering, cash only, no kiosk). No as-is observation
+    workshop was recorded; purity is explicit so the gap stays visible.
+  backbone: Order Taking
+  covers: [US-01, US-02, US-03, US-04, US-05, US-06, US-07, US-08, US-09, US-10, US-11, US-12, US-13]
+  actors: [Customer, Waiter, Counter Staff, Barista, System]
+  steps:
+    - id: DS-01.1
+      sequence: 1
+      actor: Customer
+      activity: sits at
+      work_object: Table
+      medium: physical
+      class: collaboration
+      system_visible: false
+      notes: Tables 1-5 only. Customer does not use a device.
 
-  work_objects:
+    - id: DS-01.2
+      sequence: 2
+      actor: Customer
+      activity: tells
+      work_object: DrinkChoice
+      medium: spoken
+      class: collaboration
+      system_visible: false
+      notes: Verbal order. Must not become a kiosk or customer app.
+
+    - id: DS-01.3
+      sequence: 3
+      actor: Waiter
+      activity: goes to
+      work_object: Table
+      medium: physical
+      class: collaboration
+      system_visible: false
+
+    - id: DS-01.4
+      sequence: 4
+      actor: Waiter
+      activity: walks to
+      work_object: Counter
+      medium: physical
+      class: collaboration
+      system_visible: false
+
+    - id: DS-01.5
+      sequence: 5
+      actor: Waiter
+      activity: enters
+      work_object: Order
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Order
+      notes: Table number, coffee type, size, quantity, customizations.
+
+    - id: DS-01.6
+      sequence: 6
+      actor: System
+      activity: calculates
+      work_object: TotalPrice
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Order
+      notes: Included in PlaceOrder — menu price plus surcharges.
+
+    - id: DS-01.7
+      sequence: 7
+      actor: Counter Staff
+      activity: confirms
+      work_object: Order
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Order
+
+    - id: DS-01.8
+      sequence: 8
+      actor: Customer
+      activity: tenders
+      work_object: Cash
+      medium: cash
+      class: collaboration
+      system_visible: false
+
+    - id: DS-01.9
+      sequence: 9
+      actor: Counter Staff
+      activity: processes
+      work_object: CashPayment
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Order
+
+    - id: DS-01.10
+      sequence: 10
+      actor: System
+      activity: hands over
+      work_object: Order
+      medium: digital
+      class: handoff
+      system_visible: true
+      from_actor: Counter Staff
+      to_actor: Barista
+      mutates: Order
+      notes: Only after payment. Barista must not see unpaid orders.
+
+    - id: DS-01.11
+      sequence: 11
+      actor: Barista
+      activity: views
+      work_object: BaristaQueue
+      medium: digital
+      class: read
+      system_visible: true
+
+    - id: DS-01.12
+      sequence: 12
+      actor: Barista
+      activity: starts
+      work_object: Preparation
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Preparation
+
+    - id: DS-01.13
+      sequence: 13
+      actor: System
+      activity: deducts
+      work_object: Inventory
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Inventory
+      notes: Recipe quantities on PreparationStarted.
+
+    - id: DS-01.14
+      sequence: 14
+      actor: Barista
+      activity: completes
+      work_object: Coffee
+      medium: physical
+      class: state-change
+      system_visible: true
+      mutates: Preparation
+
+    - id: DS-01.15
+      sequence: 15
+      actor: System
+      activity: marks ready
+      work_object: Order
+      medium: digital
+      class: handoff
+      system_visible: true
+      from_actor: Barista
+      to_actor: Waiter
+      mutates: Order
+      notes: Fires when ALL items in the order are prepared.
+
+    - id: DS-01.16
+      sequence: 16
+      actor: Waiter
+      activity: views
+      work_object: ReadyOrders
+      medium: digital
+      class: read
+      system_visible: true
+
+    - id: DS-01.17
+      sequence: 17
+      actor: Waiter
+      activity: delivers
+      work_object: Order
+      medium: physical
+      class: state-change
+      system_visible: true
+      mutates: Order
+
+    - id: DS-01.18
+      sequence: 18
+      actor: Waiter
+      activity: completes
+      work_object: Order
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Order
+
+  annotations:
+    - "What if the customer changes their mind after ordering? Separate story — not in DS-01."
+    - "Partial item delivery is out of scope; entire order becomes ready together."
+    - "Assumes waiter has counter-terminal access, not a handheld customer-facing kiosk."
+  discovered_terms:
     - Order
-    - Order Item
-    - Menu
-    - Recipe
-    - Cash Payment
+    - DrinkChoice
+    - CashPayment
+    - BaristaQueue
+    - ReadyOrders
+    - Preparation
     - Inventory
     - Table
-
----
-domain_story:
-  name: "Inventory Alert and Replenishment"
-  actors: [Barista, Counter Staff]
-  narrative: >
-    After several orders, coffee beans drop to 28,000g (28% of 100,000g capacity).
-    System triggers low-stock alert to Counter Staff.
-    Barista also sees low stock on inventory dashboard and requests replenishment for coffee beans.
-    Counter Staff receives replenishment request, places purchase order with supplier.
-    Supplier delivers 72kg of coffee beans within 2 days (within 3-day SLA).
-    Barista confirms delivery, system restores coffee beans to 100,000g (100%).
-
-  work_objects:
-    - Inventory
-    - Material
-    - Low-Stock Alert
-    - Replenishment

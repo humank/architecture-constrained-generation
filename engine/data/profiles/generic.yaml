@@ -1,0 +1,75 @@
+# The base every other profile extends. It knows nothing about any cloud, framework or
+# router — it only says what shape the answers take. A project with no matching profile
+# still gets a working engine; the ecosystem-bound sensors simply have nothing to read
+# and report `na` instead of failing.
+id: generic
+description: No ecosystem assumptions. Ecosystem-bound sensors report n/a.
+
+# Locked answers that infrastructure must not restate as literals. Each source is a
+# file plus a capture pattern; `derived` marks a source that reads the lock at run time
+# and therefore cannot disagree.
+pinned_values: {}
+derived_markers:
+  - "acg\\.ts\\s+locked-answer"
+  - "ACG_[A-Z_]+"
+
+frontend:
+  # Where routes are declared, and how to read a path out of that file.
+  router: null
+  route_pattern: null
+
+sources:
+  roots: []
+  extensions: []
+  # Test-file naming is per-ecosystem, not universal. JS puts `.test.` in the middle,
+  # Python and Go put `test_` or `_test` at an edge, Ruby uses `_spec`. Missing one of
+  # these made "no end-to-end test for DS-01" a false accusation.
+  test_patterns:
+    - "\\.(spec|test|e2e)\\."     # foo.test.ts, foo.spec.tsx
+    - "(^|/)test_[^/]*$"          # test_ds_01.py
+    - "[^/]*_test\\.[^/.]+$"       # ds_01_test.go
+    - "[^/]*_spec\\.[^/.]+$"       # ds_01_spec.rb
+    - "(^|/)(tests?|e2e|spec)/"   # anything under tests/, e2e/, spec/
+  # How a named type is declared, for the event-type fingerprint.
+  type_declaration: null
+  # How a file declares an actual test. A file named after a story but containing no
+  # test satisfied the naming check and asserted nothing — "the sensors match names,
+  # and what was delivered is names".
+  test_declaration: "\\b(?:test|it|describe)\\s*\\(|\\bdef\\s+test_|@Test\\b|\\bfunc\\s+Test[A-Z]"
+
+messaging:
+  file: null
+
+# Which build file holds the framework version, per ecosystem.
+build_files: {}
+
+# Which cross-layer contract check set applies. `none` switches cl-contract to n/a.
+cl_check_set: none
+
+vocabulary:
+  # Words that are infrastructure rather than domain language. Empty by default: for a
+  # team whose domain *is* infrastructure, "Outbox" and "DLQ" are the ubiquitous
+  # language, and the engine has no business overruling them.
+  technical: []
+  # Suffixes that make a name look like a domain event in prose documentation.
+  event_suffixes:
+    - Placed
+    - Processed
+    - Confirmed
+    - Submitted
+    - Started
+    - Prepared
+    - Completed
+    - Delivered
+    - Triggered
+    - Requested
+    - Created
+    - Deducted
+    - Paid
+    - Cancelled
+    - Rejected
+    - Approved
+    - Received
+    - Shipped
+    - Assigned
+    - Closed

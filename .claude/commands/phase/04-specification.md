@@ -1,5 +1,19 @@
 ---
-description: "Phase 4: Specification & Implementation — BDD, TDD, Contract Testing, Web Testing, Security"
+description: "Phase 4: Specification — BDD, Contract Testing, Threat Model, Test Strategy"
+id: 04-specification
+ordinal: 7
+step: all
+gate: human
+consumes:
+  - .arch/03-tactical/aggregates/
+  - .arch/03-tactical/frontend-architecture.yaml
+  - .arch/01-discovery/domain-stories/
+produces:
+  - .arch/04-specification/features/
+  - .arch/04-specification/contracts/
+  - .arch/04-specification/test-strategy.yaml
+  - .arch/04-specification/threat-model.yaml
+sensors: [files-exist, gherkin-actor-matches-dst, e2e-story-coverage, cl-contract-specified, test-stack-matrix]
 ---
 
 # Phase 4: Specification & Implementation
@@ -27,13 +41,14 @@ Read these files:
 
 Read from previous phases:
 - `.arch/01-discovery/event-model.yaml` (command/view specs)
-- `.arch/01-discovery/vertical-slices.yaml`
+- `.arch/01-discovery/domain-stories/*.yaml` — one to-be story becomes one journey Feature
 - `.arch/02-strategic/bounded-contexts.yaml`
 - `.arch/02-strategic/context-map.yaml`
 - `.arch/03-tactical/aggregates/*.yaml`
 - `.arch/03-tactical/domain-model/*.yaml`
 - `.arch/03-tactical/frontend-architecture.yaml`
-- `.arch/assessment-2.md` — Architecture style (modulith/microservices) affects test strategy and contract testing
+- `.arch/assessment-2.yaml` — locked architecture style affects test strategy and contract testing
+- `.arch/assessment-8.yaml` — the locked test stack. Never specify Jest while the build runs JUnit
 - `.arch/glossary.yaml`
 
 ## Process

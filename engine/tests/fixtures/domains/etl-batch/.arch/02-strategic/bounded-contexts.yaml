@@ -1,0 +1,9 @@
+bounded_contexts:
+  - name: Reconciliation
+    classification: Core
+    aggregates: [交易批次, 差異清單]
+    commands: [ImportTransactionBatch]
+    events_produced: [TransactionBatchImported, DiscrepancyListCreated]
+    data_store:
+      schema: recon
+      tables: [transaction_batches, discrepancies]

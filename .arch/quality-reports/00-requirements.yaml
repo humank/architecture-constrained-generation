@@ -1,0 +1,11 @@
+quality_report:
+  phase: 00-requirements
+  timestamp: 2026-09-11T15:32:47.372Z
+  status: pass
+  checks:
+    - name: quality-report-written
+      category: advisory
+      status: pass
+      message: quality-reports/00-requirements.yaml present
+      recommendation: proceed
+  next_action: proceed

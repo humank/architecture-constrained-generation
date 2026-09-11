@@ -1,0 +1,35 @@
+event_storm:
+  description: "Parcel locker event storm"
+  domain_events:
+    - event: LockerReserved
+      trigger: { command: ReserveLocker, actor: Courier }
+      sourced_from: [DS-01.2]
+      aggregate: Locker
+    - event: ParcelDeposited
+      trigger: { command: DepositParcel, actor: Courier }
+      sourced_from: [DS-01.3]
+      aggregate: Parcel
+    - event: CollectionCodeIssued
+      trigger: { policy: "After ParcelDeposited" }
+      sourced_from: [DS-01.4]
+      aggregate: Parcel
+    - event: ParcelCollected
+      trigger: { command: CollectParcel, actor: Recipient }
+      sourced_from: [DS-01.6]
+      aggregate: Parcel
+
+  commands: [ReserveLocker, DepositParcel, CollectParcel]
+
+  hot_spots:
+    - topic: "Uncollected parcels"
+      question: "How long before an uncollected parcel is returned to the courier?"
+      kind: fact-unknown
+      location: CollectionCodeIssued
+      sourced_from: [DS-01.4]
+      resolution_status: open
+
+  policies:
+    - name: "Issue code on deposit"
+      trigger: ParcelDeposited
+      sourced_from: [DS-01.4]
+      action: "Issue a one-time collection code"

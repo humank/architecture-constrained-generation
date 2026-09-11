@@ -1,0 +1,16 @@
+quality_report:
+  phase: 01c-model
+  timestamp: 2026-09-11T15:32:47.418Z
+  status: pass
+  checks:
+    - name: files-exist
+      category: consistency
+      status: pass
+      message: 2 declared input(s) present for 01c-model
+      recommendation: proceed
+    - name: swimlane-is-story
+      category: consistency
+      status: pass
+      message: 4 swimlane(s) cut by story; every DST read step has a read model
+      recommendation: proceed
+  next_action: proceed

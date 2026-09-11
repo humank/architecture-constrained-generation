@@ -1,0 +1,33 @@
+id: assessment-2
+status: locked
+generated_at: 2026-03-19
+locked_at: 2026-09-07T13:55:14.096Z
+source_markdown: .arch/assessment-2.md
+fingerprint: 8b7a1792b97a668030082ff53c1b5d38970425f75958178be8ac6150ccc9188e
+answers:
+  architecture_style: microservices
+  team_topology: small
+  communication: async_sns_sqs
+  database: schema_per_bc
+  deployment_target: eks
+  ui_kind: spa
+  region: ap-east-2
+  account_strategy: single
+  vpc_design: public_private
+  iac: cdk-typescript
+  components:
+    - eks
+    - rds_postgresql
+    - sns
+    - sqs
+    - vpc
+    - alb
+    - cloudfront
+    - cloudwatch
+    - xray
+    - adot
+    - waf
+    - iam
+    - ecr
+    - codepipeline
+    - codebuild

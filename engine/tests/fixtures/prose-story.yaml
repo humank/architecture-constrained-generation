@@ -1,0 +1,7 @@
+domain_story:
+  name: "Order to Serve"
+  actors: [Customer, Waiter]
+  narrative: >
+    Customer sits at Table 3 and tells Waiter they want a Tall Latte.
+  work_objects:
+    - Order

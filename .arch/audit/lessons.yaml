@@ -1,0 +1,94 @@
+lessons:
+  - sensor: actor-view-sourced-from-dst
+    phase: 03-tactical
+    failures: 50
+    first_seen: 2026-09-06T15:16:24.976Z
+    last_seen: 2026-09-07T13:25:43.512Z
+    last_message: Barista / Replenishment (/barista/inventory/replenish) path is missing from frontend/src/router.tsx
+  - sensor: docs-events-match-storm
+    phase: 06-review
+    failures: 42
+    first_seen: 2026-09-06T15:18:27.695Z
+    last_seen: 2026-09-06T15:30:54.178Z
+    last_message: '.arch/07-documentation/sequence/sequence-order-lifecycle.md: event-like name "InventoryDeducted" is not
+      in event-storm.yaml'
+  - sensor: source-fingerprint
+    phase: 08-implementation
+    failures: 40
+    first_seen: 2026-09-06T15:16:25.064Z
+    last_seen: 2026-09-11T13:52:09.590Z
+    last_message: No end-to-end test file is named after DS-02 (searched 21 test file(s))
+  - sensor: gherkin-actor-matches-dst
+    phase: 04-specification
+    failures: 39
+    first_seen: 2026-09-06T15:20:50.761Z
+    last_seen: 2026-09-07T13:24:44.404Z
+    last_message: '.arch/04-specification/features/ordering.feature: "When the cashier places an order for Table 1 with the
+      following items:" treats PlaceOrder as Counter Staff, but Event Storm / DST actor is Waiter'
+  - sensor: glossary-origin
+    phase: 01a-dst
+    failures: 35
+    first_seen: 2026-09-06T15:17:39.031Z
+    last_seen: 2026-09-06T15:17:39.031Z
+    last_message: DS-02 discovered "Purchase Order", which is missing from the glossary
+  - sensor: docs-events-match-storm
+    phase: 07-documentation
+    failures: 28
+    first_seen: 2026-09-06T15:30:54.241Z
+    last_seen: 2026-09-06T15:30:54.301Z
+    last_message: '.arch/07-documentation/sequence/sequence-order-lifecycle.md: event-like name "InventoryDeducted" is not
+      in event-storm.yaml'
+  - sensor: cl-contract
+    phase: 08-implementation
+    failures: 4
+    first_seen: 2026-09-06T15:16:25.064Z
+    last_seen: 2026-09-06T15:19:36.884Z
+    last_message: 'CL-1: api_contract "GET /api/preparations?status={value}" has 1 query param(s) not typed semantic_filter
+      or enum_literal (CL-1 requires the distinction)'
+  - sensor: spring-boot-matrix
+    phase: 08-implementation
+    failures: 4
+    first_seen: 2026-09-06T15:16:25.064Z
+    last_seen: 2026-09-06T15:30:54.455Z
+    last_message: "Spring Boot mismatch: gradle=3.4.4 requested=spring-boot-4.x resolved="
+  - sensor: e2e-story-coverage
+    phase: 04-specification
+    failures: 3
+    first_seen: 2026-09-06T15:20:50.761Z
+    last_seen: 2026-09-06T15:20:50.761Z
+    last_message: DS-02 is not listed in pipeline.yaml smoke stories
+  - sensor: region-fingerprint
+    phase: 05-delivery
+    failures: 3
+    first_seen: 2026-09-06T15:21:26.651Z
+    last_seen: 2026-09-07T13:40:29.145Z
+    last_message: Region mismatch — assessment lock and infrastructure do not agree (.arch/assessment-2.yaml=ap-east-2;
+      .arch/05-delivery/deployment-strategy.yaml=ap-east-2; iac/config/staging.ts=us-east-1;
+      iac/config/production.ts=us-east-1; scripts/deploy.sh=<derived from lock>)
+  - sensor: cl-contract
+    phase: 03-tactical
+    failures: 2
+    first_seen: 2026-09-06T15:16:24.976Z
+    last_seen: 2026-09-06T15:19:54.384Z
+    last_message: 'CL-1 ("Query parameter semantics") has no scenario or contract in Phase 4 and does not declare
+      current_status: "Not applicable"'
+  - sensor: test-stack-matrix
+    phase: 04-specification
+    failures: 2
+    first_seen: 2026-09-07T13:24:13.076Z
+    last_seen: 2026-09-07T13:24:13.076Z
+    last_message: '.arch/04-specification/test-strategy.yaml names pytest, which is not in the locked test_stack
+      "vitest-testing-library-playwright" and cannot run java-21 — "- framework: Jest (TypeScript) or pytest (Python)"'
+  - sensor: files-exist
+    phase: 08-implementation
+    failures: 1
+    first_seen: 2026-09-06T15:16:25.064Z
+    last_seen: 2026-09-06T15:16:25.064Z
+    last_message: 08-implementation consumes .arch/assessment-8.yaml, which does not exist
+  - sensor: framework-version-matrix
+    phase: 08-implementation
+    failures: 1
+    first_seen: 2026-09-11T13:52:09.590Z
+    last_seen: 2026-09-11T13:52:09.590Z
+    last_message: build.gradle.kts has spring-boot 3.4.4, but the questionnaire asked for spring-boot-4.x — set
+      backend_framework_resolved to record which one wins

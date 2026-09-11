@@ -1,0 +1,27 @@
+event_storm:
+  description: "每日對帳 event storm"
+  domain_events:
+    - event: TransactionBatchImported
+      trigger: { command: ImportTransactionBatch, actor: 對帳人員 }
+      sourced_from: [DS-01.2]
+      aggregate: 交易批次
+    - event: DiscrepancyListCreated
+      trigger: { policy: "After TransactionBatchImported" }
+      sourced_from: [DS-01.3]
+      aggregate: 差異清單
+
+  commands: [ImportTransactionBatch]
+
+  hot_spots:
+    - topic: "容許誤差"
+      question: "小於一元的差異要不要列出？"
+      kind: fact-unknown
+      location: DiscrepancyListCreated
+      sourced_from: [DS-01.3]
+      resolution_status: open
+
+  policies:
+    - name: "匯入後立即比對"
+      trigger: TransactionBatchImported
+      sourced_from: [DS-01.3]
+      action: "產生差異清單"

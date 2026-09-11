@@ -15,11 +15,16 @@ story_map:
         type: array
         description: "Stories under this activity, ordered by priority (top to bottom)"
         items:
+          id: string  # US-nn
           story: string
           description: string
           acceptance_criteria: array[string]
           release: string  # which release slice (mvp, r1, r2, ...)
+          priority: enum [MVP, R1, R2]
           size: enum [small, medium, large]
+          # The Phase 0 → Phase 1a link. "pending_story" until Domain Storytelling
+          # writes a DS-xx. Checked in both directions by `story-map-coverage`.
+          covered_by: string  # DS-nn | pending_story
   releases:
     type: array
     items:

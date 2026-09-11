@@ -1,0 +1,14 @@
+event_model:
+  description: "每日對帳 event model"
+  swimlanes:
+    - name: "每日對帳"
+      story: DS-01
+      slices:
+        - command: ImportTransactionBatch
+          actor: 對帳人員
+          event: TransactionBatchImported
+          read_model: "交易批次（當日）"
+        - automation: "比對帳務系統"
+          trigger_event: TransactionBatchImported
+          output_event: DiscrepancyListCreated
+          read_model: "差異清單（逐筆）"

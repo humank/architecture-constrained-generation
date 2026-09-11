@@ -1,5 +1,18 @@
 ---
 description: "Phase 2: Strategic Design — Bounded Contexts, Context Map, API Design, Event-Driven Integration"
+id: 02-strategic
+ordinal: 4
+step: all
+gate: human
+requires_lock: assessment-2
+consumes:
+  - .arch/01-discovery/event-storm.yaml
+  - .arch/01-discovery/domain-stories/
+  - .arch/assessment-2.yaml
+produces:
+  - .arch/02-strategic/bounded-contexts.yaml
+  - .arch/02-strategic/context-map.yaml
+sensors: [files-exist, handoff-equals-context-map]
 ---
 
 # Phase 2: Strategic Design

@@ -3,6 +3,7 @@ event_model:
 
   swimlanes:
     - name: "Order Lifecycle"
+      story: DS-01
       slices:
         - command: PlaceOrder
           actor: Waiter
@@ -35,6 +36,7 @@ event_model:
           read_model: "Completed Orders"
 
     - name: "Preparation"
+      story: DS-01
       slices:
         - command: StartPreparation
           actor: Barista
@@ -51,20 +53,21 @@ event_model:
           trigger_event: CoffeePrepared
           condition: "All items in order prepared"
           output_event: OrderReadyForDelivery
-          read_model: "Ready for Pickup (table number)"
+          read_model: "ReadyOrders (table number, grouped per table)"
 
     - name: "Inventory"
+      story: DS-02
       slices:
         - automation: "Deduct on preparation"
           trigger_event: PreparationStarted
           output_event: IngredientDeducted
-          read_model: "Current Stock Levels"
+          read_model: "Inventory (current stock levels per material)"
 
         - automation: "Low-stock check"
           trigger_event: IngredientDeducted
           condition: "Level < 30%"
           output_event: LowStockAlertTriggered
-          read_model: "Active Alerts"
+          read_model: "Low-Stock Alert (active alerts)"
 
         - command: RequestReplenishment
           actor: Barista
@@ -82,6 +85,7 @@ event_model:
           read_model: "Updated Stock Levels (100%)"
 
     - name: "Reporting"
+      story: DS-03
       slices:
         - automation: "Aggregate sales data"
           trigger_event: OrderCompleted

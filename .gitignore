@@ -20,3 +20,8 @@ dist/
 # Environment
 .env
 .env.local
+
+# CDK synth output. NOTE: iac/cdk.out/ is already tracked from an earlier commit
+# (including 55MB of asset zips) and is deliberately NOT ignored here, because ignoring
+# an already-tracked path hides changes to it rather than untracking it.
+iac/cdk.out.tmp/

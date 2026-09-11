@@ -7,6 +7,7 @@ frontend_architecture:
       pages:
         - page: "Order Placement"
           path: "/waiter/orders/new"
+          sourced_from: [DS-01.5]
           description: "Select table, add coffee items with sizes/customizations, submit order"
           data_source:
             endpoint: "GET /api/menu"
@@ -32,6 +33,7 @@ frontend_architecture:
 
         - page: "Ready Orders"
           path: "/waiter/orders/ready"
+          sourced_from: [DS-01.16, DS-01.17]
           description: "List of orders ready for delivery, grouped by table"
           data_source:
             endpoint: "GET /api/orders?status=Ready"
@@ -52,6 +54,7 @@ frontend_architecture:
 
         - page: "Active Orders"
           path: "/waiter/orders"
+          sourced_from: [DS-01.18]
           description: "All active orders with status tracking"
           data_source:
             endpoint: "GET /api/orders?status=active"
@@ -76,6 +79,7 @@ frontend_architecture:
       pages:
         - page: "Order Confirmation"
           path: "/cashier/orders/pending"
+          sourced_from: [DS-01.7]
           description: "Review and confirm placed orders"
           data_source:
             endpoint: "GET /api/orders?status=Placed"
@@ -96,6 +100,7 @@ frontend_architecture:
 
         - page: "Payment Processing"
           path: "/cashier/orders/confirmed"
+          sourced_from: [DS-01.9]
           description: "Process cash payment for confirmed orders"
           data_source:
             endpoint: "GET /api/orders?status=Confirmed"
@@ -124,6 +129,7 @@ frontend_architecture:
 
         - page: "Sales Report"
           path: "/cashier/reports/sales"
+          sourced_from: [DS-03.1]
           description: "Daily/weekly/monthly sales dashboard"
           data_source:
             endpoint: "GET /api/reporting/sales"
@@ -144,6 +150,7 @@ frontend_architecture:
       pages:
         - page: "Preparation Queue"
           path: "/barista/queue"
+          sourced_from: [DS-01.11, DS-01.12, DS-01.14]
           description: "Incoming paid orders to prepare, with recipe details"
           data_source:
             endpoint: "GET /api/preparations?status=Pending,InProgress"
@@ -170,6 +177,7 @@ frontend_architecture:
 
         - page: "Inventory Dashboard"
           path: "/barista/inventory"
+          sourced_from: [DS-02.1]
           description: "Current stock levels with visual indicators"
           data_source:
             endpoint: "GET /api/inventory"
@@ -189,6 +197,7 @@ frontend_architecture:
 
         - page: "Replenishment"
           path: "/barista/inventory/replenish"
+          sourced_from: [DS-02.4, DS-02.8]
           description: "Request and track material replenishment"
           data_source:
             endpoint: "GET /api/inventory/replenishments"
@@ -276,7 +285,7 @@ frontend_architecture:
             totalOrders: int
             totalRevenue: int (TWD, whole number)
             averageOrderValue: int (TWD, whole number)
-            ordersByHour: list of { hour: string, count: int }
+            ordersByHour: "list of { hour: string, count: int }"
 
     command_endpoints:
       - path: "POST /api/orders"

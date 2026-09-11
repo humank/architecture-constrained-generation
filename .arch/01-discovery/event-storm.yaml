@@ -5,24 +5,28 @@ event_storm:
     # === Ordering ===
     - event: OrderPlaced
       trigger: { command: PlaceOrder, actor: Waiter }
+      sourced_from: [DS-01.5, DS-01.6]
       data: { orderId, tableNumber, items: [{ coffeeType, size, quantity, customizations }] }
       aggregate: Order
       notes: "System auto-calculates total including surcharges"
 
     - event: OrderConfirmed
       trigger: { command: ConfirmOrder, actor: "Counter Staff" }
+      sourced_from: [DS-01.7]
       data: { orderId, confirmedTotal }
       aggregate: Order
 
     # === Payment ===
     - event: PaymentProcessed
       trigger: { command: ProcessPayment, actor: "Counter Staff" }
+      sourced_from: [DS-01.9]
       data: { orderId, amountDue, cashReceived, changeGiven }
       aggregate: Order
       notes: "Cash only. Change = cashReceived - amountDue"
 
     - event: OrderSubmittedToBarista
       trigger: { policy: "After PaymentProcessed" }
+      sourced_from: [DS-01.10]
       data: { orderId, items: [{ coffeeType, size, customizations, recipe }] }
       aggregate: Order
       notes: "Automatic — paid order enters barista queue"
@@ -30,55 +34,65 @@ event_storm:
     # === Preparation ===
     - event: PreparationStarted
       trigger: { command: StartPreparation, actor: Barista }
+      sourced_from: [DS-01.12]
       data: { orderId, itemId, recipe: { ingredients: [{ material, quantity }] } }
       aggregate: Preparation
       notes: "Triggers ingredient deduction from inventory"
 
     - event: CoffeePrepared
       trigger: { command: CompleteCoffeePreparation, actor: Barista }
+      sourced_from: [DS-01.14]
       data: { orderId, itemId }
       aggregate: Preparation
 
     - event: OrderReadyForDelivery
       trigger: { policy: "When all items in order are prepared" }
+      sourced_from: [DS-01.15]
       data: { orderId, tableNumber }
       aggregate: Preparation
 
     # === Delivery ===
     - event: OrderDelivered
       trigger: { command: DeliverOrder, actor: Waiter }
+      sourced_from: [DS-01.17]
       data: { orderId, tableNumber }
       aggregate: Order
 
     - event: OrderCompleted
       trigger: { command: CompleteOrder, actor: Waiter }
+      sourced_from: [DS-01.18]
       data: { orderId, completedAt }
       aggregate: Order
 
     # === Inventory ===
     - event: IngredientDeducted
       trigger: { policy: "On PreparationStarted — deduct recipe ingredients" }
+      sourced_from: [DS-01.13]
       data: { material, quantityDeducted, remainingLevel, percentageRemaining }
       aggregate: Inventory
 
     - event: LowStockAlertTriggered
       trigger: { policy: "When material drops below 30% capacity" }
+      sourced_from: [DS-02.2]
       data: { material, currentLevel, threshold, maxCapacity }
       aggregate: Inventory
       notes: "Sends notification to Counter Staff (text/email)"
 
     - event: ReplenishmentRequested
       trigger: { command: RequestReplenishment, actor: Barista }
+      sourced_from: [DS-02.4, DS-02.5]
       data: { material, currentLevel, requestedQuantity }
       aggregate: Inventory
 
     - event: PurchaseOrderCreated
       trigger: { command: CreatePurchaseOrder, actor: "Counter Staff" }
+      sourced_from: [DS-02.6]
       data: { material, quantity, supplier, expectedDeliveryDate }
       aggregate: Inventory
 
     - event: ReplenishmentConfirmed
       trigger: { command: ConfirmReplenishment, actor: Barista }
+      sourced_from: [DS-02.8]
       data: { material, quantityReceived, newLevel }
       aggregate: Inventory
       notes: "Restores to 100% capacity"
@@ -98,29 +112,78 @@ event_storm:
   policies:
     - name: "Auto-submit after payment"
       trigger: PaymentProcessed
+      sourced_from: [DS-01.10]
       action: "Submit order to barista queue"
     - name: "Deduct ingredients on preparation start"
       trigger: PreparationStarted
+      sourced_from: [DS-01.13]
       action: "Deduct recipe ingredients from inventory"
     - name: "Low-stock alert"
       trigger: IngredientDeducted
+      sourced_from: [DS-02.2]
       condition: "Material level < 30% capacity"
       action: "Trigger LowStockAlertTriggered"
     - name: "Order ready when all items prepared"
       trigger: CoffeePrepared
+      sourced_from: [DS-01.15]
       condition: "All items in order are prepared"
       action: "Trigger OrderReadyForDelivery"
 
+  # Plan §2 Phase 1b: every hot spot is classified, because the two kinds go to
+  # different places.
+  #   work-unknown → the work model is incomplete. Goes back to 01a-dst.
+  #   fact-unknown → a domain fact is undecided. Stays here.
+  # An OPEN work-unknown refuses 01b-storm (`hotspot-classified`).
   hot_spots:
     - topic: "Recipe granularity"
       question: "Do we need exact recipe per type/size/customization combo stored in system?"
+      kind: fact-unknown
+      location: PreparationStarted
+      sourced_from: [DS-01.13]
+      resolution_status: resolved
       resolution: "Yes — recipes are essential for accurate ingredient deduction"
+
     - topic: "Partial order delivery"
       question: "Can waiter deliver items one by one, or only when entire order is ready?"
-      resolution: "Entire order — OrderReadyForDelivery fires when ALL items are prepared"
+      kind: work-unknown
+      location: OrderReadyForDelivery
+      sourced_from: [DS-01.15]
+      resolution_status: resolved
+      resolution: >
+        Entire order — OrderReadyForDelivery fires when ALL items are prepared.
+        This was a decision, not a given: the requirements never said so.
+
     - topic: "Concurrent orders for same table"
       question: "Can a table have multiple active orders?"
+      kind: fact-unknown
+      location: OrderPlaced
+      sourced_from: [DS-01.5]
+      resolution_status: resolved
       resolution: "Yes — orders are independent, identified by orderId"
+
+    - topic: "Low-stock alert channel"
+      question: "Requirements say the alert arrives by 'text or email'. Which transport?"
+      kind: fact-unknown
+      location: LowStockAlertTriggered
+      sourced_from: [DS-02.3]
+      resolution_status: open
+      rationale: >
+        Classified fact-unknown, not work-unknown: DS-02.3 already has Counter Staff
+        receiving a Low-Stock Alert digitally, and no story step changes if the
+        transport is SMS instead of email — same actor, same work object, same next
+        move. What is undecided is a fact about the notification, so it stays in the
+        storm instead of sending the story back.
+
+    - topic: "Customer changes their mind after ordering"
+      question: "What happens when the customer changes the order after the waiter entered it?"
+      kind: work-unknown
+      location: OrderPlaced
+      sourced_from: [DS-01.5]
+      resolution_status: deferred
+      resolution: >
+        A different collaboration with a different sequence, so it is a separate story
+        rather than a branch inside DS-01 — DST does not draw if/then. Out of MVP; when
+        it is wanted it starts at 01a-dst as DS-01b.
 
   bounded_context_candidates:
     - name: "Ordering"

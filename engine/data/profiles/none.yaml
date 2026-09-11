@@ -1,0 +1,11 @@
+# For a library, a CLI, an on-prem appliance — anything with no cloud and no UI.
+# Nothing here is a workaround: the ecosystem-bound sensors genuinely have nothing to
+# read, and the engine says `na` rather than inventing a failure.
+id: none
+extends: generic
+description: No cloud, no frontend. Only the artifact-level sensors apply.
+
+sources:
+  roots: [src, lib, services, tests]
+  extensions: [".ts", ".tsx", ".js", ".py", ".go", ".rs", ".java", ".kt", ".rb"]
+  type_declaration: "\\b(?:record|class|interface|enum|type|struct)\\s+([A-Z][A-Za-z0-9_]*)"

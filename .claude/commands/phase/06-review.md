@@ -1,5 +1,19 @@
 ---
 description: "Phase 6: Architecture Review — R&W Viewpoints & Perspectives, Quality Attribute Scenarios, ADRs"
+id: 06-review
+ordinal: 9
+step: all
+gate: human
+reviewer: true
+consumes:
+  - .arch/05-delivery/pipeline.yaml
+  - .arch/03-tactical/aggregates/
+  - .arch/01-discovery/domain-stories/
+produces:
+  - .arch/06-review/viewpoints/
+  - .arch/06-review/adrs/
+  - .arch/06-review/perspectives.md
+sensors: [files-exist, docs-events-match-storm, glossary-origin]
 ---
 
 # Phase 6: Architecture Review

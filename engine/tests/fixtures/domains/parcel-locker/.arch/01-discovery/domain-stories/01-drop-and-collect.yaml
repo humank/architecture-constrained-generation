@@ -1,0 +1,77 @@
+story:
+  id: DS-01
+  name: Drop Off and Collect
+  purity: to-be-only
+  purity_reason: >
+    Greenfield installation; no existing locker process was observed.
+  backbone: Drop Off
+  covers: [US-01, US-02, US-03]
+  actors: [Courier, Recipient, System]
+  steps:
+    - id: DS-01.1
+      sequence: 1
+      actor: Courier
+      activity: arrives at
+      work_object: LockerBank
+      medium: physical
+      class: collaboration
+      system_visible: false
+
+    - id: DS-01.2
+      sequence: 2
+      actor: Courier
+      activity: reserves
+      work_object: Locker
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Locker
+
+    - id: DS-01.3
+      sequence: 3
+      actor: Courier
+      activity: deposits
+      work_object: Parcel
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Parcel
+
+    - id: DS-01.4
+      sequence: 4
+      actor: System
+      activity: hands over
+      work_object: CollectionCode
+      medium: digital
+      class: handoff
+      system_visible: true
+      from_actor: Courier
+      to_actor: Recipient
+      mutates: Parcel
+
+    - id: DS-01.5
+      sequence: 5
+      actor: Recipient
+      activity: reviews
+      work_object: CollectionCode
+      medium: digital
+      class: read
+      system_visible: true
+
+    - id: DS-01.6
+      sequence: 6
+      actor: Recipient
+      activity: collects
+      work_object: Parcel
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Parcel
+
+  annotations:
+    - "A code opens one locker once; re-use is a separate story."
+  discovered_terms:
+    - Locker
+    - Parcel
+    - CollectionCode
+    - LockerBank

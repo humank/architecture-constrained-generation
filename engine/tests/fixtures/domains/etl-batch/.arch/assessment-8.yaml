@@ -1,0 +1,11 @@
+id: assessment-8
+status: draft
+answers:
+  backend_language: python-3.12
+  backend_ecosystem: python
+  backend_framework_requested: none
+  backend_framework_resolved: none
+  orm: sqlalchemy
+  frontend_framework: none
+  test_stack: pytest
+  iac: none

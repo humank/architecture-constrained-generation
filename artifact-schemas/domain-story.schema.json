@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://acg.local/schemas/domain-story.json",
+  "title": "Domain Story",
+  "type": "object",
+  "required": ["story"],
+  "additionalProperties": false,
+  "properties": {
+    "story": {
+      "type": "object",
+      "required": ["id", "name", "purity", "backbone", "covers", "actors", "steps"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^DS-[0-9]+[a-z]?$" },
+        "name": { "type": "string", "minLength": 1 },
+        "purity": { "enum": ["as-is", "to-be", "to-be-only"] },
+        "purity_reason": { "type": "string" },
+        "backbone": { "type": "string", "minLength": 1 },
+        "covers": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^US-[0-9]+$" }
+        },
+        "actors": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/step" }
+        },
+        "annotations": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "discovered_terms": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "step": {
+      "type": "object",
+      "required": [
+        "id",
+        "sequence",
+        "actor",
+        "activity",
+        "work_object",
+        "class",
+        "system_visible"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^DS-[0-9]+[a-z]?\\.[0-9]+$" },
+        "sequence": { "type": "integer", "minimum": 1 },
+        "actor": { "type": "string", "minLength": 1 },
+        "activity": { "type": "string", "minLength": 1 },
+        "work_object": { "type": "string", "minLength": 1 },
+        "medium": {
+          "enum": ["spoken", "paper", "digital", "cash", "physical", "n/a"]
+        },
+        "class": {
+          "enum": [
+            "collaboration",
+            "medium-change",
+            "state-change",
+            "handoff",
+            "read"
+          ]
+        },
+        "system_visible": { "type": "boolean" },
+        "mutates": { "type": "string" },
+        "from_actor": { "type": "string" },
+        "to_actor": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

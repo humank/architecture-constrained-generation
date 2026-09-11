@@ -1,0 +1,6 @@
+parsed_requirements:
+  actors: [Courier, Recipient, System]
+  functional:
+    - "A parcel is assigned to a free locker matching its size"
+    - "A collection code is issued once the locker door closes"
+    - "A code opens exactly one locker, once"

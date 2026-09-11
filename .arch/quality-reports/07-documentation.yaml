@@ -1,0 +1,95 @@
+quality_report:
+  phase: 07-documentation
+  timestamp: 2026-09-11T15:32:47.484Z
+  status: fail
+  checks:
+    - name: files-exist
+      category: consistency
+      status: pass
+      message: 2 declared input(s) present for 07-documentation
+      recommendation: proceed
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/07-documentation/state/state-preparation.md: event-like name
+        "OrderPaid" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/07-documentation/state/state-preparation.md: event-like name
+        "PreparationCompleted" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/07-documentation/state/state-order.md: event-like name
+        "PreparationCompleted" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/07-documentation/state/state-replenishment.md: event-like name
+        "ReplenishmentDelivered" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/07-documentation/c4/c4-2-container.md: event-like name
+        "OrderPaid" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/07-documentation/c4/c4-2-container.md: event-like name
+        "PreparationCompleted" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/07-documentation/c4/c4-3-preparation.md: event-like name
+        "OrderPaid" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/07-documentation/c4/c4-3-preparation.md: event-like name
+        "PreparationCompleted" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/07-documentation/c4/c4-3-ordering.md: event-like name
+        "OrderPaid" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/07-documentation/c4/c4-3-ordering.md: event-like name
+        "PreparationCompleted" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/07-documentation/sequence/sequence-replenishment.md: event-like
+        name "ReplenishmentDelivered" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/07-documentation/sequence/sequence-order-lifecycle.md:
+        event-like name "OrderPaid" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/07-documentation/sequence/sequence-order-lifecycle.md:
+        event-like name "PreparationCompleted" is not in event-storm.yaml'
+      recommendation: block-fix-required
+    - name: docs-events-match-storm
+      category: consistency
+      status: fail
+      message: '.arch/07-documentation/sequence/sequence-order-lifecycle.md:
+        event-like name "InventoryDeducted" is not in event-storm.yaml'
+      recommendation: block-fix-required
+  next_action: block-fix-required

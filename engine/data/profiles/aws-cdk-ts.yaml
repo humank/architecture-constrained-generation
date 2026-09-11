@@ -1,0 +1,60 @@
+id: aws-cdk-ts
+extends: generic
+description: AWS, CDK in TypeScript, React Router frontend, JVM or Node services
+
+pinned_values:
+  region:
+    - { file: .arch/05-delivery/deployment-strategy.yaml, kind: yaml, keys: [region, deployment_strategy.region] }
+    - { file: iac/config/staging.ts, pattern: "region:\\s*['\"]([^'\"]+)['\"]" }
+    - { file: iac/config/production.ts, pattern: "region:\\s*['\"]([^'\"]+)['\"]" }
+    - { file: scripts/deploy.sh, pattern: "AWS_REGION=\"?([^\"\\n]+)\"?" }
+
+frontend:
+  router: frontend/src/router.tsx
+  route_pattern: "path:\\s*[\"'`]([^\"'`]+)[\"'`]"
+
+sources:
+  roots: [services, frontend, shared-kernel, e2e, tests]
+  extensions: [".java", ".kt", ".ts", ".tsx"]
+  type_declaration: "\\b(?:public\\s+)?(?:final\\s+)?(?:record|class|interface|enum)\\s+([A-Z][A-Za-z0-9_]*)"
+
+messaging:
+  file: iac/lib/messaging-stack.ts
+
+build_files:
+  jvm:
+    - file: build.gradle.kts
+      pattern: "id\\(\"org\\.springframework\\.boot\"\\)\\s+version\\s+\"([^\"]+)\""
+      framework: spring-boot
+    - file: pom.xml
+      pattern: "<artifactId>spring-boot-starter-parent</artifactId>\\s*<version>([^<]+)</version>"
+      framework: spring-boot
+  node:
+    - file: package.json
+      pattern: "\"(?:next|nestjs|@nestjs/core)\"\\s*:\\s*\"[^0-9]*([0-9][^\"]*)\""
+      framework: node
+
+cl_check_set: http-json-jackson
+
+vocabulary:
+  technical:
+    - outbox
+    - dead letter
+    - dlq
+    - idempoten
+    - saga
+    - subscription filter
+    - circuit breaker
+    - sns
+    - sqs
+    - cloudfront
+    - kubernetes
+    - eks
+    - ecs
+    - helm
+    - sidecar
+    - cqrs
+    - event sourcing
+    - backpressure
+    - retry
+    - throttl

@@ -1,0 +1,14 @@
+id: terraform-aws
+extends: aws-cdk-ts
+description: AWS provisioned with Terraform instead of CDK
+
+pinned_values:
+  region:
+    - { file: .arch/05-delivery/deployment-strategy.yaml, kind: yaml, keys: [region, deployment_strategy.region] }
+    - { file: iac/environments/staging/main.tf, pattern: "region\\s*=\\s*\"([^\"]+)\"" }
+    - { file: iac/environments/production/main.tf, pattern: "region\\s*=\\s*\"([^\"]+)\"" }
+    - { file: iac/variables.tf, pattern: "default\\s*=\\s*\"(\\w+-\\w+-\\d+)\"" }
+    - { file: scripts/deploy.sh, pattern: "AWS_REGION=\"?([^\"\\n]+)\"?" }
+
+messaging:
+  file: iac/modules/messaging/main.tf

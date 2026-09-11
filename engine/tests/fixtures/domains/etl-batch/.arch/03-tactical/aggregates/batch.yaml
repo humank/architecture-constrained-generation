@@ -1,0 +1,30 @@
+aggregate:
+  name: 交易批次
+  bounded_context: Reconciliation
+  root_entity:
+    name: TransactionBatch
+    identity: { field: batchId, type: UUID }
+    fields:
+      - { name: businessDate, type: Date }
+      - { name: rowCount, type: int }
+  commands:
+    - name: ImportTransactionBatch
+  invariants:
+    - "同一營業日不得匯入兩次相同來源的批次"
+---
+aggregate:
+  name: 差異清單
+  bounded_context: Reconciliation
+  root_entity:
+    name: DiscrepancyList
+    identity: { field: listId, type: UUID }
+    fields:
+      - { name: batchId, type: UUID }
+  entities:
+    - name: Discrepancy
+      identity: { field: lineId, type: UUID }
+      fields:
+        - { name: amount, type: Money }
+  commands: []
+  invariants:
+    - "差異清單必須逐筆對應交易批次中的一列"

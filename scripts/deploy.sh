@@ -17,7 +17,22 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # ── Config ───────────────────────────────────────────────────────
 AWS_ACCOUNT="584518143473"
-AWS_REGION="us-east-1"
+
+# Slice 8: the region is not restated here. It is read from the locked
+# assessment-2 answers, so this script cannot drift from the architecture
+# decision the way a literal does. `locked-answer` refuses to answer when the
+# assessment is unlocked or when its answers were edited after the lock.
+#   override for a one-off:  ACG_REGION=eu-west-1 ./scripts/deploy.sh
+if [[ -n "${ACG_REGION:-}" ]]; then
+  AWS_REGION="$ACG_REGION"
+else
+  AWS_REGION="$(cd "$PROJECT_ROOT" && bun engine/src/acg.ts locked-answer --id assessment-2 --key region)" || {
+    # log helpers are defined further down; this runs before them
+    echo "Cannot resolve the deploy region from .arch/assessment-2.yaml." >&2
+    echo "Lock it (bun engine/src/acg.ts assess-lock --id assessment-2) or set ACG_REGION." >&2
+    exit 1
+  }
+fi
 ECR_REGISTRY="${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 ECR_PREFIX="coffeeshop-staging"
 EKS_CLUSTER="coffeeshop-staging-cluster"

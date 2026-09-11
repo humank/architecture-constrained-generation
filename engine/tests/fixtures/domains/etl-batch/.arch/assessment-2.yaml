@@ -1,0 +1,14 @@
+id: assessment-2
+status: draft
+answers:
+  architecture_style: modulith
+  team_topology: small
+  communication: in_process_events
+  database: single_schema
+  deployment_target: none
+  region: n/a
+  account_strategy: single
+  vpc_design: n/a
+  iac: none
+  profile: none
+  ui_kind: none

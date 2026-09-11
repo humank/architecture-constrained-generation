@@ -1,0 +1,38 @@
+id: gcp-terraform
+extends: generic
+description: Google Cloud provisioned with Terraform
+
+pinned_values:
+  region:
+    - { file: .arch/05-delivery/deployment-strategy.yaml, kind: yaml, keys: [region, deployment_strategy.region] }
+    - { file: iac/environments/staging/main.tf, pattern: "region\\s*=\\s*\"([^\"]+)\"" }
+    - { file: iac/environments/production/main.tf, pattern: "region\\s*=\\s*\"([^\"]+)\"" }
+    - { file: scripts/deploy.sh, pattern: "(?:GCP_REGION|CLOUDSDK_COMPUTE_REGION)=\"?([^\"\\n]+)\"?" }
+
+frontend:
+  router: frontend/src/router.tsx
+  route_pattern: "path:\\s*[\"'`]([^\"'`]+)[\"'`]"
+
+sources:
+  roots: [services, frontend, shared-kernel, e2e, tests]
+  extensions: [".java", ".kt", ".ts", ".tsx", ".go", ".py"]
+  type_declaration: "\\b(?:record|class|interface|enum|type|struct)\\s+([A-Z][A-Za-z0-9_]*)"
+
+messaging:
+  file: iac/modules/pubsub/main.tf
+
+build_files:
+  jvm:
+    - file: build.gradle.kts
+      pattern: "id\\(\"org\\.springframework\\.boot\"\\)\\s+version\\s+\"([^\"]+)\""
+      framework: spring-boot
+  python:
+    - file: pyproject.toml
+      pattern: "(?:fastapi|django)\\s*=\\s*[\"^~>=]*([0-9][^\"'\\s]*)"
+      framework: python-web
+  go:
+    - file: go.mod
+      pattern: "go\\s+([0-9.]+)"
+      framework: go
+
+cl_check_set: http-json

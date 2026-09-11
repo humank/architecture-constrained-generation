@@ -1,0 +1,55 @@
+story:
+  id: DS-01
+  name: 每日對帳
+  purity: to-be-only
+  purity_reason: >
+    目前是人工用試算表比對，沒有做 as-is 訪談記錄；顯式標註以免假裝做過。
+  backbone: 每日對帳
+  covers: [US-01, US-02]
+  actors: [對帳人員, 系統]
+  steps:
+    - id: DS-01.1
+      sequence: 1
+      actor: 對帳人員
+      activity: 收到
+      work_object: 交易檔
+      medium: paper
+      class: collaboration
+      system_visible: false
+      notes: 銀行以紙本或郵件寄達，系統看不到這一步。
+
+    - id: DS-01.2
+      sequence: 2
+      actor: 對帳人員
+      activity: 匯入
+      work_object: 交易批次
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: 交易批次
+
+    - id: DS-01.3
+      sequence: 3
+      actor: 系統
+      activity: 比對
+      work_object: 差異清單
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: 差異清單
+
+    - id: DS-01.4
+      sequence: 4
+      actor: 對帳人員
+      activity: 檢視
+      work_object: 差異清單
+      medium: digital
+      class: read
+      system_visible: true
+
+  annotations:
+    - "沖銷與人工調整是另一則故事，不在 DS-01。"
+  discovered_terms:
+    - 交易批次
+    - 差異清單
+    - 交易檔

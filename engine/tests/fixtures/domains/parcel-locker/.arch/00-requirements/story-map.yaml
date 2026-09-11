@@ -1,0 +1,24 @@
+story_map:
+  backbone:
+    - activity: "Drop Off"
+      steps:
+        - step: "Reserve Locker"
+          stories:
+            - id: US-01
+              story: "As a Courier, I want a free locker of the right size assigned"
+              priority: MVP
+              covered_by: DS-01
+        - step: "Deposit Parcel"
+          stories:
+            - id: US-02
+              story: "As a Courier, I want to confirm the parcel is in the locker"
+              priority: MVP
+              covered_by: DS-01
+    - activity: "Collect"
+      steps:
+        - step: "Open Locker"
+          stories:
+            - id: US-03
+              story: "As a Recipient, I want to open my locker with a one-time code"
+              priority: MVP
+              covered_by: DS-01

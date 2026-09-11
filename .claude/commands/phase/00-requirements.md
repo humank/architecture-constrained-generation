@@ -1,5 +1,16 @@
 ---
 description: "Phase 0: Parse requirements into Impact Map, Story Map, and structured requirements"
+id: 00-requirements
+ordinal: 0
+step: all
+gate: human
+consumes: []
+produces:
+  - .arch/00-requirements/impact-map.yaml
+  - .arch/00-requirements/story-map.yaml
+  - .arch/00-requirements/parsed-requirements.yaml
+sensors: []
+advisory_sensors: [quality-report-written]
 ---
 
 # Phase 0: Requirements Parsing

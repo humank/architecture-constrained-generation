@@ -1,0 +1,17 @@
+bounded_contexts:
+  - name: Storage
+    classification: Core
+    aggregates: [Locker]
+    commands: [ReserveLocker]
+    events_produced: [LockerReserved]
+    data_store:
+      schema: storage
+      tables: [lockers]
+  - name: Custody
+    classification: Core
+    aggregates: [Parcel]
+    commands: [DepositParcel, CollectParcel]
+    events_produced: [ParcelDeposited, CollectionCodeIssued, ParcelCollected]
+    data_store:
+      schema: custody
+      tables: [parcels, collection_codes]

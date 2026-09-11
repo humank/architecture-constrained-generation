@@ -1,0 +1,337 @@
+version: 1
+project: coffeeshop
+scope: system
+imported_at: 2026-09-11T15:32:47.369Z
+updated_at: 2026-09-11T15:32:47.987Z
+cursor:
+  phase: 04-specification
+  state: revising
+phases:
+  00-requirements:
+    state: completed
+    completed_at: 2026-09-11T15:32:47.369Z
+    blockers: []
+    advisories: []
+  01a-dst:
+    state: completed
+    completed_at: 2026-09-11T15:32:47.369Z
+    blockers: []
+    advisories: []
+  01b-storm:
+    state: completed
+    completed_at: 2026-09-11T15:32:47.369Z
+    blockers: []
+    advisories: []
+  01c-model:
+    state: completed
+    completed_at: 2026-09-11T15:32:47.369Z
+    blockers: []
+    advisories: []
+  02-strategic:
+    state: completed
+    completed_at: 2026-09-11T15:32:47.369Z
+    blockers: []
+    advisories: []
+  03-tactical:
+    state: completed
+    completed_at: 2026-09-11T15:32:47.369Z
+    blockers: []
+    advisories: []
+  03c-ux-design:
+    state: completed
+    completed_at: 2026-09-11T15:32:47.369Z
+    blockers: []
+    advisories: []
+  04-specification:
+    state: revising
+    blockers:
+      - sensor: gherkin-actor-matches-dst
+        status: fail
+        blocking: true
+        message: '.arch/04-specification/features/inventory.feature: "When the manager requests replenishment for coffee_beans"
+          treats RequestReplenishment as manager, but Event Storm / DST actor is Barista'
+      - sensor: gherkin-actor-matches-dst
+        status: fail
+        blocking: true
+        message: '.arch/04-specification/features/inventory.feature: "When the manager confirms the replenishment for
+          coffee_beans" treats ConfirmReplenishment as manager, but Event Storm / DST actor is Barista'
+      - sensor: gherkin-actor-matches-dst
+        status: fail
+        blocking: true
+        message: '.arch/04-specification/features/ordering.feature: "When the cashier places an order for Table 3 with the
+          following items:" treats PlaceOrder as Counter Staff, but Event Storm / DST actor is Waiter'
+      - sensor: gherkin-actor-matches-dst
+        status: fail
+        blocking: true
+        message: '.arch/04-specification/features/ordering.feature: "When the cashier places an order for Table 0 with the
+          following items:" treats PlaceOrder as Counter Staff, but Event Storm / DST actor is Waiter'
+      - sensor: gherkin-actor-matches-dst
+        status: fail
+        blocking: true
+        message: '.arch/04-specification/features/ordering.feature: "When the cashier places an order for Table 6 with the
+          following items:" treats PlaceOrder as Counter Staff, but Event Storm / DST actor is Waiter'
+      - sensor: gherkin-actor-matches-dst
+        status: fail
+        blocking: true
+        message: '.arch/04-specification/features/ordering.feature: "When the cashier places an order for Table 1 with the
+          following items:" treats PlaceOrder as Counter Staff, but Event Storm / DST actor is Waiter'
+      - sensor: gherkin-actor-matches-dst
+        status: fail
+        blocking: true
+        message: '.arch/04-specification/features/ordering.feature: "When the server delivers the order to Table 4" treats
+          DeliverOrder as server, but Event Storm / DST actor is Waiter'
+      - sensor: gherkin-actor-matches-dst
+        status: fail
+        blocking: true
+        message: '.arch/04-specification/features/ordering.feature: "When the cashier places an order for Table 1 with the
+          following items:" treats PlaceOrder as Counter Staff, but Event Storm / DST actor is Waiter'
+    advisories: []
+  05-delivery:
+    state: revising
+    blockers:
+      - sensor: decision-not-restated
+        status: fail
+        blocking: true
+        message: region mismatch — the lock and the infrastructure disagree (.arch/assessment-2.yaml (region)=ap-east-2;
+          .arch/05-delivery/deployment-strategy.yaml=ap-east-2; iac/config/staging.ts=us-east-1;
+          iac/config/production.ts=us-east-1; scripts/deploy.sh=<derived from lock>)
+    advisories: []
+  06-review:
+    state: revising
+    blockers:
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/06-review/viewpoints/information-viewpoint.md: event-like name "InventoryDeducted" is not in
+          event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/06-review/viewpoints/information-viewpoint.md: event-like name "PreparationCompleted" is not in
+          event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/06-review/viewpoints/functional-viewpoint.md: event-like name "InventoryDeducted" is not in
+          event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/06-review/viewpoints/deployment-viewpoint.md: event-like name "PreparationCompleted" is not in
+          event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/06-review/viewpoints/deployment-viewpoint.md: event-like name "InventoryDeducted" is not in
+          event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/06-review/viewpoints/concurrency-viewpoint.md: event-like name "PreparationCompleted" is not in
+          event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/06-review/adrs/adr-002-sns-sqs.md: event-like name "PreparationCompleted" is not in event-storm.yaml'
+    advisories: []
+  07-documentation:
+    state: revising
+    blockers:
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/07-documentation/state/state-preparation.md: event-like name "OrderPaid" is not in event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/07-documentation/state/state-preparation.md: event-like name "PreparationCompleted" is not in
+          event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/07-documentation/state/state-order.md: event-like name "PreparationCompleted" is not in
+          event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/07-documentation/state/state-replenishment.md: event-like name "ReplenishmentDelivered" is not in
+          event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/07-documentation/c4/c4-2-container.md: event-like name "OrderPaid" is not in event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/07-documentation/c4/c4-2-container.md: event-like name "PreparationCompleted" is not in
+          event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/07-documentation/c4/c4-3-preparation.md: event-like name "OrderPaid" is not in event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/07-documentation/c4/c4-3-preparation.md: event-like name "PreparationCompleted" is not in
+          event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/07-documentation/c4/c4-3-ordering.md: event-like name "OrderPaid" is not in event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/07-documentation/c4/c4-3-ordering.md: event-like name "PreparationCompleted" is not in event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/07-documentation/sequence/sequence-replenishment.md: event-like name "ReplenishmentDelivered" is not in
+          event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/07-documentation/sequence/sequence-order-lifecycle.md: event-like name "OrderPaid" is not in
+          event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/07-documentation/sequence/sequence-order-lifecycle.md: event-like name "PreparationCompleted" is not in
+          event-storm.yaml'
+      - sensor: docs-events-match-storm
+        status: fail
+        blocking: true
+        message: '.arch/07-documentation/sequence/sequence-order-lifecycle.md: event-like name "InventoryDeducted" is not in
+          event-storm.yaml'
+    advisories: []
+  08-implementation:
+    state: revising
+    blockers:
+      - sensor: framework-version-matrix
+        status: fail
+        blocking: true
+        message: build.gradle.kts has spring-boot 3.4.4, but the questionnaire asked for spring-boot-4.x — set
+          backend_framework_resolved to record which one wins
+      - sensor: source-fingerprint
+        status: fail
+        blocking: true
+        message: Event Storm event OrderDelivered has no matching type in backend sources
+      - sensor: source-fingerprint
+        status: fail
+        blocking: true
+        message: Event Storm event PurchaseOrderCreated has no matching type in backend sources
+      - sensor: source-fingerprint
+        status: fail
+        blocking: true
+        message: frontend/src/router.tsx routes "cashier", which no Actor View declares
+      - sensor: source-fingerprint
+        status: fail
+        blocking: true
+        message: frontend/src/router.tsx routes "barista", which no Actor View declares
+      - sensor: source-fingerprint
+        status: fail
+        blocking: true
+        message: Actor View declares the page "/waiter/orders/ready", which frontend/src/router.tsx does not route
+      - sensor: source-fingerprint
+        status: fail
+        blocking: true
+        message: Actor View declares the page "/cashier/orders/pending", which frontend/src/router.tsx does not route
+      - sensor: source-fingerprint
+        status: fail
+        blocking: true
+        message: Actor View declares the page "/cashier/orders/confirmed", which frontend/src/router.tsx does not route
+      - sensor: source-fingerprint
+        status: fail
+        blocking: true
+        message: Actor View declares the page "/cashier/reports/sales", which frontend/src/router.tsx does not route
+      - sensor: source-fingerprint
+        status: fail
+        blocking: true
+        message: Actor View declares the page "/barista/queue", which frontend/src/router.tsx does not route
+      - sensor: source-fingerprint
+        status: fail
+        blocking: true
+        message: Actor View declares the page "/barista/inventory", which frontend/src/router.tsx does not route
+      - sensor: source-fingerprint
+        status: fail
+        blocking: true
+        message: Actor View declares the page "/barista/inventory/replenish", which frontend/src/router.tsx does not route
+      - sensor: source-fingerprint
+        status: fail
+        blocking: true
+        message: No end-to-end test file is named after DS-01 (searched 21 test file(s))
+      - sensor: source-fingerprint
+        status: fail
+        blocking: true
+        message: No end-to-end test file is named after DS-03 (searched 21 test file(s))
+      - sensor: source-fingerprint
+        status: fail
+        blocking: true
+        message: No end-to-end test file is named after DS-02 (searched 21 test file(s))
+      - sensor: commands-implemented
+        status: fail
+        blocking: true
+        message: Order declares the command PlaceOrder, which appears nowhere in the source
+      - sensor: commands-implemented
+        status: fail
+        blocking: true
+        message: Order declares the command ConfirmOrder, which appears nowhere in the source
+      - sensor: commands-implemented
+        status: fail
+        blocking: true
+        message: Order declares the command ProcessPayment, which appears nowhere in the source
+      - sensor: commands-implemented
+        status: fail
+        blocking: true
+        message: Order declares the command MarkReady, which appears nowhere in the source
+      - sensor: commands-implemented
+        status: fail
+        blocking: true
+        message: Order declares the command DeliverOrder, which appears nowhere in the source
+      - sensor: commands-implemented
+        status: fail
+        blocking: true
+        message: Order declares the command CompleteOrder, which appears nowhere in the source
+      - sensor: commands-implemented
+        status: fail
+        blocking: true
+        message: Preparation declares the command StartPreparation, which appears nowhere in the source
+      - sensor: commands-implemented
+        status: fail
+        blocking: true
+        message: Preparation declares the command CompleteCoffeePreparation, which appears nowhere in the source
+      - sensor: commands-implemented
+        status: fail
+        blocking: true
+        message: InventoryItem declares the command DeductIngredient, which appears nowhere in the source
+      - sensor: commands-implemented
+        status: fail
+        blocking: true
+        message: InventoryItem declares the command RequestReplenishment, which appears nowhere in the source
+      - sensor: commands-implemented
+        status: fail
+        blocking: true
+        message: InventoryItem declares the command CreatePurchaseOrder, which appears nowhere in the source
+      - sensor: commands-implemented
+        status: fail
+        blocking: true
+        message: InventoryItem declares the command ConfirmReplenishment, which appears nowhere in the source
+    advisories: []
+  09-deploy:
+    state: revising
+    blockers:
+      - sensor: decision-not-restated
+        status: fail
+        blocking: true
+        message: region mismatch — the lock and the infrastructure disagree (.arch/assessment-2.yaml (region)=ap-east-2;
+          .arch/05-delivery/deployment-strategy.yaml=ap-east-2; iac/config/staging.ts=us-east-1;
+          iac/config/production.ts=us-east-1; scripts/deploy.sh=<derived from lock>)
+    advisories: []
+locks:
+  assessment-2:
+    status: locked
+    fingerprint: 8b7a1792b97a668030082ff53c1b5d38970425f75958178be8ac6150ccc9188e
+    locked_at: 2026-09-07T13:55:14.096Z
+  assessment-8:
+    status: locked
+    fingerprint: 6aceaf90b0023e27025480cdc6ce6d16775c72b22bfe6936f5d4ec144b81a13d
+    locked_at: 2026-09-07T13:55:14.164Z

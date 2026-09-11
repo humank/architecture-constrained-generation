@@ -40,6 +40,54 @@ Phase 9: Deploy & Verify  → Deploy to target environment, post-deployment veri
 - **Knowledge-powered**: 50+ reference documents spanning 20+ methodologies ensure precise, methodology-faithful outputs
 - **Living documentation**: All diagrams in Mermaid + Markdown, previewable in VS Code and GitHub
 
+## The Engine
+
+Phase order, completion, and "may we advance?" are owned by a TypeScript engine, not by
+the orchestrator prompt. The LLM writes artifacts, asks questions, and explains. It does
+not decide that a phase is done.
+
+```bash
+bun engine/src/acg.ts import                 # derive state from artifacts on disk
+bun engine/src/acg.ts status                  # the six-state board
+bun engine/src/acg.ts next --json             # the only legitimate "what now?"
+bun engine/src/acg.ts gate --phase 05-delivery
+bun engine/src/acg.ts doctor                  # graph / frontmatter / input / lock drift
+```
+
+A phase reaches `[x]` only when every blocking sensor passes **and** a human approves —
+and on review phases, only when an independent reviewer subagent has given a verdict.
+23 sensors enforce the constraint chain deterministically:
+
+- Domain stories are sentences (`Actor → activity → Work Object`), not prose, and every
+  MVP user story is covered by one — checked in both directions.
+- An open hot spot about *how people work* goes back to Domain Storytelling; one about
+  an undecided *domain fact* may stay in the Event Storm.
+- Every Event Storm event cites the `DS-xx.y` step it came from; every actor-command
+  traces back to a story sentence.
+- Every actor-view page cites a DST step; Phase 8 checks that the router agrees, in
+  both directions.
+- A Gherkin scenario that gives a command to the wrong actor fails.
+- Infrastructure may not restate a locked decision as a literal — it reads the lock.
+- What applies to *your* system is derived from locked answers, not from editing the
+  phase graph: `ui_kind: api-only` makes the frontend checks report `na` and skips the
+  UX phase; `deployment_target: on-prem` does the same for the cloud checks.
+- A diagram that invents an event name fails.
+- A work object the stories only ever speak aloud may not become a database table.
+- A test strategy may not name a runner the locked stack and language cannot run.
+- A command an aggregate declares must exist in the code, and a test file named after a
+  story must contain an actual test — a name is not substance.
+- Decision locks are fingerprinted: editing an answer after locking blocks every phase
+  downstream of it.
+
+Three hooks make the rules enforceable rather than merely stated: agent tools cannot
+write the engine's own records or another phase's artifacts, a turn cannot end with a
+phase left in progress, and the board is written to disk before context compaction.
+
+`.arch/acg-state.yaml`, `.arch/audit/` and `.arch/quality-reports/` are engine-owned.
+
+Engine docs: [`engine/README.md`](engine/README.md) ·
+Design and rationale: [`docs/acg-engine-development-plan.md`](docs/acg-engine-development-plan.md)
+
 ## Quick Start
 
 ### Prerequisites
@@ -96,12 +144,16 @@ architecture-constrained-generation/
 │   │   ├── 05-delivery.md        # CI/CD, IaC, Post-Deployment Verification
 │   │   ├── 06-review.md          # R&W Viewpoints, Perspectives, Cross-Layer Consistency
 │   │   ├── 07-documentation.md   # C4 Diagrams, Mermaid documentation
-│   │   └── 08-implementation.md  # Code generation, Testing Golden Triangle, Deploy
+│   │   ├── 08-implementation.md  # Code generation, Testing Golden Triangle
+│   │   └── 09-deploy.md          # Deploy and replay MVP domain stories
 │   └── util/
 │       ├── assessment.md         # Assessment gate protocol
 │       ├── quality-gate.md       # 27 anti-patterns, 6 threads, 29 loops
 │       ├── glossary-manager.md   # Ubiquitous Language management
 │       └── refactoring-advisor.md # 27 code smells, 66 refactoring techniques
+├── .claude/
+│   ├── settings.json             # Write / Stop / PreCompact hooks
+│   └── agents/acg-reviewer.md    # Independent reviewer (Read/Grep/Glob only)
 ├── knowledge-base/               # 50+ methodology reference documents
 │   ├── 00-index.md               # Knowledge base index
 │   ├── ddd/                      # Evans Blue Book + Vernon IDDD
@@ -112,6 +164,14 @@ architecture-constrained-generation/
 │   ├── clean-architecture/       # Martin's Dependency Rule
 │   ├── xp/                       # Beck's XP values & practices
 │   └── ...                       # 15+ more methodology areas
+├── engine/                       # Deterministic runtime
+│   ├── src/                      # state machine, orchestrator, intent, locks
+│   ├── src/sensors/              # 23 sensors + registry
+│   ├── data/profiles/            # where each stack keeps its values
+│   ├── hooks/                    # PreToolUse / Stop / PreCompact
+│   ├── data/                     # phase-graph.yaml, scopes.yaml
+│   └── tests/                    # 293 tests, no network; 2 non-sample fixture domains
+├── artifact-schemas/             # JSON Schema / YAML schema per artifact
 ├── examples/
 │   └── coffeeshop-requirements.md # Complete example requirements
 └── tutorials/                    # O'Reilly-style comprehensive guide

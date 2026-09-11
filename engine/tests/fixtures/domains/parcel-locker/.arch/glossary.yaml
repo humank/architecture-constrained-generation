@@ -1,0 +1,17 @@
+glossary:
+  version: "0.1"
+  terms:
+    - term: Locker
+      origin: dst
+      definition: "One lockable compartment in a bank, of a fixed size"
+    - term: Parcel
+      origin: dst
+      definition: "The item a courier deposits and a recipient collects"
+    - term: CollectionCode
+      origin: dst
+      definition: "One-time code that opens the locker holding a specific parcel"
+      aliases: ["collection code"]
+    - term: LockerBank
+      origin: dst
+      definition: "The physical cabinet of lockers at one location"
+      aliases: ["locker bank"]

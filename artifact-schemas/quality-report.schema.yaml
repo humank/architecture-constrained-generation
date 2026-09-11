@@ -1,18 +1,26 @@
 schema:
-  version: "1.0"
-  description: "Quality Gate report for phase transitions"
+  version: "1.1"
+  description: >
+    Quality Gate report for phase transitions. Written by
+    `bun engine/src/acg.ts gate --phase <id>` to .arch/quality-reports/<id>.yaml.
+    Engine-owned: a hook refuses hand edits.
 
 quality_report:
   phase: string  # which phase was checked
   timestamp: string  # ISO 8601
-  status: enum [pass, warn, fail]
+  status: enum [pass, warn, fail, na]
 
   checks:
     type: array
     items:
-      name: string
-      category: enum [anti-pattern, completeness, consistency, thread-check]
-      status: enum [pass, warn, fail]
+      name: string  # sensor id when written by the engine, e.g. region-fingerprint
+      # "advisory" marks a non-blocking sensor: reported, never gates completion.
+      # "not-applicable" marks a sensor that could not evaluate this project at all.
+      category: enum [anti-pattern, completeness, consistency, thread-check, advisory, not-applicable]
+      # "na" = the sensor could not evaluate this project (no frontend, unlocked
+      # assessment, unreadable Gherkin dialect). Never blocking, always reported: a
+      # claim of inapplicability must be auditable.
+      status: enum [pass, warn, fail, na]
       message: string
       recommendation: string
 

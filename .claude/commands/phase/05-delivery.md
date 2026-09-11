@@ -1,5 +1,22 @@
 ---
 description: "Phase 5: Delivery — CD Pipeline, IaC, Observability, SLI/SLO"
+id: 05-delivery
+ordinal: 8
+step: all
+gate: human
+requires_lock: assessment-2
+consumes:
+  - .arch/02-strategic/bounded-contexts.yaml
+  - .arch/04-specification/features/
+  - .arch/assessment-2.yaml
+produces:
+  - .arch/05-delivery/pipeline.yaml
+  - .arch/05-delivery/deployment-strategy.yaml
+  - .arch/05-delivery/observability/
+  - .arch/05-delivery/runbooks/
+  - iac/
+  - k8s/
+sensors: [files-exist, decision-not-restated, e2e-story-coverage, messaging-matches-context-map]
 ---
 
 # Phase 5: Delivery Pipeline & Observability

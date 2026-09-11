@@ -1,0 +1,4 @@
+context_map:
+  style: modulith
+  communication: in_process_events
+  relationships: []

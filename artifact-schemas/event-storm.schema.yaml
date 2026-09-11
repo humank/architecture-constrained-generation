@@ -62,10 +62,17 @@ event_storm:
   hot_spots:
     type: array
     items:
-      description: string
+      topic: string
+      question: string
+      # Plan §2 Phase 1b. work-unknown means the work model is incomplete and the
+      # answer belongs in 01a-dst; fact-unknown means a domain fact is undecided and
+      # stays here. An OPEN work-unknown refuses 01b-storm.
+      kind: enum [work-unknown, fact-unknown]
       location: string  # near which event/command
+      sourced_from: array[string]  # DS-xx.y steps the question came from
       resolution_status: enum [open, resolved, deferred]
-      resolution: string
+      resolution: string     # required unless resolution_status is open
+      rationale: string      # why this classification, when it is arguable
 
   bounded_context_candidates:
     type: array

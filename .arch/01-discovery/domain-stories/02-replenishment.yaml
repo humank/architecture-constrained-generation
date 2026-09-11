@@ -1,0 +1,102 @@
+story:
+  id: DS-02
+  name: Inventory Alert and Replenishment
+  purity: to-be-only
+  purity_reason: >
+    Requirements specify the 30% alert and 3-day SLA as intended process;
+    no as-is stock-taking workshop was recorded.
+  backbone: Inventory Management
+  covers: [US-14, US-15, US-16, US-17, US-18]
+  actors: [Barista, Counter Staff, System, Supplier]
+  steps:
+    - id: DS-02.1
+      sequence: 1
+      actor: Barista
+      activity: views
+      work_object: Inventory
+      medium: digital
+      class: read
+      system_visible: true
+
+    - id: DS-02.2
+      sequence: 2
+      actor: System
+      activity: triggers
+      work_object: Low-Stock Alert
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Inventory
+      notes: When any material drops below 30% of max capacity.
+
+    - id: DS-02.3
+      sequence: 3
+      actor: Counter Staff
+      activity: receives
+      work_object: Low-Stock Alert
+      medium: digital
+      class: read
+      system_visible: true
+
+    - id: DS-02.4
+      sequence: 4
+      actor: Barista
+      activity: requests
+      work_object: Replenishment
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Replenishment
+
+    - id: DS-02.5
+      sequence: 5
+      actor: Barista
+      activity: hands over
+      work_object: Replenishment
+      medium: digital
+      class: handoff
+      system_visible: true
+      from_actor: Barista
+      to_actor: Counter Staff
+      mutates: Replenishment
+
+    - id: DS-02.6
+      sequence: 6
+      actor: Counter Staff
+      activity: creates
+      work_object: Purchase Order
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Replenishment
+
+    - id: DS-02.7
+      sequence: 7
+      actor: Supplier
+      activity: delivers
+      work_object: Material
+      medium: physical
+      class: collaboration
+      system_visible: false
+      notes: External; SLA 3 days. Not a domain command.
+
+    - id: DS-02.8
+      sequence: 8
+      actor: Barista
+      activity: confirms
+      work_object: Replenishment
+      medium: digital
+      class: state-change
+      system_visible: true
+      mutates: Inventory
+      notes: Restores stock to 100% capacity.
+
+  annotations:
+    - "Alert channel (SMS vs email) is unresolved at story level."
+    - "Supplier is outside the system boundary."
+  discovered_terms:
+    - Low-Stock Alert
+    - Replenishment
+    - Purchase Order
+    - Material
+    - Replenishment SLA

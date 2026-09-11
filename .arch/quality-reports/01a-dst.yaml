@@ -1,0 +1,26 @@
+quality_report:
+  phase: 01a-dst
+  timestamp: 2026-09-11T15:32:47.406Z
+  status: pass
+  checks:
+    - name: files-exist
+      category: consistency
+      status: pass
+      message: 2 declared input(s) present for 01a-dst
+      recommendation: proceed
+    - name: schema-dst
+      category: consistency
+      status: pass
+      message: 3 domain story file(s) match schema
+      recommendation: proceed
+    - name: story-map-coverage
+      category: consistency
+      status: pass
+      message: 20 MVP user story/-ies covered by 3 domain story/-ies
+      recommendation: proceed
+    - name: glossary-origin
+      category: advisory
+      status: pass
+      message: 34 glossary term(s) declare an origin
+      recommendation: proceed
+  next_action: proceed

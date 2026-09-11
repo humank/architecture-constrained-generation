@@ -1,0 +1,22 @@
+event_model:
+  description: "Parcel locker event model"
+  swimlanes:
+    - name: "Drop Off and Collect"
+      story: DS-01
+      slices:
+        - command: ReserveLocker
+          actor: Courier
+          event: LockerReserved
+          read_model: "Free Lockers by size"
+        - command: DepositParcel
+          actor: Courier
+          event: ParcelDeposited
+          read_model: "Parcel status"
+        - automation: "Issue collection code"
+          trigger_event: ParcelDeposited
+          output_event: CollectionCodeIssued
+          read_model: "CollectionCode (one-time, per parcel)"
+        - command: CollectParcel
+          actor: Recipient
+          event: ParcelCollected
+          read_model: "Collected parcels"

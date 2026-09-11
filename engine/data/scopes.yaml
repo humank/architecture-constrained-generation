@@ -1,0 +1,19 @@
+# Named scopes. "system" is the full constraint chain.
+# patch: change an existing BC without rediscovering the whole shop.
+# implement: generate/fix code assuming 00–07 artifacts exist.
+system:
+  description: Full requirements-to-deploy chain
+  phases: ["*"]
+
+patch:
+  description: Tactical change to an existing system (aggregates, specs, code)
+  phases:
+    - 03-tactical
+    - 04-specification
+    - 08-implementation
+
+implement:
+  description: Code and deploy from completed design
+  phases:
+    - 08-implementation
+    - 09-deploy
