@@ -769,28 +769,55 @@ The ultimate verification for Phase 8: every line of code traces back to an arch
 
 ```
 .arch/08-implementation/
-├── technology-stack.md           # Assessment gate results
-├── framework-constraints.md      # Stack-specific rules
-├── traceability-matrix.md        # Code ↔ artifact mapping
-└── agent-protocol.md             # Parallel generation plan
+└── implementation-report.md      # What was built, and the traceability matrix
 
-src/                              # The actual generated code
+services/                         # The actual generated code, one module per BC
 ├── ordering/
-│   ├── domain/
-│   ├── application/
-│   ├── infrastructure/
-│   └── api/
+│   ├── domain/  application/  infrastructure/  api/
 ├── preparation/
-│   ├── domain/
-│   ├── application/
-│   ├── infrastructure/
-│   └── api/
-└── payment/
-    ├── domain/
-    ├── application/
-    ├── infrastructure/
-    └── api/
+│   ├── domain/  application/  infrastructure/  api/
+├── inventory/
+│   └── ...
+└── reporting/
+    └── ...
+
+frontend/                         # One route per declared actor view
+├── src/router.tsx
+└── src/pages/...
+
+e2e/                              # One spec per to-be domain story
+└── DS-01-order-to-serve.spec.ts
 ```
+
+### What the engine checks here
+
+Phase 8 is the phase where "it looks done" and "it is done" diverge most, so it carries the
+heaviest sensor load — and `reviewer: true` on top of it.
+
+| Sensor | Refuses |
+|---|---|
+| `source-fingerprint` | An event with no type; a route no actor view declares; a declared page nothing routes; a story whose E2E file is a *name* with no test in it |
+| `commands-implemented` | A command an aggregate declares that appears in no source file (comments stripped before searching) |
+| `framework-version-matrix` | A framework version the build file cannot honour, in whatever ecosystem the profile knows |
+| `cl-contract-specified` | A CL-1..CL-8 check with no Phase 4 scenario that does not say it is inapplicable |
+
+The last two sensors in that list exist because of a specific observation from a review
+round: *the sensors match names, and what was delivered is names.* Four E2E files, each
+containing one comment naming a story, satisfied the story-coverage check while asserting
+nothing. Four designed commands existed in no source file at all while every event name,
+route and filename "matched".
+
+A check that matches names is satisfied by exactly what a lazy generator produces. Both of
+those cases are decidable, so both are now checked — which is the general rule: if a
+reviewer's finding turns out to be machine-decidable, it belongs in a sensor.
+
+### Phase 8 is not the end
+
+The Definition of Done extends past compiling code. Phase 9 deploys the IaC stacks and the
+services, then re-runs the cross-layer verification against the **deployed** URLs — not
+localhost — plus health checks through the actual ingress, a full-lifecycle smoke test, and
+error-resilience checks with the backend deliberately unavailable. Local tests passing is
+necessary and nowhere near sufficient.
 
 ---
 

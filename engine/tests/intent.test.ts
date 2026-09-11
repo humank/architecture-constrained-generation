@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { rmSync } from "node:fs";
 import { join } from "node:path";
 import { checkWrite, intentFor } from "../src/intent.ts";
+import { orderedPhases } from "../src/graph.ts";
 import { importFromArch } from "../src/importer.ts";
 import { loadState, saveState } from "../src/state.ts";
 import { cleanup, scratchRoot } from "./helpers.ts";
@@ -99,6 +100,17 @@ describe("checkWrite", () => {
   test("the glossary is writable from any phase", () => {
     for (const phase of ["01a-dst", "05-delivery", "08-implementation"]) {
       expect(checkWrite(".arch/glossary.yaml", cursorAt(phase)).allowed).toBe(true);
+    }
+  });
+
+  test("the directive never lists the same path as allowed and forbidden", () => {
+    // A self-contradictory directive is the exact defect class the engine exists to
+    // remove. The glossary is shared, so it belongs on one list only.
+    const root = cursorAt("01a-dst");
+    for (const phase of orderedPhases("system")) {
+      const intent = intentFor(phase.id, "system", root);
+      const both = intent.allowed_writes.filter((a) => intent.forbidden_writes.includes(a));
+      expect(both).toEqual([]);
     }
   });
 

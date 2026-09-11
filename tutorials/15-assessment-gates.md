@@ -27,25 +27,73 @@ Assessment gates solve this by **pausing the pipeline** and presenting structure
 Pipeline Flow with Assessment Gates:
 
   Phase 0 ──→ Phase 1 ──→ ⛔ GATE ──→ Phase 2 ──→ Phase 3 ──→ Phase 4 ...
-  (Requirements) (Discovery)  │         (Strategic)
-                              │
-                    ┌─────────▼──────────┐
-                    │ assessment-2.md    │
-                    │                    │
-                    │ Q1: Architecture?  │
-                    │ Q2: Team topology? │
-                    │ Q3: Repo strategy? │
-                    │ Q4: Communication? │
-                    │ ...                │
-                    │                    │
-                    │ Status: PENDING    │
-                    └────────────────────┘
-                              │
-                    Human fills answers,
-                    sets Status: COMPLETED
-                              │
-                    Pipeline resumes ──→
+  (Requirements) (Discovery)      │      (Strategic)
+                                  │
+            ┌─────────────────────▼────────────────────┐
+            │ .arch/assessment-2.md    (for humans)    │
+            │ .arch/assessment-2.yaml  (for the engine)│
+            │                                          │
+            │ Q1: Architecture?   Q3: Repo strategy?   │
+            │ Q2: Team topology?  Q4: Communication?   │
+            │ ...                                      │
+            └─────────────────────┬────────────────────┘
+                                  │
+                        Human fills answers
+                                  │
+            bun engine/src/acg.ts assess-lock --id assessment-2
+                                  │
+                   status: locked + sha256 fingerprint
+                                  │
+                        Pipeline resumes ──→
 ```
+
+### The lock, not the word "COMPLETED"
+
+This is the single most important thing to understand about assessment gates, and it is a
+correction to how ACG used to work.
+
+A model can write `**Status**: COMPLETED` into a Markdown file. A model cannot forge a hash
+of answers it did not write. So the gate does not read a status word — it requires a
+**lock**:
+
+```bash
+bun engine/src/acg.ts assess-lock --id assessment-2
+```
+
+`assess-lock` refuses unless every REQUIRED question has an answer, then records a canonical
+sha256 fingerprint of the answer set into `.arch/assessment-2.yaml`:
+
+```yaml
+id: assessment-2
+status: locked
+locked_at: 2026-09-07T13:55:14.096Z
+source_markdown: .arch/assessment-2.md
+fingerprint: 8b7a1792b97a668030082ff53c1b5d38970425f75958178be8ac6150ccc9188e
+answers:
+  architecture_style: microservices
+  deployment_target: eks
+  ui_kind: spa
+  region: ap-east-2
+  iac: cdk-typescript
+```
+
+Until that lock exists, `bun engine/src/acg.ts next` returns `ask-assessment` and nothing
+advances. Edit an answer afterwards and the fingerprint no longer matches — which the engine
+treats as tampering, not as an update. Re-lock deliberately.
+
+Three consequences follow, and they are why the lock is worth the ceremony:
+
+1. **Infrastructure reads the decision instead of restating it.** `scripts/deploy.sh` calls
+   `acg.ts locked-answer --id assessment-2 --key region` rather than hardcoding a region.
+   Two copies of a decision are one decision and one lie waiting to happen.
+2. **Locked answers are the only thing that may switch a check off.** A `when:` condition in
+   the phase graph can make a sensor or a whole phase conditional on a locked answer — never
+   on hand-editing the graph, because a graph users may edit is a graph where every red
+   sensor gets deleted. Conditions are default-on: unlocked, unanswered or tampered all
+   leave the check running.
+3. **Approval remembers what it approved.** The engine records `approved_with_lock` when a
+   phase is approved. If an answer changes later, the drift is detected before any further
+   work — a phase approved under a decision that no longer holds is not approved.
 
 ---
 
@@ -534,7 +582,15 @@ These questions are relevant when the system includes a frontend:
 
 ## The Assessment File Format
 
-Every assessment is a Markdown file stored in the knowledge base at `knowledge-base/assessments/`. The file follows a strict template so the orchestrator can parse answers programmatically.
+Every assessment is **two** files in `.arch/`:
+
+| File | Audience | Role |
+|---|---|---|
+| `.arch/assessment-2.md` | the human | the questionnaire: context, options, AI recommendation, reasoning |
+| `.arch/assessment-2.yaml` | the engine | the answers, the status, and the fingerprint |
+
+The Markdown is where the thinking is recorded. The YAML is what every sensor, condition and
+profile resolution actually reads. The Markdown follows a strict template:
 
 ```markdown
 # Assessment: [Phase Name]
@@ -587,7 +643,7 @@ Every assessment is a Markdown file stored in the knowledge base at `knowledge-b
 
 ### Key Structural Elements
 
-- **Status field**: The orchestrator checks this field. `PENDING` means the gate is active. `COMPLETED` means the human has finished. The pipeline will not resume until the status changes.
+- **Status field**: A human-facing marker only. `PENDING` means the gate is active; `COMPLETED` means the human believes they are finished. **It is not the source of truth** — the engine reads `status: locked` and the fingerprint in the YAML. Writing `COMPLETED` in the Markdown advances nothing.
 - **AI Recommendation**: Every question includes the AI's recommendation with reasoning derived from Phase 1 outputs (event count, BC count, complexity signals). This is not a guess — it is informed analysis.
 - **Default assumption**: If the human doesn't answer an IMPORTANT or NICE_TO_HAVE question, the pipeline uses this value and logs it in the Assumptions Log.
 - **Assumptions Log**: A permanent record of what was assumed vs. what was explicitly decided. This is essential for future audits ("Why did we choose PostgreSQL?" — "It was the default assumption, never overridden. See assessment-8.md, Q4.").
@@ -596,15 +652,15 @@ Every assessment is a Markdown file stored in the knowledge base at `knowledge-b
 
 ## Post-Assessment Flow
 
-Once the human fills in answers and sets `Status: COMPLETED`, the pipeline executes a three-step resume:
+Once the human fills in answers and the lock succeeds, the pipeline executes a three-step resume:
 
 ```
-1. Parse Answers
+1. Lock Answers
    ┌──────────────────────────────┐
-   │ Orchestrator reads the       │
-   │ assessment file, extracts    │
-   │ answers, validates BLOCKERs  │
-   │ are all answered.            │
+   │ acg.ts assess-lock refuses   │
+   │ unless every REQUIRED answer │
+   │ is present, then fingerprints│
+   │ the answer set (sha256).     │
    └──────────────┬───────────────┘
                   │
 2. Update Artifacts
@@ -625,7 +681,19 @@ Once the human fills in answers and sets `Status: COMPLETED`, the pipeline execu
    └──────────────────────────────┘
 ```
 
-If any BLOCKER question is left unanswered, the orchestrator rejects the assessment and sets the status back to `PENDING` with a message indicating which questions need answers.
+If any REQUIRED question is left unanswered, `assess-lock` exits non-zero and names the
+questions that are missing. There is no way to talk it into locking anyway:
+
+```bash
+$ bun engine/src/acg.ts assess-lock --id assessment-2
+assessment-2 cannot lock: 2 required answers missing (region, iac)
+```
+
+You can also verify a lock at any time, which is what `doctor` does for you:
+
+```bash
+bun engine/src/acg.ts lock-check --id assessment-2
+```
 
 ---
 
@@ -633,7 +701,7 @@ If any BLOCKER question is left unanswered, the orchestrator rejects the assessm
 
 ### Assessments as Permanent Record
 
-Assessment files are not throwaway forms. They are **permanent artifacts** that live alongside the code in the knowledge base. Six months from now, when someone asks "Why are we on ECS Fargate instead of EKS?", the answer is in `assessment-2.md`, Q5d, with the AI's recommendation, the human's choice, and the reasoning.
+Assessment files are not throwaway forms. They are **permanent artifacts** committed alongside the code. Six months from now, when someone asks "Why are we on ECS Fargate instead of EKS?", the answer is in `.arch/assessment-2.md`, Q5d, with the AI's recommendation, the human's choice, and the reasoning — and `.arch/assessment-2.yaml` proves that is the answer the pipeline actually ran on, not a document someone edited afterwards.
 
 This is a significant advantage over verbal decisions or Slack messages that get buried. Every architecture decision has a traceable origin.
 

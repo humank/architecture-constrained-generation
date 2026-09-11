@@ -16,6 +16,12 @@ This chapter walks through every ACG phase using a single concrete example: a sm
 
 The goal: take a one-page requirements document and trace it all the way to running code on AWS.
 
+> **The coffeeshop is a sample, and it is not clean.** It ships five deliberate defects so
+> the engine has something to catch, and the honest board for it is *not* green — several
+> phases sit in `[R] revising`. See [Read This Before You Copy It](#read-this-before-you-copy-it)
+> at the end of the chapter. If you are starting your own project, do not inherit this
+> `.arch/`; run `acg init` instead ([`docs/adopting-acg.md`](../docs/adopting-acg.md)).
+
 ---
 
 ## The Requirements Document
@@ -153,13 +159,24 @@ Timeline ───────────────────────�
 
 ### Bounded Context Candidates
 
-Three clusters emerge naturally from the event timeline:
+Four clusters emerge from the event timeline:
 
 | Bounded Context | Events | Key Actors |
 |---|---|---|
 | **Ordering** | OrderPlaced, OrderConfirmed, PaymentReceived, OrderCompleted | Waiter, Counter Staff, Customer |
 | **Preparation** | OrderSubmittedToBarista, CoffeePreparationStarted, CoffeePrepared, CoffeeDelivered | Barista, Waiter |
-| **Inventory** | StockLevelDropped, LowStockAlertTriggered, ReplenishmentRequested, ReplenishmentReceived, StockReplenished | Manager |
+| **Inventory** | StockLevelDropped, LowStockAlertTriggered, ReplenishmentRequested, ReplenishmentReceived, StockReplenished | Counter Staff |
+| **Reporting** | DailySalesReportGenerated, InventoryReportGenerated | Owner |
+
+Note the fourth one. Reporting exists because DS-03 (*Daily Reporting*) exists — the Owner
+closes the day and reads sales and inventory figures. If a story has no bounded context to
+serve it, `story-map-coverage` says so at Phase 1; if a context serves no story, nothing
+downstream can justify it.
+
+Note also who reorders stock: the **Counter Staff**. There is no `manager` actor in any
+domain story — and the fact that `inventory.feature` nevertheless gives the command to a
+"manager" is one of this sample's deliberate defects. See
+[Read This Before You Copy It](#read-this-before-you-copy-it).
 
 ### Cross-BC Events
 
@@ -202,7 +219,9 @@ The pipeline pauses. The human answers six questions:
 └─────────────────────────────────────────────────────────┘
 ```
 
-These decisions are recorded in `assessment-1.md` and constrain every subsequent phase.
+These decisions are recorded in `.arch/assessment-2.md`, locked and fingerprinted in
+`.arch/assessment-2.yaml`, and constrain every subsequent phase. Nothing past this point
+runs until `acg.ts assess-lock --id assessment-2` succeeds.
 
 ---
 
@@ -213,8 +232,14 @@ These decisions are recorded in `assessment-1.md` and constrain every subsequent
 | BC | Classification | Rationale |
 |---|---|---|
 | **Ordering** | Core | Revenue-generating. Every dollar flows through here. Contains pricing logic, payment processing, the customer-facing workflow. |
-| **Preparation** | Supporting | Differentiating but not revenue-critical. Manages the barista queue and delivery tracking. |
-| **Inventory** | Generic | Standard stock management. Could be replaced by an off-the-shelf tool. |
+| **Preparation** | Core | The product *is* the coffee. Recipe consumption and the barista queue are what this shop does better or worse than the shop next door. |
+| **Inventory** | Supporting | Necessary, domain-specific (recipes drive consumption), but not differentiating. |
+| **Reporting** | Generic | Read-only projections over other contexts' events. Replaceable by an off-the-shelf BI tool. |
+
+These are the classifications in `.arch/02-strategic/bounded-contexts.yaml`. Classification
+is a judgement, and it is one worth arguing about — Preparation is Core here because the
+shop competes on coffee, not on order-taking. In a franchise where recipes are fixed
+centrally, the same context would be Supporting.
 
 ### Context Map
 
@@ -496,7 +521,7 @@ Every stack traces back to architecture artifacts: `messaging-stack.ts` is deriv
 
 | Viewpoint | Key Finding |
 |---|---|
-| **Functional** | 3 BCs, 3 aggregates (Order, PreparationTask, StockItem), 15 domain events |
+| **Functional** | 4 BCs, 3 aggregates (Order, PreparationTask, StockItem), 15 domain events |
 | **Information** | Schema-per-BC isolation. No cross-schema joins. Event-carried state transfer for reads. |
 | **Concurrency** | Order state machine prevents race conditions. SQS FIFO for ordered event processing. |
 | **Development** | Mono-repo with 3 service modules. Each BC independently deployable. |
@@ -505,6 +530,11 @@ Every stack traces back to architecture artifacts: `messaging-stack.ts` is deriv
 | **Context** | Small team (4-6). ap-east-2 single-region. Cash-only simplifies payment compliance. |
 
 ### 10 Perspectives
+
+These are the **semantic** layer: judgement, recorded for a human to disagree with. A `PASS`
+here is an argument, not a measurement — unlike a sensor's green, which is a computation. The
+independent reviewer rejected this phase four times before approving it, and each rejection
+was a finding no deterministic check could have made.
 
 | Perspective | Status | Notes |
 |---|---|---|
@@ -577,8 +607,8 @@ graph TB
 
     WaiterSPA --> OrderingSvc
     CashierSPA --> OrderingSvc
+    CashierSPA --> InvSvc
     BaristaSPA --> PrepSvc
-    ManagerSPA --> InvSvc
 
     OrderingSvc --> OrderingDB
     PrepSvc --> PrepDB
@@ -588,6 +618,11 @@ graph TB
     SNS --> PrepSvc
     SNS --> InvSvc
 ```
+
+Three SPAs, not four: `frontend-architecture.yaml` declares actor views for Waiter, Counter
+Staff and Barista only. Diagrams are where invented components like a "ManagerSPA" creep in,
+and `docs-events-match-storm` exists because the same thing happens to event names —
+this sample's diagrams publish an `OrderPaid` that no Event Storm event declares.
 
 ### Order State Machine
 
@@ -760,111 +795,83 @@ Each layer is constrained by a different artifact. The developer (or the AI) doe
 
 ## The Complete `.arch/` Directory
 
-After all 8 phases, the `.arch/` directory contains every artifact produced:
+This is the actual tree in this repository — not an idealised one:
 
 ```
 .arch/
-├── assessment-1.md                          # Architecture decisions (microservices, SNS/SQS, etc.)
-├── assessment-2.md                          # Technology stack (Java 21, React, etc.)
-├── glossary.yaml                            # Ubiquitous Language (34 terms)
+├── acg-project.yaml                         # Project name and language (engine reads `name`)
+├── acg-state.yaml                           # ENGINE-OWNED: the six-state board
+├── assessment-2.md / .yaml                  # Architecture decisions + the lock
+├── assessment-8.md / .yaml                  # Technology stack + the lock
+├── glossary.yaml                            # Ubiquitous Language (34 terms, each with `origin`)
 │
 ├── 00-requirements/
 │   ├── impact-map.yaml                      # Goal → Actors → Impacts → Deliverables
-│   └── story-map.yaml                       # Backbone + walking skeleton
+│   ├── story-map.yaml                       # Backbone + walking skeleton + `covered_by`
+│   └── parsed-requirements.yaml
 │
 ├── 01-discovery/
 │   ├── domain-stories/
-│   │   ├── waiter-takes-order.yaml
-│   │   ├── cashier-processes-payment.yaml
-│   │   ├── barista-prepares-coffee.yaml
-│   │   └── manager-checks-inventory.yaml
-│   ├── event-storm.yaml                     # 15 events, 8 commands, 4 actors
-│   └── event-model.yaml                     # Commands, Views, GWT specs
+│   │   ├── 01-order-to-serve.yaml           # DS-01: the master journey record
+│   │   ├── 02-replenishment.yaml            # DS-02
+│   │   └── 03-daily-reporting.yaml          # DS-03
+│   ├── event-storm.yaml                     # Events `sourced_from: [DS-xx.y]`, classified hot spots
+│   └── event-model.yaml                     # Swimlanes cut by story, GWT specs
 │
 ├── 02-strategic/
-│   ├── bounded-contexts.yaml                # 3 BCs: Ordering, Preparation, Inventory
-│   ├── context-map.yaml                     # Customer-Supplier, Conformist
-│   └── subdomain-classification.yaml        # Core, Supporting, Generic
+│   ├── bounded-contexts.yaml                # 4 BCs: Ordering, Preparation, Inventory, Reporting
+│   └── context-map.yaml                     # Customer-Supplier, Conformist, integration events
 │
 ├── 03-tactical/
-│   ├── aggregates/
-│   │   ├── ordering/
-│   │   │   └── order-aggregate.yaml         # Vernon's Four Rules applied
-│   │   ├── preparation/
-│   │   │   └── preparation-task-aggregate.yaml
-│   │   └── inventory/
-│   │       └── stock-item-aggregate.yaml
-│   ├── domain-model.yaml                    # Entities, VOs, Enums, Relationships
-│   ├── api-contracts.yaml                   # Task-based endpoints per BC
-│   └── frontend-architecture.yaml           # Actor views, data requirements
+│   ├── aggregates/{ordering,preparation,inventory}.yaml    # Vernon's Four Rules applied
+│   ├── domain-model/{ordering,preparation,inventory}-model.yaml
+│   └── frontend-architecture.yaml           # Actor views + `sourced_from`, API contract, CL-1..CL-8
 │
 ├── 03c-ux-design/
 │   └── ux-design-report.yaml                # Status colors, actor overrides, tokens
 │
 ├── 04-specification/
 │   ├── features/
-│   │   ├── ordering/
-│   │   │   ├── place-order.feature
-│   │   │   ├── confirm-order.feature
-│   │   │   └── order-payment.feature
-│   │   ├── preparation/
-│   │   │   ├── preparation-queue.feature
-│   │   │   └── preparation-workflow.feature
-│   │   └── inventory/
-│   │       ├── stock-monitoring.feature
-│   │       └── replenishment.feature
-│   ├── frontend-features/
-│   │   ├── barista-resilience.feature
-│   │   └── waiter-offline.feature
+│   │   ├── ordering.feature  preparation.feature  inventory.feature  reporting.feature
+│   │   ├── query-endpoints.feature          # The read side
+│   │   ├── cross-layer-integrity.feature    # CL-1..CL-8 as executable scenarios
+│   │   └── journeys/
+│   │       ├── DS-01-order-to-serve.feature # One E2E journey per to-be domain story
+│   │       ├── DS-02-replenishment.feature
+│   │       └── DS-03-daily-reporting.feature
+│   ├── contracts/                           # Consumer-driven contracts, 5 pairs
 │   ├── threat-model.yaml                    # STRIDE per BC
-│   ├── contract-tests.yaml                  # Pact contracts for cross-BC events
 │   └── test-strategy.yaml                   # Test shape per BC
 │
 ├── 05-delivery/
-│   ├── pipeline.yaml                        # 7-stage pipeline definition
+│   ├── pipeline.yaml                        # 8-stage pipeline, smoke entries keyed by story id
 │   ├── deployment-strategy.yaml             # Canary/Blue-Green/Rolling per BC
-│   ├── infrastructure-resource-plan.yaml    # CDK stack → resource mapping
-│   ├── observability.yaml                   # Dashboards, traces, alerts
-│   └── sli-slo.yaml                         # Error budgets, burn rates
+│   ├── observability/{otel-config,dashboards,alerting,sli-slo}.yaml
+│   └── runbooks/                            # 11 runbooks, one per alert
 │
 ├── 06-review/
-│   ├── viewpoints/
-│   │   ├── functional-viewpoint.md
-│   │   ├── information-viewpoint.md
-│   │   ├── concurrency-viewpoint.md
-│   │   ├── development-viewpoint.md
-│   │   ├── deployment-viewpoint.md
-│   │   ├── operational-viewpoint.md
-│   │   └── context-viewpoint.md
-│   ├── perspectives/
-│   │   ├── security-perspective.md
-│   │   ├── performance-perspective.md
-│   │   └── ... (8 more)
-│   ├── anti-pattern-report.md               # 7/7 checks passed
-│   └── adrs/
-│       ├── adr-001-microservices.md
-│       ├── adr-002-schema-per-bc.md
-│       ├── adr-003-sns-sqs.md
-│       └── adr-004-cash-only-no-pci.md
+│   ├── viewpoints/                          # 7 separate Rozanski & Woods viewpoints
+│   ├── perspectives.md                      # 10 perspectives
+│   ├── cross-phase-consistency.md
+│   └── adrs/adr-001..005                    # microservices, SNS/SQS, outbox, schema-per-BC, seed data
 │
-└── 07-documentation/
-    ├── c4-system-context.md                 # Mermaid diagrams
-    ├── c4-container.md
-    ├── c4-component-ordering.md
-    ├── c4-component-preparation.md
-    ├── c4-component-inventory.md
-    ├── domain-model.md
-    ├── sequence-diagrams/
-    │   ├── place-order-sequence.md
-    │   ├── payment-sequence.md
-    │   └── preparation-sequence.md
-    └── state-machines/
-        ├── order-state-machine.md
-        ├── preparation-task-state-machine.md
-        └── stock-item-state-machine.md
+├── 07-documentation/
+│   ├── README.md                            # Documentation index
+│   ├── c4/c4-1-context.md  c4-2-container.md  c4-3-ordering.md  c4-3-preparation.md
+│   ├── domain/domain-model-{ordering,preparation,inventory}.md
+│   ├── sequence/sequence-{order-lifecycle,replenishment}.md
+│   └── state/state-{order,preparation,replenishment}.md
+│
+├── 08-implementation/
+│   └── implementation-report.md
+│
+├── quality-reports/                         # ENGINE-OWNED: one per phase id, written by `gate`
+└── audit/                                   # ENGINE-OWNED: append-only, sharded per month
 ```
 
-60+ artifacts. Every one is machine-readable. Every one constrains what comes after it.
+90+ artifacts. Every one is machine-readable. Every one constrains what comes after it —
+and the three directories marked ENGINE-OWNED are refused to any agent write by a
+PreToolUse hook, because a process that can edit its own scoreboard has no scoreboard.
 
 ---
 
@@ -887,7 +894,7 @@ Phase 8 Code              →  CAPPUCCINO.priceFor(SMALL) returns Money(100)
                               + whippedCream surcharge Money(20) = Money(120)
 ```
 
-Nine phases. One rule. Zero ambiguity.
+Ten phases. One rule. Zero ambiguity — and at each arrow, a sensor that can say no.
 
 ---
 
@@ -896,6 +903,55 @@ Nine phases. One rule. Zero ambiguity.
 The coffeeshop is deliberately small — 5 tables, 4 coffee types, 3 Bounded Contexts. But the pipeline that processes it is the same one that handles a 50-microservice enterprise system. The methodology scales because each phase is independent: a larger system simply produces more artifacts per phase, not more phases.
 
 What makes the coffeeshop walkthrough valuable is not the coffee — it's watching every constraint tighten, phase by phase, until the only code that can emerge is the **correct** code.
+
+---
+
+## Read This Before You Copy It
+
+Everything above is what the pipeline *produces*. What follows is what the engine *found* in
+it — and this part is the more useful half of the chapter.
+
+The coffeeshop was built before ACG had an engine. It was reviewed by quality gates that
+were paragraphs of prose, and it passed them. When 23 deterministic sensors were pointed at
+the same artifacts, they found contradictions that had been sitting in plain sight:
+
+| What the artifacts said | What contradicted it |
+|---|---|
+| `ordering.feature`: the *cashier* places an order, a *"server"* delivers it | DS-01 says the Waiter places and the Barista prepares |
+| `inventory.feature`: a *"manager"* reorders stock | No `manager` actor exists in any domain story |
+| C4 and sequence diagrams publish `OrderPaid` | No Event Storm event is named `OrderPaid` |
+| `frontend-architecture.yaml` declares 7 actor-view pages | `router.tsx` routes none of them |
+| `assessment-2` locks `region: ap-east-2` | `iac/config/*.ts` hardcode `us-east-1` |
+| `assessment-8` asks for Spring Boot 4.x | `build.gradle.kts` pins 3.4.4 |
+
+Every one of those would have been a production incident or a rewrite. None of them was
+caught by a human reading the documents, because each is individually plausible — "server"
+reads like a synonym for waiter, `OrderPaid` reads like an event that surely exists, and a
+region string looks right in isolation.
+
+**Those six are still red, on purpose.** They are the regression fixture: `bun run
+test:sample` asserts that each sensor *fails* on them. Fixing them would remove the only
+proof the engine works. So the honest board for this sample is:
+
+```
+[x] 00-requirements  …  [x] 03c-ux-design
+[R] 04-specification   gherkin-actor-matches-dst×8
+[R] 05-delivery        decision-not-restated
+[R] 06-review          docs-events-match-storm×7
+[R] 07-documentation   docs-events-match-storm×14
+[R] 08-implementation  framework-version-matrix  source-fingerprint×14  commands-implemented×12
+[R] 09-deploy          decision-not-restated
+```
+
+Two lessons worth carrying into your own project:
+
+**A green board from a prose gate means nothing.** This sample had one.
+
+**An imported project hides the worst engine bugs.** When the engine's loop was first run
+against this `.arch/`, it found zero defects in the engine — every artifact was already
+present, so a sensor demanding a Phase 8 file at Phase 3 never noticed it was asking the
+impossible. Running the same loop on two greenfield projects found nineteen. If you are
+extending ACG, test on something that does not exist yet.
 
 ---
 

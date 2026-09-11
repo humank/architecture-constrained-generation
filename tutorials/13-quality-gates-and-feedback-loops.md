@@ -41,6 +41,47 @@ The quality gate has three components:
 
 ---
 
+## First: Two Layers, and Which One Blocks
+
+Everything in this chapter is the **semantic** layer: checks that require reading meaning
+rather than matching structure. It is applied by the `/quality-gate` skill and by the
+independent reviewer subagent, and its job is judgement.
+
+Underneath it sits a **deterministic** layer: 23 sensors written in TypeScript, with no
+model and no prompt in them. Only that layer can refuse a phase.
+
+| | Deterministic sensors | Semantic checks (this chapter) |
+|---|---|---|
+| Implemented as | TypeScript in `engine/src/sensors/` | Checklists in `.claude/commands/util/quality-gate.md` + the reviewer subagent |
+| Decides | Whether the phase may reach `[x]` | What a human should look at |
+| Can be argued with | No | Yes, and sometimes should be |
+| Count | 23 | 27 guards, 6 threads, 29 loops |
+
+Why the split matters: **a prompt cannot gate its own output.** If the check that grades an
+artifact is a paragraph asking a model to be careful, and the same model just wrote the
+artifact, there is no gate. So every check that is *decidable* gets moved down into a
+sensor, and only what genuinely requires judgement stays up here.
+
+That migration is ongoing and has a clear test. Across seven review rounds on this
+repository, the reviewer raised about fifteen findings; exactly one was something a sensor
+should have caught (and that sensor was broken). The rest fell into four classes no
+deterministic check can reach:
+
+1. **Prose contradicting prose** — two documents describing the same mechanism differently.
+2. **A payload with nowhere to land** — an event field no read model, projection or screen
+   consumes. Every name resolves; the design is still wrong.
+3. **An invented path** — a document referring to a component that was never designed.
+4. **A name with no substance** — an abstraction that exists only as a label.
+
+When a semantic finding turns out to be decidable after all, it gets promoted. Two already
+have: the CL-2 shared-enum comparison, and `commands-implemented` (a command an aggregate
+declares that appears in no source file). If you find yourself adding a checklist item that
+a script could answer, write the script instead.
+
+The deterministic layer is [Chapter 18](./18-the-engine.md).
+
+---
+
 ## Anti-Pattern Detection (27 Guards)
 
 Each guard inspects the current phase artifacts and reports one of three statuses:
@@ -301,23 +342,35 @@ quality_report:
 
 ### Report Location
 
-Reports are written to `.arch/quality-reports/`:
+Reports are written to `.arch/quality-reports/`, one per **engine phase id**:
 
 ```
 .arch/
 └── quality-reports/
-    ├── phase-0-report.yaml
-    ├── phase-1-report.yaml
-    ├── phase-2-report.yaml
-    ├── phase-3-report.yaml
-    ├── phase-3c-report.yaml
-    ├── phase-4-report.yaml
-    ├── phase-5-report.yaml
-    ├── phase-6-report.yaml
-    ├── phase-7-report.yaml
-    ├── phase-8-report.yaml
-    └── full-report.yaml          # generated when checking "all" phases
+    ├── 00-requirements.yaml
+    ├── 01a-dst.yaml
+    ├── 01b-storm.yaml
+    ├── 01c-model.yaml
+    ├── 02-strategic.yaml
+    ├── 03-tactical.yaml
+    ├── 03c-ux-design.yaml
+    ├── 04-specification.yaml
+    ├── 05-delivery.yaml
+    ├── 06-review.yaml
+    ├── 07-documentation.yaml
+    ├── 08-implementation.yaml
+    └── 09-deploy.yaml
 ```
+
+This directory is **engine-owned**: a PreToolUse hook refuses any agent write to it. The
+reports are written by `acg.ts gate`, and a report that was not written by the engine is
+itself a finding — the advisory `quality-report-written` sensor exists to catch a gate that
+ran outside the engine.
+
+Each report records every sensor finding with its status. `na` deserves special attention:
+it means *the check could not be evaluated*, never *the check passed*. The reason names the
+locked answer or missing profile entry that excluded it, so "that does not apply to us"
+stays a claim someone can disagree with.
 
 ### Aggregate Status Rule
 
@@ -339,13 +392,26 @@ If any single check is `fail`, the entire report is `fail`. The `next_action` fi
 
 ### Per-Phase Invocation
 
-After completing any phase, invoke the quality gate:
+The blocking half runs through the engine, by phase id:
+
+```bash
+bun engine/src/acg.ts gate --phase 03-tactical
+bun engine/src/acg.ts gate --phase 03-tactical --dry-run   # ask without recording
+```
+
+`--dry-run` matters: without it, `gate` writes the quality report. "Just checking" and
+"recording a result" are different acts, and conflating them was a real defect in an
+earlier version of the engine.
+
+The semantic half runs as a skill:
 
 ```
-/quality-gate 3        # check Phase 3 artifacts
-/quality-gate 8        # check Phase 8 artifacts
-/quality-gate all      # check all phases with artifacts
+/quality-gate 3        # review Phase 3 artifacts
+/quality-gate 8        # review Phase 8 artifacts
+/quality-gate all      # review all phases with artifacts
 ```
+
+Neither of them marks a phase complete. Only `report` and `review` move the state machine.
 
 ### What Happens on Each Status
 
@@ -354,6 +420,12 @@ After completing any phase, invoke the quality gate:
 **CAUTION (review-and-proceed)**: Warnings were found. A human should review the report and decide whether the warnings are acceptable or need action. The pipeline does not block.
 
 **VIOLATION (block-fix-required)**: One or more anti-patterns are confirmed. The pipeline blocks. The team must fix the violations and re-run the quality gate before proceeding.
+
+The fix is to change the artifact — or to change the decision through
+`acg.ts redo --phase <id>` and record why. It is never to restate the claim more
+confidently. If the same sensor rejects the same phase twice, `acg.ts lessons` will say so,
+and the engine hands that lesson to the conductor before it writes the same thing a third
+time.
 
 **Feedback Loop (feedback-loop)**: A trigger condition was met. The report specifies which phase to return to and why. The team returns to that phase, makes corrections, and then re-runs forward through all subsequent phases.
 

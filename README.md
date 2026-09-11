@@ -4,7 +4,7 @@
 
 > **From requirements to running code — with every line traceable to an architecture decision.**
 
-Architecture Constrained Generation is a [Claude Code](https://claude.com/claude-code) skill that transforms business requirements into a fully implemented, deployed, and verified system through a 10-phase pipeline. It combines 20+ software engineering methodologies — DDD, Event Storming, Event Modeling, BDD, TDD, Clean Architecture, XP, and more — into a single coherent workflow.
+Architecture Constrained Generation is a [Claude Code](https://claude.com/claude-code) skill **plus a deterministic engine** that transforms business requirements into a fully implemented, deployed, and verified system through a 10-phase pipeline. It combines 20+ software engineering methodologies — DDD, Event Storming, Event Modeling, BDD, TDD, Clean Architecture, XP, and more — into a single coherent workflow.
 
 ## The Core Idea
 
@@ -19,6 +19,7 @@ The difference is the **constraint chain**. Each phase produces artifacts that c
 ```
 Phase 0: Requirements    → Impact Map, Story Map, Ubiquitous Language
 Phase 1: Discovery       → Domain Storytelling, Event Storming, Event Modeling
+                           (three separately-gated engine stages: 01a / 01b / 01c)
 Phase 2: Strategic Design → Bounded Contexts, Context Map, Subdomain Classification
 Phase 3: Tactical Design  → Aggregates (Vernon's 4 Rules), API Contracts, Actor Views
 Phase 3c: UX Design       → Design System, Status→Color Mapping, Accessibility
@@ -36,7 +37,7 @@ Phase 9: Deploy & Verify  → Deploy to target environment, post-deployment veri
 - **Self-correcting**: 27 anti-pattern guards, 6 consistency threads, 29 feedback loops
 - **Cross-layer type safety**: 8 cross-layer type contract checks (CL-1 to CL-8) prevent frontend↔backend drift at the architecture level
 - **Testing golden triangle**: Unit tests → Integration tests (cross-layer curl) → E2E tests → Post-deployment verification — no layer can be skipped
-- **Resumable**: All state is in `.arch/` files — run `/architect` again to continue from where you left off
+- **Resumable**: All state is in `.arch/` files, and `acg.ts next` — not a directory listing — says where you are. Run `/architect` again to continue
 - **Knowledge-powered**: 50+ reference documents spanning 20+ methodologies ensure precise, methodology-faithful outputs
 - **Living documentation**: All diagrams in Mermaid + Markdown, previewable in VS Code and GitHub
 
@@ -86,6 +87,7 @@ phase left in progress, and the board is written to disk before context compacti
 `.arch/acg-state.yaml`, `.arch/audit/` and `.arch/quality-reports/` are engine-owned.
 
 Engine docs: [`engine/README.md`](engine/README.md) ·
+Tutorial chapter: [`tutorials/18-the-engine.md`](tutorials/18-the-engine.md) ·
 Design and rationale: [`docs/acg-engine-development-plan.md`](docs/acg-engine-development-plan.md)
 
 ## Quick Start
@@ -93,40 +95,52 @@ Design and rationale: [`docs/acg-engine-development-plan.md`](docs/acg-engine-de
 ### Prerequisites
 
 - [Claude Code](https://claude.com/claude-code) CLI installed
+- [Bun](https://bun.sh) — the engine runs on it
 
-### Run
+### Look at the sample
 
 ```bash
-# Clone the repository
-git clone https://github.com/anthropics/architecture-constrained-generation.git
+git clone https://github.com/humank/architecture-constrained-generation.git
 cd architecture-constrained-generation
+cd engine && bun install && cd ..
 
-# Start Claude Code
+bun engine/src/acg.ts doctor      # 139 drift checks
+bun engine/src/acg.ts status      # the sample's honest board
+
 claude
-
-# Run the architect skill with the example
-> /architect examples/coffeeshop-requirements.md
+> /architect
 ```
 
-The orchestrator will:
-1. Parse your requirements
-2. Walk through each phase, producing structured artifacts in `.arch/`
-3. Pause at assessment gates for your decisions
-4. Run quality gates between phases
-5. Generate constrained, tested code
-6. Deploy to target environment and verify with post-deployment checks (Phase 9)
+The coffeeshop in `.arch/` is a **sample**, and it deliberately ships five defects so the
+engine has something to catch — its board is not green, and fixing it would remove the
+only proof the engine works.
 
-### Use Your Own Requirements
+### Use ACG on your own project
+
+Keep the toolkit separate from your project:
+
+```bash
+git clone https://github.com/humank/architecture-constrained-generation.git ~/tools/acg
+cd ~/tools/acg/engine && bun install
+
+cd ~/work/my-system
+bun ~/tools/acg/engine/src/acg.ts init --project my-system --profile generic
+```
+
+`init` writes the schemas, phase skills, reviewer subagent, hooks and two questionnaire
+drafts — and no sample artifacts. See [`docs/adopting-acg.md`](docs/adopting-acg.md).
+
+Then, in a Claude Code session:
 
 ```bash
 > /architect path/to/your-requirements.md
-```
-
-Or describe your system inline:
-
-```bash
 > /architect Build a restaurant reservation system with table management, waitlist, and SMS notifications
 ```
+
+Each turn, the orchestrator asks `acg.ts next --json` and does what the directive says:
+produce a phase's artifacts, wait for a human gate, run the independent reviewer, ask for
+an assessment lock, or stop because blocking sensors are red. It never decides that a
+phase is done.
 
 ## Project Structure
 
@@ -170,7 +184,7 @@ architecture-constrained-generation/
 │   ├── data/profiles/            # where each stack keeps its values
 │   ├── hooks/                    # PreToolUse / Stop / PreCompact
 │   ├── data/                     # phase-graph.yaml, scopes.yaml
-│   └── tests/                    # 293 tests, no network; 2 non-sample fixture domains
+│   └── tests/                    # 298 tests, no network; 2 non-sample fixture domains
 ├── artifact-schemas/             # JSON Schema / YAML schema per artifact
 ├── examples/
 │   └── coffeeshop-requirements.md # Complete example requirements
@@ -242,14 +256,17 @@ Phase 8 generates all test layers. Phase 9 runs the post-deployment verification
 
 For a comprehensive, O'Reilly-style guide to ACG's design philosophy, methodology integration, and real-world usage:
 
-**[Read the Full Tutorial →](./tutorials/README.md)** — 17 chapters in 4 parts
+**[Read the Full Tutorial →](./tutorials/README.md)** — 18 chapters in 4 parts
 
 | Part | Chapters | What You'll Learn |
 |------|----------|-------------------|
 | **I. The Vision** | [01](./tutorials/01-why-architecture-constrained-generation.md)–[02](./tutorials/02-the-methodology-map.md) | Why ACG exists, how 20+ methodologies weave together |
 | **II. The Ten Phases** | [03](./tutorials/03-phase-0-requirements.md)–[12](./tutorials/12-phase-8-implementation.md) | Deep dive into each phase: Requirements → Discovery → Strategic → Tactical → UX → Specification → Delivery → Review → Documentation → Implementation → Deploy & Verify |
-| **III. The Engine Room** | [13](./tutorials/13-quality-gates-and-feedback-loops.md)–[15](./tutorials/15-assessment-gates.md) | Quality gates (27 anti-patterns), feedback loops (29), knowledge base (50+ docs), assessment gates |
+| **III. The Engine Room** | [13](./tutorials/13-quality-gates-and-feedback-loops.md)–[15](./tutorials/15-assessment-gates.md), [18](./tutorials/18-the-engine.md) | Quality gates (27 anti-patterns), feedback loops (29), knowledge base (50+ docs), assessment gates — and [**the engine**](./tutorials/18-the-engine.md): six-state machine, 23 sensors, decision locks, hooks |
 | **IV. Putting It Together** | [16](./tutorials/16-walkthrough-coffeeshop.md)–[17](./tutorials/17-getting-started.md) | Complete coffeeshop walkthrough, installation & getting started |
+
+Start with [Chapter 18: The Engine](./tutorials/18-the-engine.md) if you want to know what
+makes ACG different from a very long prompt.
 
 ## Output Artifacts
 
@@ -257,25 +274,30 @@ When you run `/architect`, all design artifacts are written to `.arch/`:
 
 ```
 .arch/
-├── glossary.yaml                 # Ubiquitous Language
-├── assessment-2.md               # Architecture decisions
-├── assessment-8.md               # Technology stack
+├── acg-project.yaml              # Project name and language
+├── acg-state.yaml                # ENGINE-OWNED — the six-state board
+├── glossary.yaml                 # Ubiquitous Language (every term carries an `origin`)
+├── assessment-2.md / .yaml       # Architecture decisions + the lock and its fingerprint
+├── assessment-8.md / .yaml       # Technology stack + the lock and its fingerprint
 ├── 00-requirements/              # Impact map, story map, parsed requirements
-├── 01-discovery/                 # Event storm, event model
+├── 01-discovery/                 # Domain stories, event storm, event model
 ├── 02-strategic/                 # Bounded contexts, context map
 ├── 03-tactical/                  # Aggregates, domain models, API contracts, cross-layer type contract
 ├── 03c-ux-design/                # UX design report
 ├── 04-specification/
-│   ├── features/                 # BDD features including query-endpoints and cross-layer-integrity
+│   ├── features/                 # BDD features incl. query-endpoints, cross-layer-integrity
+│   │   └── journeys/             # One E2E journey per to-be domain story
 │   └── contracts/                # Consumer-driven contracts (frontend-backend.yaml)
 ├── 05-delivery/                  # Pipeline (8 stages + post-deployment), observability, runbooks
 ├── 06-review/                    # Viewpoints, perspectives, ADRs, cross-phase-consistency
-├── 07-documentation/             # C4 diagrams, domain models, sequences
+├── 07-documentation/             # C4 diagrams, domain models, sequences, state machines
 ├── 08-implementation/            # Implementation report with post-deployment verification results
-└── quality-reports/
-    ├── pipeline-run-report.yaml
-    └── deployment-verification.yaml  # Post-deployment check results (Phase 9)
+├── quality-reports/              # ENGINE-OWNED — one per phase id, written by `gate`
+└── audit/                        # ENGINE-OWNED — append-only, sharded per month
 ```
+
+The three `ENGINE-OWNED` paths are refused to every agent write by a PreToolUse hook. Use
+the CLI: a process that can edit its own scoreboard has no scoreboard.
 
 Executable code is generated at the project root (`iac/`, `k8s/`, and application source code).
 

@@ -26,9 +26,9 @@ ACG solves this by defining **exactly when** each methodology applies and **how 
 ## The Methodology-Phase Matrix
 
 ```
-                 Phase:  0    1    2    3   3c   4    5    6    7    8
-                        Req  Dis  Str  Tac  UX  Spc  Del  Rev  Doc  Imp
- ─────────────────────────────────────────────────────────────────────────
+                 Phase:  0    1    2    3   3c   4    5    6    7    8    9
+                        Req  Dis  Str  Tac  UX  Spc  Del  Rev  Doc  Imp  Dep
+ ──────────────────────────────────────────────────────────────────────────────
  Impact Mapping          ██
  User Story Mapping      ██
  Domain Storytelling          ██
@@ -58,9 +58,14 @@ ACG solves this by defining **exactly when** each methodology applies and **how 
  ADRs (MADR)                                                 ██
  AWS Well-Architected                                        ██
  Refactoring (Fowler)                                                ██
+ Post-Deployment Verif.                                                   ██
 ```
 
 Each `██` marks where a methodology is actively applied. Notice how they layer — later phases build on earlier ones rather than replacing them.
+
+Phase 1 is three separately-gated engine stages (`01a-dst`, `01b-storm`, `01c-model`), so
+Domain Storytelling is approved before Event Storming begins and Event Storming before Event
+Modeling. See [Chapter 4](./04-phase-1-discovery.md).
 
 ---
 
@@ -203,6 +208,18 @@ Most teams design architecture but never formally review it. **Rozanski & Woods*
 
 Two phases require **mandatory human input** before proceeding:
 
+An assessment is not complete because its Markdown says `**Status**: COMPLETED` — a model
+can write that sentence. It is complete when the engine has **locked** the answers and
+recorded a canonical sha256 fingerprint of them:
+
+```bash
+bun engine/src/acg.ts assess-lock --id assessment-2
+```
+
+Every REQUIRED question must be answered, and editing an answer afterwards invalidates the
+lock. Those locked answers are then the *only* thing that may switch a check off — see
+[Chapter 15](./15-assessment-gates.md) and [Chapter 18](./18-the-engine.md).
+
 ### Before Phase 2: Architecture Decisions
 
 ```
@@ -244,7 +261,7 @@ For full details, see [Chapter 15: Assessment Gates](./15-assessment-gates.md).
 
 ## The Self-Correcting Mechanism
 
-ACG doesn't just flow forward. It has **29 feedback loops** and **27 anti-pattern guards** that can send the pipeline backward:
+ACG doesn't just flow forward. It has **23 deterministic sensors**, **29 feedback loops** and **27 anti-pattern guards** that can send the pipeline backward:
 
 ```
 Phase 8 ──────── "Response Shape Drift detected" ────────→ Back to Phase 3
@@ -253,7 +270,11 @@ Phase 4 ──────── "BDD scenario reveals ambiguous rule" ──→
 Phase 3 ──────── "Aggregate invariant unenforceable" ────→ Back to Phase 1
 ```
 
-This is covered in detail in [Chapter 13: Quality Gates & Feedback Loops](./13-quality-gates-and-feedback-loops.md).
+The first of those three is machine-decidable and blocking; the other two are judgement,
+applied by the quality-gate checklist and the independent reviewer. Knowing which is which
+is most of the engineering. This is covered in detail in
+[Chapter 13: Quality Gates & Feedback Loops](./13-quality-gates-and-feedback-loops.md) and
+[Chapter 18: The Engine](./18-the-engine.md).
 
 ---
 
@@ -261,10 +282,10 @@ This is covered in detail in [Chapter 13: Quality Gates & Feedback Loops](./13-q
 
 ACG is not a single methodology. It is an **orchestration framework** that:
 
-1. **Sequences** 20+ methodologies in the right order
+1. **Sequences** 20+ methodologies in the right order — and *enforces* that order, rather than describing it
 2. **Connects** each methodology's output to the next methodology's input
 3. **Constrains** each phase's output with the previous phase's decisions
-4. **Validates** consistency across all phases via quality gates
+4. **Validates** consistency across all phases via sensors that no model can argue with
 5. **Corrects** via feedback loops when inconsistencies are detected
 6. **Pauses** for human judgment at strategic decision points
 

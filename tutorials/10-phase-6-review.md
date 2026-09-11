@@ -165,6 +165,46 @@ The most unique part of Phase 6: verifying that **all phases agree**:
 
 ---
 
+## The Independent Reviewer
+
+Phase 6 is one of two phases (with Phase 8) that the engine marks `reviewer: true`. That
+means sensors green and a human approval are **not enough**: an independent reviewer has to
+record a verdict first.
+
+```bash
+bun engine/src/acg.ts next --json      # → action: "await-review"
+# run the acg-reviewer subagent on this phase, then:
+bun engine/src/acg.ts review --phase 06-review --verdict rejected --note "..."
+```
+
+The reviewer is a subagent with **`Read`, `Grep` and `Glob` and nothing else**. This is
+structural, not a policy: it cannot edit an artifact to make a finding go away, cannot move
+the state machine, and cannot approve itself. A rejection puts the phase into `[R] revising`.
+
+Why bother, when 23 deterministic sensors already ran? Because Phase 6 is where the defects
+live that no sensor can reach:
+
+1. **Prose contradicting prose** — the deployment viewpoint and the concurrency viewpoint
+   describing the same mechanism differently. Both are valid English.
+2. **A payload with nowhere to land** — an event carrying a field that no read model,
+   projection or screen consumes. Every name resolves; the design is still wrong.
+3. **An invented path** — a viewpoint referring to a component that was never designed.
+4. **A name with no substance** — an abstraction that exists only as a label.
+
+When this ran on the coffeeshop, Phase 6 was rejected four times — 4, then 3, then 2, then 1
+blocking finding — and approved on the fifth round. Each rejection was correct, and each was
+caused by the previous fix. The reviewer also flagged an audit-trail entry that looked like
+tampering, which was in fact a deliberate lock round-trip: also correct, given what it could
+see.
+
+The gate converges, and it terminates. If it did not, it would be theatre.
+
+Note the distinction between a **blocking** finding and a **concern**. A concern is recorded
+and not acted on. Treating advisory findings as blocking is the same error as treating a
+sensor's `na` as a pass, in the opposite direction.
+
+---
+
 ## Output
 
 ```

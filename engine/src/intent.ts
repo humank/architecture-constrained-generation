@@ -33,7 +33,14 @@ export function intentFor(phaseId: string, scope?: string, root = repoRoot()): I
   return {
     phase: phaseId,
     allowed_writes: [...minePaths.map(norm), ...contributed.map(norm), ...ALWAYS_ALLOWED],
-    forbidden_writes: [...ENGINE_OWNED, ...unique(others)],
+    // A shared artifact is never forbidden, even though some phase declares it as
+    // `produces`. `checkWrite` already lets it through; listing it under both keys
+    // would hand the conductor a directive that contradicts itself, and a phase that
+    // believes the glossary is off limits stops contributing terms to it.
+    forbidden_writes: [
+      ...ENGINE_OWNED,
+      ...unique(others).filter((o) => !ALWAYS_ALLOWED.some((a) => under(o, a))),
+    ],
   };
 }
 

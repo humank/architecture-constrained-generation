@@ -156,10 +156,10 @@ A sensor never throws: a missing or malformed artifact is a finding.
 ## Tests
 
 ```bash
-cd engine && bun run test        # 96 tests: the engine, on fixtures that are not the sample,
+cd engine && bun run test        # 97 tests: the engine, on fixtures that are not the sample,
                                  #   including one full init→done conductor loop
-cd engine && bun run test:sample # 197 tests: the coffeeshop, including its deliberate reds
-cd engine && bun run test:all    # 293
+cd engine && bun run test:sample # 201 tests: the coffeeshop, including its deliberate reds
+cd engine && bun run test:all    # 298
 cd engine && bunx tsc --noEmit
 ```
 

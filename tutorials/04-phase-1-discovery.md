@@ -241,13 +241,32 @@ Phase 1 typically adds 30-50 new terms to the glossary — every event name, com
 ```
 .arch/01-discovery/
 ├── domain-stories/
-│   ├── order-placement.yaml
-│   ├── coffee-preparation.yaml
-│   └── inventory-replenishment.yaml
+│   ├── 01-order-to-serve.yaml
+│   ├── 02-replenishment.yaml
+│   └── 03-daily-reporting.yaml
 ├── event-storm.yaml          # Events, commands, aggregates, policies, hot spots, BC candidates
-├── event-model.yaml          # GWT command specs, read model specs, automations
-└── vertical-slices.yaml      # Prioritized implementation slices
+└── event-model.yaml          # GWT command specs, read model specs, automations
 ```
+
+**There is no `vertical-slices.yaml`.** A slice is a domain story × a command, and both of
+those already exist in the artifacts above. A third file would add no information and one
+more place for them to disagree. When you need to name a slice, name it
+`DS-01 / ProcessPayment`.
+
+### Three gates, not one
+
+The engine treats Phase 1 as three separately-gated stages, and the order is load-bearing:
+
+| Stage | Produces | Must be approved before |
+|---|---|---|
+| `01a-dst` | `domain-stories/`, seeds `glossary.yaml` | the storm may start |
+| `01b-storm` | `event-storm.yaml` | the model may start |
+| `01c-model` | `event-model.yaml` | Phase 2 |
+
+The reason is that Event Storming must erupt from **approved, system-visible story steps** —
+each actor-triggered event declares `sourced_from: [DS-xx.y]` — rather than from a second
+independent reading of the requirements document. If the storm runs before the stories are
+settled, the two drift, and nothing downstream can tell which one is the record.
 
 ---
 
@@ -262,7 +281,12 @@ After discovery, the orchestrator pauses:
 3. Any hot spots that need domain expert input?
 ```
 
-Unresolved hot spots 🔴 are flagged. If too many remain, the orchestrator may generate an assessment file for clarification before proceeding.
+Unresolved hot spots 🔴 are flagged — and the engine is specific about which kind may
+remain open. `hotspot-classified` blocks on any hot spot with no classification, and on any
+**open `work-unknown`**: if what you don't know is how the work actually happens, that
+belongs back in `01a-dst` as a question for a domain expert, not forward in the model as a
+comment. A `fact-unknown` ("what is the tax rate in this jurisdiction?") may stay open in
+the storm.
 
 ---
 

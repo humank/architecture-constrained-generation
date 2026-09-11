@@ -589,18 +589,24 @@ The `index.md` links every diagram to three things:
 3. **Implementation modules** — which code packages implement this part of the architecture
 
 ```markdown
-## Place Order Sequence
+## Order Lifecycle Sequence
 
-- **Diagram**: [sequences/place-order.md](./sequences/place-order.md)
+- **Diagram**: `sequence/sequence-order-lifecycle.md`
 - **Source artifacts**:
-  - Phase 1: `.arch/01-discovery/event-storming/process-level.md` (Order flow)
-  - Phase 3: `.arch/03-tactical/ordering/order-aggregate.md`
-  - Phase 4: `.arch/04-specification/ordering/place-order.feature`
-- **ADRs**: ADR-001 (Microservices), ADR-003 (SNS/SQS for events)
-- **Implementation**: `services/ordering-service/src/.../application/PlaceOrderUseCase.java`
+  - Phase 1: `.arch/01-discovery/event-storm.yaml` (OrderPlaced, sourced_from DS-01.5)
+  - Phase 3: `.arch/03-tactical/aggregates/ordering.yaml`
+  - Phase 4: `.arch/04-specification/features/ordering.feature`
+- **ADRs**: ADR-001 (Microservices), ADR-002 (SNS/SQS for events)
+- **Implementation**: `services/ordering/src/.../application/PlaceOrderUseCase.java`
 ```
 
-This traceability is what makes documentation **living** rather than **decaying**. When a developer changes the `PlaceOrderUseCase`, they can trace back to the sequence diagram, the BDD scenario, and the event storming model — and verify that all still agree.
+This traceability is what makes documentation **living** rather than **decaying**. When a developer changes the `PlaceOrderUseCase`, they can trace back to the sequence diagram, the BDD scenario, and the event storm — and verify that all still agree.
+
+And in Phase 7 it is not only a convention. `docs-events-match-storm` reads the prose this
+phase produced and fails on any event name that no Event Storm event declares. A diagram is
+the easiest place in the whole pipeline to invent something plausible — when that sensor was
+first widened from "the 07 directory" to "the prose this phase produced", the count of
+invented event names in the coffeeshop went from 14 to **44**.
 
 ---
 

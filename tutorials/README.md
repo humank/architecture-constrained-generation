@@ -12,9 +12,15 @@
 
 This guide is for **software architects, tech leads, and senior engineers** who have felt the gap between architecture blueprints and actual working code. You've drawn C4 diagrams that no one reads, written ADRs that drift from reality, and watched Event Storming sticky notes gather dust.
 
-**Architecture Constrained Generation (ACG)** closes that gap. It is a Claude Code skill (`/architect`) that takes your business requirements and systematically transforms them into a fully implemented system — with every line of code traceable back to an architecture decision.
+**Architecture Constrained Generation (ACG)** closes that gap. It is a Claude Code skill (`/architect`) plus a deterministic engine that takes your business requirements and systematically transforms them into a fully implemented system — with every line of code traceable back to an architecture decision.
 
 This isn't code generation that ignores design. It's **design that generates code**.
+
+Two halves make that work. The **methodology** (Chapters 1–17) says what the phases are and
+what good looks like. The **engine** ([Chapter 18](./18-the-engine.md)) runs it: it owns
+phase order, runs 23 deterministic sensors, verifies decision locks, and refuses to mark a
+phase complete because a model said so in prose. If you only read one chapter to understand
+why ACG is different from a very long prompt, read that one.
 
 ---
 
@@ -27,7 +33,7 @@ This isn't code generation that ignores design. It's **design that generates cod
 | [01](./01-why-architecture-constrained-generation.md) | **Why Architecture Constrained Generation** | The problem ACG solves: the gap between architecture and code. Why existing approaches fail. The core thesis. |
 | [02](./02-the-methodology-map.md) | **The Methodology Map** | How 20+ methodologies (DDD, Event Storming, BDD, TDD, Clean Architecture, XP, ...) are woven into a single coherent pipeline. |
 
-### Part II: The Nine Phases
+### Part II: The Ten Phases
 
 | Chapter | Title | What You'll Learn |
 |---------|-------|-------------------|
@@ -42,6 +48,10 @@ This isn't code generation that ignores design. It's **design that generates cod
 | [11](./11-phase-7-documentation.md) | **Phase 7: Documentation** | C4 Diagrams in Mermaid, Domain Models, Sequence Diagrams, State Machines — all living documentation. |
 | [12](./12-phase-8-implementation.md) | **Phase 8: Implementation** | Architecture-constrained code generation. Java 21 DDD patterns. How every line traces back to an artifact. |
 
+Phase 9 (Deploy & Verify) has no chapter of its own — it is the Definition of Done described
+in [Chapter 12](./12-phase-8-implementation.md) and enforced by the engine
+([Chapter 18](./18-the-engine.md)).
+
 ### Part III: The Engine Room
 
 | Chapter | Title | What You'll Learn |
@@ -49,6 +59,7 @@ This isn't code generation that ignores design. It's **design that generates cod
 | [13](./13-quality-gates-and-feedback-loops.md) | **Quality Gates & Feedback Loops** | 27 anti-pattern guards, 6 consistency threads, 29 feedback loops — the self-correcting mechanism. |
 | [14](./14-the-knowledge-base.md) | **The Knowledge Base** | 50+ reference documents spanning 20+ methodologies. How domain knowledge powers constrained generation. |
 | [15](./15-assessment-gates.md) | **Assessment Gates** | The human-in-the-loop mechanism: architecture decisions and technology stack questionnaires. |
+| [18](./18-the-engine.md) | **The Engine** | The deterministic runtime: six-state machine, 23 sensors, decision locks, write-isolation hooks, tech profiles, the audit trail. Why a prompt cannot gate its own output. |
 
 ### Part IV: Putting It All Together
 
@@ -65,7 +76,7 @@ This isn't code generation that ignores design. It's **design that generates cod
 
 **If you're learning the methodology**: Read Part II sequentially. Each chapter builds on the previous phase's output.
 
-**If you want to understand the engineering**: Read Part III to see how quality gates, feedback loops, and the knowledge base create a self-correcting system.
+**If you want to understand the engineering**: Read [Chapter 18](./18-the-engine.md) first — it is the part that actually executes — then the rest of Part III for the quality gates, feedback loops, and knowledge base that sit on top of it.
 
 **If you want to run it now**: Jump to [Chapter 17](./17-getting-started.md).
 
@@ -81,4 +92,4 @@ The difference is the constraint chain. When you constrain generation with archi
 
 ---
 
-*This tutorial accompanies the [Architecture Constrained Generation](https://github.com/anthropics/architecture-constrained-generation) project.*
+*This tutorial accompanies the [Architecture Constrained Generation](https://github.com/humank/architecture-constrained-generation) project.*

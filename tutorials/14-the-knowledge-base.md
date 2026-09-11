@@ -6,7 +6,7 @@
 
 > *"If I have seen further, it is by standing on the shoulders of giants."* — Isaac Newton
 >
-> ACG's knowledge base is those shoulders — 58 reference documents encoding the precise definitions from Evans, Vernon, Brandolini, Dymitruk, Martin, Beck, Fowler, and a dozen more.
+> ACG's knowledge base is those shoulders — 59 reference documents encoding the precise definitions from Evans, Vernon, Brandolini, Dymitruk, Martin, Beck, Fowler, and a dozen more.
 
 ---
 
@@ -22,7 +22,7 @@ The problem is precision. An LLM might generate an aggregate that:
 
 These aren't hallucinations — they're the result of **averaged knowledge**. The LLM has seen thousands of "aggregate" implementations, most of which are anemic CRUD wrappers. Without precise methodology anchoring, generation drifts toward the median of the training data.
 
-ACG solves this with a **curated knowledge base**: 58 reference documents spanning 22 methodology areas. Each document distills the **exact definitions, rules, and patterns** from the original authors:
+ACG solves this with a **curated knowledge base**: 59 reference documents spanning 23 methodology areas. Each document distills the **exact definitions, rules, and patterns** from the original authors:
 
 | Problem | Knowledge Base Solution |
 |---------|----------------------|
@@ -38,7 +38,7 @@ The knowledge base ensures ACG uses the **EXACT** definitions from the original 
 
 ## Knowledge Base Structure
 
-The knowledge base lives in the `knowledge-base/` directory, organized by methodology area. Here is the complete index — 58 documents across 22 areas:
+The knowledge base lives in the `knowledge-base/` directory, organized by methodology area, with `knowledge-base/00-index.md` as the catalogue. Here is the complete index — 59 documents across 23 areas:
 
 ### Discovery (2 documents)
 
@@ -208,6 +208,12 @@ The knowledge base lives in the `knowledge-base/` directory, organized by method
 | `aws-well-architected/01-six-pillars.md` | Operational Excellence, Security, Reliability, Performance, Cost, Sustainability | AWS |
 | `aws-well-architected/02-review-process-and-lenses.md` | Review Process, 16+ Lenses, Rozanski & Woods mapping | AWS |
 
+### AWS CDK (1 document)
+
+| File | Content | Original Author |
+|------|---------|-----------------|
+| `aws-cdk/01-cdk-best-practices.md` | Construct levels, stack granularity, environment config, `cdk synth` as a gate | AWS |
+
 ---
 
 ## Phase-to-Knowledge Base Mapping
@@ -302,7 +308,7 @@ Here is the difference the knowledge base makes:
 
 ## The Layered Knowledge Model
 
-The 58 documents are not independent — they form a **layered knowledge model** where each layer builds on the ones below:
+The 59 documents are not independent — they form a **layered knowledge model** where each layer builds on the ones below:
 
 ```
 Layer 4: Delivery & Operations
@@ -401,11 +407,11 @@ You can also **replace** existing documents if you disagree with a specific appr
 
 ## Why Not Just Prompt Engineering?
 
-A reasonable question: why maintain 58 documents when you could put the key rules in the system prompt?
+A reasonable question: why maintain 59 documents when you could put the key rules in the system prompt?
 
 Three reasons:
 
-**1. Context window management.** Loading all 58 documents at once would consume the entire context window. The phase-based loading strategy means each phase only reads the 2-12 documents it needs, leaving context space for the actual artifacts being generated.
+**1. Context window management.** Loading all 59 documents at once would consume the entire context window. The phase-based loading strategy means each phase only reads the 2-12 documents it needs, leaving context space for the actual artifacts being generated.
 
 **2. Precision at scale.** A system prompt can hold a few dozen rules. The knowledge base holds thousands of precise definitions, patterns, anti-patterns, and examples. Vernon's Four Rules fit in a prompt. Vernon's Four Rules plus aggregate implementation patterns plus factory patterns plus repository patterns plus domain event patterns do not.
 

@@ -165,7 +165,7 @@
 | 中文 actor 比對 | `namesMatch("服務生","咖啡師")` = **true** | false；空 key 一律拒絕，不當萬用字元 |
 | 引擎測試對範例的依賴 | 41／179 | `bun run test` 66 個完全不讀 `.arch/`；範例相關的 191 個獨立成 `test:sample` |
 | 硬編路徑 | 6 處散在 4 個 sensor | 0；全部進 5 個 profile |
-| 新專案第一次跑 | 只能在本 repo 的 clone 裡跑 | `acg init` 後 `status` 全 `[ ]`、`doctor` 135/135 綠 |
+| 新專案第一次跑 | 只能在本 repo 的 clone 裡跑 | `acg init` 後 `status` 全 `[ ]`、`doctor` 139/139 綠 |
 
 新增 CLI：`init`、`profile`。改名：`region-fingerprint` → `decision-not-restated`、
 `spring-boot-matrix` → `framework-version-matrix`（規則不再叫得像它只認 AWS 和 Spring）。

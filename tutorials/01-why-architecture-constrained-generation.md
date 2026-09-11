@@ -67,6 +67,28 @@ Some teams try to bridge the gap manually:
 
 These are band-aids. They detect drift after it happens instead of preventing it.
 
+### Failure 4: A Process That Nothing Enforces
+
+This one is the subtlest, and it is the failure ACG itself had to fix.
+
+Suppose you *do* write the artifacts. Suppose the methodology is sound, every phase has a
+declared input and output, and there is a quality gate between each pair. You still have to
+ask: **what actually runs it?**
+
+If the answer is "an AI reads a description of the process and follows it", then phase order
+is a suggestion, phase completion is an opinion, and the quality gate is a paragraph asking
+a model to check its own work carefully. The same model wrote the artifact and grades the
+artifact. That is not a gate.
+
+The evidence is in this repository's own sample. The coffeeshop once shipped BDD scenarios
+giving the cashier a command the domain story assigns to the Waiter, C4 diagrams publishing
+an event that appears in no Event Storm, seven declared UI pages present in no router, and
+infrastructure hardcoding a region that contradicts the locked decision. Every one of those
+passed a quality gate — because the quality gate was prose.
+
+A methodology is a **control plane**: it says what should be true. Without a **data plane**
+that executes and refuses, it is advice. [Chapter 18](./18-the-engine.md) is the data plane.
+
 ---
 
 ## The ACG Thesis
@@ -99,7 +121,7 @@ In ACG, the code generator (Claude) doesn't **invent** — it **translates**. Ev
 | State transitions | State machine diagrams | `06-review/viewpoints/concurrency-viewpoint.md` |
 | API endpoints | API contract (not CRUD) | `03-tactical/frontend-architecture.yaml` |
 | Test scenarios | BDD Gherkin features | `04-specification/features/*.feature` |
-| Infrastructure | Assessment decisions + artifacts | `assessment-2.md`, `05-delivery/` |
+| Infrastructure | Locked assessment answers + artifacts | `assessment-2.yaml`, `05-delivery/` |
 | Frontend pages | Actor views | `03-tactical/frontend-architecture.yaml` |
 | Design tokens | UX design report | `03c-ux-design/ux-design-report.yaml` |
 
@@ -109,14 +131,16 @@ The implementation phase doesn't ask "what should I build?" — it asks "how do 
 
 ## The Pipeline
 
-ACG is a **9-phase pipeline** where each phase produces structured artifacts that constrain the next:
+ACG is a **10-phase pipeline** where each phase produces structured artifacts that constrain the next. The engine splits Phase 1 into three separately-gated stages, so the graph it executes has thirteen nodes:
 
 ```
 Phase 0: Requirements
     │ Impact Map, Story Map, Glossary
     ▼
-Phase 1: Discovery
-    │ Domain Stories, Event Storm, Event Model
+Phase 1: Discovery                 (three gated stages)
+    │ 01a-dst   → Domain Stories       ─ approved before the storm starts
+    │ 01b-storm → Event Storm          ─ erupts from system-visible story steps
+    │ 01c-model → Event Model
     ▼
 Phase 2: Strategic Design          ◄── Assessment Gate: Architecture Decisions
     │ Bounded Contexts, Context Map
@@ -142,10 +166,17 @@ Phase 7: Documentation
 Phase 8: Implementation            ◄── Assessment Gate: Technology Stack
     │ Backend Code, Frontend Code, Tests, Infrastructure
     ▼
- Running System
+Phase 9: Deploy & Verify
+    │ Deployed stacks, post-deployment health/smoke/cross-layer checks
+    ▼
+ Running, Verified System
 ```
 
 Every arrow is a **data dependency**. Phase 3 reads Phase 2's output. Phase 8 reads everything.
+
+And every arrow is also a **gate**. A phase reaches `[x]` only when its blocking sensors are
+green, a human has approved it, and — on Phases 6 and 8 — an independent reviewer that
+cannot edit files has recorded a verdict. The arrows are enforced, not narrated.
 
 ---
 
@@ -175,8 +206,8 @@ The AI handles the mechanical translation. The human makes the strategic calls.
 ACG is the only approach where:
 1. Architecture artifacts are **machine-readable** (YAML schemas, Gherkin features)
 2. Code generation is **constrained** by those artifacts
-3. Quality gates **verify** the constraints are satisfied
-4. Feedback loops **correct** violations automatically
+3. Quality gates **verify** the constraints — 23 deterministic sensors with no model in the loop, which is what makes a red light mean something
+4. Violations send the pipeline **backward**: a rejected phase becomes `[R] revising`, and `redo` cascades a changed decision through everything downstream
 
 ---
 
@@ -206,6 +237,9 @@ These aren't just name-dropped. Each methodology has a [detailed knowledge base 
 ## Next
 
 In the [next chapter](./02-the-methodology-map.md), we'll see exactly how these 20+ methodologies are woven together — which one applies where, and why they complement rather than conflict.
+
+If you would rather see the machinery that executes them first, skip to
+[Chapter 18: The Engine](./18-the-engine.md).
 
 ---
 

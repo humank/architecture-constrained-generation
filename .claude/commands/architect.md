@@ -303,7 +303,7 @@ Supported types:
 
 After each phase, check:
 
-1. **Anti-pattern guards** (22 patterns):
+1. **Anti-pattern guards** (27 patterns):
    - Anemic Domain Model, DDD-Lite, Smart UI, Big Ball of Mud, God Aggregate
    - Implicit Constraints, Dependency Rule Violation, Test Ice-Cream Cone, Silent Frontend Failure, etc.
 
@@ -323,7 +323,7 @@ After each phase, check:
    - **Frontend resilience**: Does every actor view `data_source` have `error_state`? Does every `submit_action` have `on_error`? Does design-system MASTER.md have `ui_states`?
    - **Testing golden triangle**: Unit tests (domain) → Integration tests (cross-layer curl with exact frontend params) → E2E tests (Playwright CUJ) → Post-deployment verification (same checks against deployed URLs). No layer can be skipped. Post-deployment verification is the final gate — local tests alone are insufficient.
 
-4. **Feedback loop triggers** (26 loops):
+4. **Feedback loop triggers** (29 loops):
    - If triggered: announce the feedback loop, go back to the target phase
    - Example: "Feedback Loop #4: Aggregate invariant impossible to enforce → returning to Event Storming"
    - Example: "Feedback Loop #24: Frontend error states missing in actor views → returning to Phase 3c UX Design"

@@ -80,7 +80,7 @@ Phase artifact mapping:
 - Phase 6: `.arch/06-review/` (architecture-review.md, adrs/)
 - Phase 7: `.arch/07-documentation/` (c4/*.dsl, uml/*.puml)
 
-### Step 2: Anti-Pattern Detection (21 patterns)
+### Step 2: Anti-Pattern Detection (27 patterns)
 
 Check for these anti-patterns. For each, report status (pass/warn/fail):
 
@@ -114,7 +114,7 @@ Check for these anti-patterns. For each, report status (pass/warn/fail):
 | 26 | Dead Read Model Projection | A CQRS read model endpoint (e.g., Reporting BC) returns empty `[]` or `{}` while the upstream BC has data. Common cause: the event listener or projection that populates the read store was never wired, or events are not being published to the downstream BC. Detection: if an upstream service (e.g., Inventory on port 8084) has data but the downstream projection endpoint (e.g., Reporting on port 8085) returns empty, the projection is dead. Also check: is the endpoint path in the frontend Vite proxy pointing to the right service? |
 | 27 | Endpoint Path Divergence | Backend implements a different endpoint path than what Phase 3 API contract specifies (e.g., contract says `/api/reporting/cashier/sales` but backend implements `/api/reports/sales`). Frontend Vite proxy and `api.ts` may point to the wrong path. Detection: compare Phase 3 `frontend-architecture.yaml` `api_contract.query_endpoints[].path` with actual backend `@GetMapping`/`@PostMapping` paths and frontend `api.ts` request paths. |
 
-### Step 3: Thread Consistency Checks (5 threads)
+### Step 3: Thread Consistency Checks (6 threads)
 
 **Thread 1 — Language Consistency:**
 - Scan all artifacts for terms
@@ -150,7 +150,7 @@ Check for these anti-patterns. For each, report status (pass/warn/fail):
 - Test strategy includes error path tests (≥ 20% of integration tests)
 - TypeScript strict mode enforced (`tsc --noEmit` zero errors)
 
-### Step 4: Feedback Loop Evaluation (23 loops)
+### Step 4: Feedback Loop Evaluation (29 loops)
 
 For each applicable feedback loop, check if the trigger condition is met:
 
@@ -240,7 +240,7 @@ Status: PASS / WARN / FAIL
 
 ## Important Rules
 
-1. **Be thorough**: Check every applicable anti-pattern for the given phase. Not all 21 apply to every phase — note which are not applicable.
+1. **Be thorough**: Check every applicable anti-pattern for the given phase. Not all 27 apply to every phase — note which are not applicable.
 2. **Be specific**: When flagging an issue, cite the exact artifact, field, or term that triggered it.
 3. **Be actionable**: Every warn/fail must include a concrete recommendation.
 4. **Create the report directory** if `.arch/quality-reports/` does not exist.
